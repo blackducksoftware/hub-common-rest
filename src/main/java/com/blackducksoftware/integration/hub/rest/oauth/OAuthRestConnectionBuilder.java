@@ -29,7 +29,6 @@ import com.blackducksoftware.integration.hub.validator.OauthRestConnectionValida
 import com.blackducksoftware.integration.validator.AbstractValidator;
 
 public class OAuthRestConnectionBuilder extends AbstractRestConnectionBuilder<OAuthRestConnection> {
-
     private TokenManager tokenManager;
     private AccessType accessType;
 
@@ -79,4 +78,5 @@ public class OAuthRestConnectionBuilder extends AbstractRestConnectionBuilder<OA
     public OAuthRestConnection createConnection(final ProxyInfo proxyInfo) {
         return new OAuthRestConnection(getLogger(), getBaseConnectionUrl(), getTimeout(), tokenManager, accessType, proxyInfo);
     }
+
 }

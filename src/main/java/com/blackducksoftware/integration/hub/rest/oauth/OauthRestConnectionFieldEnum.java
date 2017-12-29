@@ -39,4 +39,5 @@ public enum OauthRestConnectionFieldEnum implements FieldEnum {
     public String getKey() {
         return key;
     }
+
 }

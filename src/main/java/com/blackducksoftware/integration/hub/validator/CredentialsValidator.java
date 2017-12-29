@@ -45,7 +45,6 @@ public class CredentialsValidator extends AbstractValidator {
     }
 
     public void validateCredentials(final ValidationResults result) {
-
         validateUsername(result);
         validatePassword(result);
     }

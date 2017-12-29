@@ -30,7 +30,6 @@ import com.blackducksoftware.integration.hub.validator.CredentialsRestConnection
 import com.blackducksoftware.integration.validator.AbstractValidator;
 
 public class CredentialsRestConnectionBuilder extends AbstractRestConnectionBuilder<CredentialsRestConnection> {
-
     private String username;
     private String password;
 
