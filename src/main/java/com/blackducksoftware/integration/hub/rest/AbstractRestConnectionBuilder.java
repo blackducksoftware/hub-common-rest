@@ -35,7 +35,6 @@ import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder;
 import com.blackducksoftware.integration.log.IntLogger;
 
 public abstract class AbstractRestConnectionBuilder<C extends RestConnection> extends AbstractBuilder<C> {
-
     private String baseUrl;
     private int timeout = 120;
     private String proxyHost;

@@ -32,7 +32,6 @@ import com.blackducksoftware.integration.validator.ValidationResultEnum;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 public class ApiKeyValidator extends AbstractValidator {
-
     private String apiKey;
 
     @Override

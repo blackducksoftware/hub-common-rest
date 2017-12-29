@@ -26,7 +26,6 @@ package com.blackducksoftware.integration.hub.validator;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 public class ApiKeyRestConnectionValidator extends AbstractRestConnectionValidator {
-
     private String apiKey;
 
     public String getApiKey() {
@@ -43,4 +42,5 @@ public class ApiKeyRestConnectionValidator extends AbstractRestConnectionValidat
         apiKeyValidator.setApiKey(apiKey);
         currentResults.addAllResults(apiKeyValidator.assertValid().getResultMap());
     }
+
 }

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -44,14 +45,9 @@ import okhttp3.Response;
 
 /**
  * Connection to the Hub application which authenticates using the API key feature (added in Hub 4.4.0)
- *
- * @author romeara
  */
 public class ApiKeyRestConnection extends RestConnection {
-
     private static final String AUTHORIZATION_HEADER = "Authorization";
-
-    private static final String X_CSRF_TOKEN = "X-CSRF-TOKEN";
 
     private final String hubApiKey;
 
@@ -69,7 +65,7 @@ public class ApiKeyRestConnection extends RestConnection {
      */
     @Override
     public void clientAuthenticate() throws IntegrationException {
-        final ArrayList<String> segments = new ArrayList<>();
+        final List<String> segments = new ArrayList<>();
         segments.add("api");
         segments.add("tokens");
         segments.add("authenticate");
@@ -81,11 +77,10 @@ public class ApiKeyRestConnection extends RestConnection {
 
             try (Response response = getClient().newCall(request).execute()) {
                 // We don't log the headers here, as they contain a secret (the API key)
-
                 logResponseHeaders(response);
+
                 if (!response.isSuccessful()) {
-                    throw new IntegrationRestException(response.code(), response.message(),
-                            String.format("Connection Error: %s %s", response.code(), response.message()));
+                    throw new IntegrationRestException(response.code(), response.message(), String.format("Connection Error: %s %s", response.code(), response.message()));
                 } else {
                     // Extract the bearer token and apply to headers
                     commonRequestHeaders.put(AUTHORIZATION_HEADER, "Bearer " + readBearerToken(response));
@@ -103,16 +98,16 @@ public class ApiKeyRestConnection extends RestConnection {
     }
 
     private Map<String, String> getRequestHeaders() {
-        Map<String, String> headers = new HashMap<>();
+        final Map<String, String> headers = new HashMap<>();
         headers.put(AUTHORIZATION_HEADER, "token " + hubApiKey);
 
         return headers;
     }
 
-    private String readBearerToken(Response response) throws IOException {
-        JsonParser jsonParser = new JsonParser();
+    private String readBearerToken(final Response response) throws IOException {
+        final JsonParser jsonParser = new JsonParser();
 
-        JsonObject bearerResponse = jsonParser.parse(response.body().string()).getAsJsonObject();
+        final JsonObject bearerResponse = jsonParser.parse(response.body().string()).getAsJsonObject();
         return bearerResponse.get("bearerToken").getAsString();
     }
 

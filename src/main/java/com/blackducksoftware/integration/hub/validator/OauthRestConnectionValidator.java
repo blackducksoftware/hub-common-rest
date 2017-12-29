@@ -31,9 +31,9 @@ import com.blackducksoftware.integration.validator.ValidationResultEnum;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 public class OauthRestConnectionValidator extends AbstractRestConnectionValidator {
-
     public static final String ERROR_MSG_ACCESS_TYPE_NULL = "The access type cannot be null";
     public static final String ERROR_MSG_TOKEN_MANAGER_NULL = "The Token Manager cannot be null";
+
     private TokenManager tokenManager;
     private AccessType accessType;
 
@@ -70,4 +70,5 @@ public class OauthRestConnectionValidator extends AbstractRestConnectionValidato
             result.addResult(OauthRestConnectionFieldEnum.TOKENMANAGER, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_TOKEN_MANAGER_NULL));
         }
     }
+
 }

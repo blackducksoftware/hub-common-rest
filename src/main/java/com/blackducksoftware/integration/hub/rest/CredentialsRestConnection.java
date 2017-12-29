@@ -45,8 +45,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class CredentialsRestConnection extends RestConnection {
-    private static final String X_CSRF_TOKEN = "X-CSRF-TOKEN";
-
     private final String hubUsername;
     private final String hubPassword;
 

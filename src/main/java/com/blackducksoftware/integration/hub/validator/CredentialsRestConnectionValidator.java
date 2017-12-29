@@ -26,7 +26,6 @@ package com.blackducksoftware.integration.hub.validator;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 public class CredentialsRestConnectionValidator extends AbstractRestConnectionValidator {
-
     private String username;
     private String password;
 
@@ -53,4 +52,5 @@ public class CredentialsRestConnectionValidator extends AbstractRestConnectionVa
         credentialsValidator.setPassword(password);
         currentResults.addAllResults(credentialsValidator.assertValid().getResultMap());
     }
+
 }

@@ -80,6 +80,7 @@ public abstract class RestConnection {
     private static final String ERROR_MSG_PROXY_INFO_NULL = "A RestConnection's proxy information cannot be null";
 
     public static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
+    public static final String X_CSRF_TOKEN = "X-CSRF-TOKEN";
 
     public final Gson gson = new GsonBuilder().setDateFormat(JSON_DATE_FORMAT).create();
     public final JsonParser jsonParser = new JsonParser();

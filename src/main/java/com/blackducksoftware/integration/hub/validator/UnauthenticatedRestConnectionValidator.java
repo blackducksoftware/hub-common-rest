@@ -26,9 +26,9 @@ package com.blackducksoftware.integration.hub.validator;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 public class UnauthenticatedRestConnectionValidator extends AbstractRestConnectionValidator {
-
     @Override
     public void validateAdditionalFields(final ValidationResults currentResults) {
         // no additional fields
     }
+
 }

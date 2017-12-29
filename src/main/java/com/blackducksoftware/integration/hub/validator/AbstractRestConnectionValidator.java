@@ -37,17 +37,11 @@ import com.blackducksoftware.integration.validator.ValidationResultEnum;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 public abstract class AbstractRestConnectionValidator extends AbstractValidator {
-
     public static final String ERROR_MSG_TIMEOUT_NOT_VALID = "The Timeout must be greater than 0.";
-
     public static final String ERROR_MSG_COMMON_HEADERS_NOT_VALID = "The common headers map cannot be null";
-
     public static final String ERROR_MSG_LOGGER_NOT_VALID = "This logger instance cannot be null";
-
     public static final String ERROR_MSG_URL_NOT_FOUND = "No Hub Url was found.";
-
     public static final String ERROR_MSG_URL_NOT_VALID_PREFIX = "This is not a valid URL : ";
-
     public static final String ERROR_MSG_URL_NOT_VALID = "The Hub Url is not a valid URL.";
 
     private String baseUrl;
