@@ -21,14 +21,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.validator;
+package com.blackducksoftware.integration.hub;
 
-import com.blackducksoftware.integration.validator.ValidationResults;
+import com.blackducksoftware.integration.validator.FieldEnum;
 
-public class UnauthenticatedRestConnectionValidator extends AbstractRestConnectionValidator {
-    @Override
-    public void validateAdditionalFields(final ValidationResults currentResults) {
-        // no additional fields
+public enum ApiKeyFieldEnum implements FieldEnum {
+    API_KEY("apiKey");
+
+    private String key;
+
+    private ApiKeyFieldEnum(final String key) {
+        this.key = key;
     }
 
+    @Override
+    public String getKey() {
+        return key;
+    }
 }

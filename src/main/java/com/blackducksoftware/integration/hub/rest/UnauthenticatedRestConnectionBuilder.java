@@ -28,7 +28,6 @@ import com.blackducksoftware.integration.hub.validator.UnauthenticatedRestConnec
 import com.blackducksoftware.integration.validator.AbstractValidator;
 
 public class UnauthenticatedRestConnectionBuilder extends AbstractRestConnectionBuilder<UnauthenticatedRestConnection> {
-
     @Override
     public AbstractValidator createValidator() {
         final UnauthenticatedRestConnectionValidator validator = new UnauthenticatedRestConnectionValidator();
@@ -48,4 +47,5 @@ public class UnauthenticatedRestConnectionBuilder extends AbstractRestConnection
     public UnauthenticatedRestConnection createConnection(final ProxyInfo proxyInfo) {
         return new UnauthenticatedRestConnection(getLogger(), getBaseConnectionUrl(), getTimeout(), proxyInfo);
     }
+
 }

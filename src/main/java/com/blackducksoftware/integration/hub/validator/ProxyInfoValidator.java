@@ -35,31 +35,19 @@ import com.blackducksoftware.integration.validator.ValidationResultEnum;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 public class ProxyInfoValidator extends AbstractValidator {
-
     public static final String MSG_PROXY_INVALID_CONFIG = "The proxy information not valid - please check the log for the specific issues.";
-
     public static final String MSG_IGNORE_HOSTS_INVALID = "Proxy ignore hosts does not compile to a valid regular expression.";
-
     public static final String MSG_CREDENTIALS_INVALID = "Proxy username and password must both be populated or both be empty.";
-
     public static final String MSG_PROXY_PORT_INVALID = "Proxy port must be greater than 0.";
-
     public static final String MSG_PROXY_HOST_REQUIRED = "Proxy port specified, but proxy host not specified.";
-
     public static final String MSG_PROXY_PORT_REQUIRED = "Proxy host specified, but proxy port not specified.";
-
     public static final String MSG_PROXY_HOST_NOT_SPECIFIED = "Proxy host not specified.";
 
     private String host;
-
     private String port;
-
     private String username;
-
     private String password;
-
     private int passwordLength;
-
     private String ignoredProxyHosts;
 
     @Override
@@ -92,7 +80,6 @@ public class ProxyInfoValidator extends AbstractValidator {
         if (StringUtils.isNotBlank(host) && portToValidate < 0) {
             result.addResult(ProxyInfoFieldEnum.PROXYPORT, new ValidationResult(ValidationResultEnum.ERROR, MSG_PROXY_PORT_INVALID));
         }
-
     }
 
     public void validateCredentials(final ValidationResults result) {

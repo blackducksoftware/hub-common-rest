@@ -33,9 +33,7 @@ import com.blackducksoftware.integration.validator.AbstractValidator;
 
 public class CredentialsBuilder extends AbstractBuilder<Credentials> {
     private String username;
-
     private String password;
-
     private int passwordLength;
 
     @Override

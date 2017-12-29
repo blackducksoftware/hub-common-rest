@@ -25,15 +25,14 @@ package com.blackducksoftware.integration.hub.validator;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.blackducksoftware.integration.hub.CredentialsFieldEnum;
+import com.blackducksoftware.integration.hub.ApiKeyFieldEnum;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 import com.blackducksoftware.integration.validator.ValidationResult;
 import com.blackducksoftware.integration.validator.ValidationResultEnum;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
-public class CredentialsValidator extends AbstractValidator {
-    private String username;
-    private String password;
+public class ApiKeyValidator extends AbstractValidator {
+    private String apiKey;
 
     @Override
     public ValidationResults assertValid() {
@@ -45,36 +44,21 @@ public class CredentialsValidator extends AbstractValidator {
     }
 
     public void validateCredentials(final ValidationResults result) {
-        validateUsername(result);
-        validatePassword(result);
+        validateApiKey(result);
     }
 
-    public void validateUsername(final ValidationResults result) {
-        if (StringUtils.isBlank(username)) {
-            result.addResult(CredentialsFieldEnum.USERNAME, new ValidationResult(ValidationResultEnum.ERROR, "No Hub Username was found."));
+    public void validateApiKey(final ValidationResults result) {
+        if (StringUtils.isBlank(apiKey)) {
+            result.addResult(ApiKeyFieldEnum.API_KEY, new ValidationResult(ValidationResultEnum.ERROR, "No Hub API key was found."));
         }
     }
 
-    public void validatePassword(final ValidationResults result) {
-        if (StringUtils.isBlank(password)) {
-            result.addResult(CredentialsFieldEnum.PASSWORD, new ValidationResult(ValidationResultEnum.ERROR, "No Hub Password was found."));
-        }
+    public String getApiKey() {
+        return apiKey;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(final String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(final String password) {
-        this.password = password;
+    public void setApiKey(final String apiKey) {
+        this.apiKey = apiKey;
     }
 
 }

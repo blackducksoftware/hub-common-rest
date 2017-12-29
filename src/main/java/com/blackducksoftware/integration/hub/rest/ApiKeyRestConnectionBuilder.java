@@ -23,48 +23,27 @@
  */
 package com.blackducksoftware.integration.hub.rest;
 
-import com.blackducksoftware.integration.exception.EncryptionException;
-import com.blackducksoftware.integration.hub.Credentials;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
-import com.blackducksoftware.integration.hub.validator.CredentialsRestConnectionValidator;
+import com.blackducksoftware.integration.hub.validator.ApiKeyRestConnectionValidator;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 
-public class CredentialsRestConnectionBuilder extends AbstractRestConnectionBuilder<CredentialsRestConnection> {
-    private String username;
-    private String password;
+public class ApiKeyRestConnectionBuilder extends AbstractRestConnectionBuilder<ApiKeyRestConnection> {
+    private String apiKey;
 
-    public String getUsername() {
-        return username;
+    public String getApiKey() {
+        return apiKey;
     }
 
-    public void setUsername(final String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(final String password) {
-        this.password = password;
-    }
-
-    public void applyCredentials(final Credentials credentials) {
-        try {
-            setUsername(credentials.getUsername());
-            setPassword(credentials.getDecryptedPassword());
-        } catch (IllegalArgumentException | EncryptionException ex) {
-            throw new IllegalArgumentException(ex);
-        }
+    public void setApiKey(final String apiKey) {
+        this.apiKey = apiKey;
     }
 
     @Override
     public AbstractValidator createValidator() {
-        final CredentialsRestConnectionValidator validator = new CredentialsRestConnectionValidator();
+        final ApiKeyRestConnectionValidator validator = new ApiKeyRestConnectionValidator();
         validator.setBaseUrl(getBaseUrl());
         validator.setTimeout(getTimeout());
-        validator.setUsername(getUsername());
-        validator.setPassword(getPassword());
+        validator.setApiKey(getApiKey());
         validator.setProxyHost(getProxyHost());
         validator.setProxyPort(getProxyPort());
         validator.setProxyUsername(getProxyUsername());
@@ -76,8 +55,8 @@ public class CredentialsRestConnectionBuilder extends AbstractRestConnectionBuil
     }
 
     @Override
-    public CredentialsRestConnection createConnection(final ProxyInfo proxyInfo) {
-        final CredentialsRestConnection connection = new CredentialsRestConnection(getLogger(), getBaseConnectionUrl(), getUsername(), getPassword(), getTimeout(), proxyInfo);
+    public ApiKeyRestConnection createConnection(final ProxyInfo proxyInfo) {
+        final ApiKeyRestConnection connection = new ApiKeyRestConnection(getLogger(), getBaseConnectionUrl(), getApiKey(), getTimeout(), proxyInfo);
         return connection;
     }
 }
