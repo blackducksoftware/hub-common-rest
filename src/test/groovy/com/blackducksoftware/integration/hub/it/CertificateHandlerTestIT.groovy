@@ -35,8 +35,8 @@ import org.junit.Assume
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.junit.experimental.categories.Category
+import org.junit.rules.TemporaryFolder
 
 import com.blackducksoftware.integration.IntegrationTest
 import com.blackducksoftware.integration.exception.IntegrationException
@@ -62,9 +62,7 @@ class CertificateHandlerTestIT {
     private static final IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE)
 
     private static final CertificateHandler CERT_HANDLER = new CertificateHandler(logger, null)
-
     private static URL url
-
     private static Certificate originalCertificate
 
     @Rule
