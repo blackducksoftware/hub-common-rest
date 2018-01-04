@@ -31,10 +31,12 @@ import static org.junit.Assert.fail
 import org.apache.commons.lang3.math.NumberUtils
 import org.junit.Rule
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.junit.rules.ExpectedException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import com.blackducksoftware.integration.IntegrationTest
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder
 import com.blackducksoftware.integration.hub.request.HubRequest
@@ -43,6 +45,7 @@ import com.blackducksoftware.integration.hub.rest.RestConnection
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
 
+@Category(IntegrationTest.class)
 class RestConnectionTestIT {
 
     private final Logger logger = LoggerFactory.getLogger(RestConnectionTestIT.class)

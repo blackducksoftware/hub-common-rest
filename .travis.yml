@@ -2,11 +2,12 @@ language: java
 
 jdk:
   - oraclejdk8
-    
+
 install: true
+
 script:
-- mvn -U clean package 
-  
+  - ./gradlew clean build
+
 after_success:
-- mvn jacoco:report coveralls:report
-- bash <(curl -s https://copilot.blackducksoftware.com/ci/travis/scripts/upload)
+  - ./gradlew test jacocoTestReport coveralls
+  - bash <(curl -s https://copilot.blackducksoftware.com/ci/travis/scripts/upload)

@@ -36,7 +36,9 @@ import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.junit.experimental.categories.Category
 
+import com.blackducksoftware.integration.IntegrationTest
 import com.blackducksoftware.integration.exception.IntegrationException
 import com.blackducksoftware.integration.hub.certificate.CertificateHandler
 import com.blackducksoftware.integration.log.IntLogger
@@ -55,6 +57,7 @@ import com.blackducksoftware.integration.log.PrintStreamIntLogger
  * with Black Duck Software.
  */
 
+@Category(IntegrationTest.class)
 class CertificateHandlerTestIT {
     private static final IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE)
 

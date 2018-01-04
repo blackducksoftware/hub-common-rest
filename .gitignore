@@ -1,6 +1,6 @@
-/.project
-/target/
-/.classpath
-/.settings/
-/pom.xml.bak
-/bin/
+.project
+.classpath
+.settings/
+.gradle/
+bin/
+build/
