@@ -14,7 +14,7 @@ version = '4.0.0-SNAPSHOT'
 apply plugin: 'com.blackducksoftware.integration.library'
 
 dependencies {
-	compile 'com.blackducksoftware.integration:integration-common:8.1.0'
+	compile 'com.blackducksoftware.integration:integration-common:8.2.0'
 	compile 'com.squareup.okhttp3:okhttp:3.9.0'
 	compile 'com.squareup.okhttp3:okhttp-urlconnection:3.9.0'
 
