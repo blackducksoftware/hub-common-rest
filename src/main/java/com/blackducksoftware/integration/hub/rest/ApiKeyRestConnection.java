@@ -24,8 +24,6 @@
 package com.blackducksoftware.integration.hub.rest;
 
 import java.io.IOException;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +40,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import okhttp3.HttpUrl;
-import okhttp3.JavaNetCookieJar;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -61,12 +58,6 @@ public class ApiKeyRestConnection extends RestConnection {
 
     @Override
     public void addBuilderAuthentication() throws IntegrationRestException {
-        // TODO romeara: This is a workaround because of HUB-13740, CSRF requires a session to work properly
-        if (StringUtils.isNotBlank(hubApiKey)) {
-            final CookieManager cookieManager = new CookieManager();
-            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-            builder.cookieJar(new JavaNetCookieJar(cookieManager));
-        }
     }
 
     /**
@@ -94,12 +85,6 @@ public class ApiKeyRestConnection extends RestConnection {
                 } else {
                     // Extract the bearer token and apply to headers
                     commonRequestHeaders.put(AUTHORIZATION_HEADER, "Bearer " + readBearerToken(response));
-
-                    // get the CSRF token
-                    final String csrfToken = response.header(X_CSRF_TOKEN);
-                    if (StringUtils.isNotBlank(csrfToken)) {
-                        commonRequestHeaders.put(X_CSRF_TOKEN, csrfToken);
-                    }
                 }
             } catch (final IOException e) {
                 throw new IntegrationException(e.getMessage(), e);
