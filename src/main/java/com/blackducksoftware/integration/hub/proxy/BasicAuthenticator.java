@@ -23,26 +23,27 @@
  */
 package com.blackducksoftware.integration.hub.proxy;
 
-import com.blackducksoftware.integration.validator.FieldEnum;
+import java.io.IOException;
 
-public enum ProxyInfoFieldEnum implements FieldEnum {
-    PROXYHOST("proxyHost"),
-    PROXYPORT("proxyPort"),
-    PROXYUSERNAME("proxyUsername"),
-    PROXYPASSWORD("proxyPassword"),
-    NOPROXYHOSTS("noProxyHosts"),
-    PROXYNTLMDOMAIN("ntlmDomain"),
-    PROXYNTLMWORKSTATION("ntlmWorkstation");
+import okhttp3.Credentials;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Route;
 
-    private String key;
+public class BasicAuthenticator extends IntegrationAuthenticator {
+    private final String username;
+    private final String password;
 
-    private ProxyInfoFieldEnum(final String key) {
-        this.key = key;
+    public BasicAuthenticator(final String username, final String password) {
+        this.username = username;
+        this.password = password;
     }
 
     @Override
-    public String getKey() {
-        return key;
+    public Request authenticate(final Route route, final Response response) throws IOException {
+        final String headerKey = getResponseHeader(route);
+        final String credential = Credentials.basic(username, password);
+        return response.request().newBuilder().header(headerKey, credential).build();
     }
 
 }

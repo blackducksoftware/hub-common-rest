@@ -23,136 +23,121 @@
  */
 package com.blackducksoftware.integration.hub
 
-import javax.net.SocketFactory
-
-import org.junit.Test
-
-import com.blackducksoftware.integration.hub.proxy.OkAuthenticator
-
-import okhttp3.Address
-import okhttp3.Authenticator
-import okhttp3.ConnectionSpec
-import okhttp3.Dns
-import okhttp3.Protocol
-import okhttp3.Request
-import okhttp3.Response
-import okhttp3.Route
-
 class OkAuthenticatorTest {
-    public static final String GOOGLE_URL_STRING = "https://www.google.com/"
-
-    private Route mockRoute(java.net.Proxy proxy) {
-        Address address = new Address('a', 1, Dns.SYSTEM, SocketFactory.getDefault(), null, null, null,
-                Authenticator.NONE, null, Collections.<Protocol>emptyList(),
-                Collections.<ConnectionSpec>emptyList(),
-                ProxySelector.getDefault());
-
-        new Route(address, proxy,
-                InetSocketAddress.createUnresolved(address.url().host(), address.url().port()));
-    }
-
-    @Test
-    public void testAuthenticateProxyBasic(){
-        String proxyUser = "TestUser"
-        String proxyPassword = "Password"
-        OkAuthenticator authenticator = new OkAuthenticator(proxyUser,proxyPassword)
-        Proxy proxy = new Proxy()
-        def route = mockRoute(proxy)
-        Response.Builder response = new Response.Builder()
-        Request.Builder initialRequest = new Request.Builder()
-        initialRequest.url(GOOGLE_URL_STRING)
-        response.request(initialRequest.build())
-        response.protocol(Protocol.HTTP_1_1)
-        response.code(407)
-        response.addHeader("Proxy-Authenticate", 'Basic realm="test proxy authentication"')
-        response.message("Proxy Authentication Required");
-        Request request = authenticator.authenticate(route, response.build())
-        assert null != request
-        assert null != request.header(OkAuthenticator.PROXY_AUTH_RESP)
-    }
-
-    @Test
-    public void testAuthenticateProxyBasicPriorAttempt(){
-        String proxyUser = "TestUser"
-        String proxyPassword = "Password"
-        OkAuthenticator authenticator = new OkAuthenticator(proxyUser,proxyPassword)
-        Proxy proxy = new Proxy()
-        def route = mockRoute(proxy)
-        Response.Builder previousResponseBuilder = new Response.Builder()
-        Request.Builder initialRequest = new Request.Builder()
-        initialRequest.url(GOOGLE_URL_STRING)
-        previousResponseBuilder.request(initialRequest.build())
-        previousResponseBuilder.protocol(Protocol.HTTP_1_1)
-        previousResponseBuilder.code(407)
-        previousResponseBuilder.addHeader("Proxy-Authenticate", 'Basic realm="test proxy authentication"')
-        previousResponseBuilder.message("Proxy Authentication Required");
-        Response previousResponse = previousResponseBuilder.build()
-
-        Response.Builder currentResponse = new Response.Builder()
-        currentResponse.priorResponse(previousResponse)
-        currentResponse.request(initialRequest.build())
-        currentResponse.protocol(Protocol.HTTP_1_1)
-        currentResponse.code(407)
-        currentResponse.message("Proxy Authentication Required");
-        currentResponse.addHeader("Proxy-Authenticate", 'Basic realm="test proxy authentication"')
-
-        Request request = authenticator.authenticate(route, currentResponse.build())
-        assert null == request
-    }
-
-    @Test
-    public void testAuthenticateDirectBasic(){
-        String proxyUser = "TestUser"
-        String proxyPassword = "Password"
-        OkAuthenticator authenticator = new OkAuthenticator(proxyUser,proxyPassword)
-        Proxy proxy = Proxy.NO_PROXY
-        def route = mockRoute(proxy)
-        Response.Builder response = new Response.Builder()
-        Request.Builder initialRequest = new Request.Builder()
-        initialRequest.url(GOOGLE_URL_STRING)
-        response.request(initialRequest.build())
-        response.protocol(Protocol.HTTP_1_1)
-        response.code(401)
-        response.addHeader("WWW-Authenticate", 'Basic realm="test authentication"')
-        response.message("Unauthorized");
-        Request request = authenticator.authenticate(route, response.build())
-        assert null != request
-        assert null != request.header(OkAuthenticator.WWW_AUTH_RESP)
-    }
-
-    @Test
-    public void testAuthenticateResponseSuccess(){
-        String proxyUser = "TestUser"
-        String proxyPassword = "Password"
-        OkAuthenticator authenticator = new OkAuthenticator(proxyUser,proxyPassword)
-        Proxy proxy = new Proxy()
-        def route = mockRoute(proxy)
-        Response.Builder response = new Response.Builder()
-        Request.Builder initialRequest = new Request.Builder()
-        initialRequest.url(GOOGLE_URL_STRING)
-        response.request(initialRequest.build())
-        response.protocol(Protocol.HTTP_1_1)
-        response.code(200)
-        response.message("OK");
-        Request request = authenticator.authenticate(route, response.build())
-        assert null == request
-    }
-
-    @Test
-    public void testAuthenticateResponseNoChallenge(){
-        String proxyUser = "TestUser"
-        String proxyPassword = "Password"
-        OkAuthenticator authenticator = new OkAuthenticator(proxyUser,proxyPassword)
-        Proxy proxy = new Proxy()
-        def route = mockRoute(proxy)
-        Response.Builder response = new Response.Builder()
-        Request.Builder initialRequest = new Request.Builder()
-        initialRequest.url(GOOGLE_URL_STRING)
-        response.request(initialRequest.build())
-        response.protocol(Protocol.HTTP_1_1)
-        response.code(407)
-        response.message("Proxy Authentication Required");
-        Request request = authenticator.authenticate(route, response.build())
-        assert null == request
-    }
+    //    public static final String GOOGLE_URL_STRING = "https://www.google.com/"
+    //
+    //    private Route mockRoute(java.net.Proxy proxy) {
+    //        Address address = new Address('a', 1, Dns.SYSTEM, SocketFactory.getDefault(), null, null, null,
+    //                Authenticator.NONE, null, Collections.<Protocol>emptyList(),
+    //                Collections.<ConnectionSpec>emptyList(),
+    //                ProxySelector.getDefault());
+    //
+    //        new Route(address, proxy,
+    //                InetSocketAddress.createUnresolved(address.url().host(), address.url().port()));
+    //    }
+    //
+    //    @Test
+    //    public void testAuthenticateProxyBasic(){
+    //        String proxyUser = "TestUser"
+    //        String proxyPassword = "Password"
+    //        OkAuthenticator authenticator = new OkAuthenticator(proxyUser,proxyPassword)
+    //        Proxy proxy = new Proxy()
+    //        def route = mockRoute(proxy)
+    //        Response.Builder response = new Response.Builder()
+    //        Request.Builder initialRequest = new Request.Builder()
+    //        initialRequest.url(GOOGLE_URL_STRING)
+    //        response.request(initialRequest.build())
+    //        response.protocol(Protocol.HTTP_1_1)
+    //        response.code(407)
+    //        response.addHeader("Proxy-Authenticate", 'Basic realm="test proxy authentication"')
+    //        response.message("Proxy Authentication Required");
+    //        Request request = authenticator.authenticate(route, response.build())
+    //        assert null != request
+    //        assert null != request.header(OkAuthenticator.PROXY_AUTH_RESP)
+    //    }
+    //
+    //    @Test
+    //    public void testAuthenticateProxyBasicPriorAttempt(){
+    //        String proxyUser = "TestUser"
+    //        String proxyPassword = "Password"
+    //        OkAuthenticator authenticator = new OkAuthenticator(proxyUser,proxyPassword)
+    //        Proxy proxy = new Proxy()
+    //        def route = mockRoute(proxy)
+    //        Response.Builder previousResponseBuilder = new Response.Builder()
+    //        Request.Builder initialRequest = new Request.Builder()
+    //        initialRequest.url(GOOGLE_URL_STRING)
+    //        previousResponseBuilder.request(initialRequest.build())
+    //        previousResponseBuilder.protocol(Protocol.HTTP_1_1)
+    //        previousResponseBuilder.code(407)
+    //        previousResponseBuilder.addHeader("Proxy-Authenticate", 'Basic realm="test proxy authentication"')
+    //        previousResponseBuilder.message("Proxy Authentication Required");
+    //        Response previousResponse = previousResponseBuilder.build()
+    //
+    //        Response.Builder currentResponse = new Response.Builder()
+    //        currentResponse.priorResponse(previousResponse)
+    //        currentResponse.request(initialRequest.build())
+    //        currentResponse.protocol(Protocol.HTTP_1_1)
+    //        currentResponse.code(407)
+    //        currentResponse.message("Proxy Authentication Required");
+    //        currentResponse.addHeader("Proxy-Authenticate", 'Basic realm="test proxy authentication"')
+    //
+    //        Request request = authenticator.authenticate(route, currentResponse.build())
+    //        assert null == request
+    //    }
+    //
+    //    @Test
+    //    public void testAuthenticateDirectBasic(){
+    //        String proxyUser = "TestUser"
+    //        String proxyPassword = "Password"
+    //        OkAuthenticator authenticator = new OkAuthenticator(proxyUser,proxyPassword)
+    //        Proxy proxy = Proxy.NO_PROXY
+    //        def route = mockRoute(proxy)
+    //        Response.Builder response = new Response.Builder()
+    //        Request.Builder initialRequest = new Request.Builder()
+    //        initialRequest.url(GOOGLE_URL_STRING)
+    //        response.request(initialRequest.build())
+    //        response.protocol(Protocol.HTTP_1_1)
+    //        response.code(401)
+    //        response.addHeader("WWW-Authenticate", 'Basic realm="test authentication"')
+    //        response.message("Unauthorized");
+    //        Request request = authenticator.authenticate(route, response.build())
+    //        assert null != request
+    //        assert null != request.header(OkAuthenticator.WWW_AUTH_RESP)
+    //    }
+    //
+    //    @Test
+    //    public void testAuthenticateResponseSuccess(){
+    //        String proxyUser = "TestUser"
+    //        String proxyPassword = "Password"
+    //        OkAuthenticator authenticator = new OkAuthenticator(proxyUser,proxyPassword)
+    //        Proxy proxy = new Proxy()
+    //        def route = mockRoute(proxy)
+    //        Response.Builder response = new Response.Builder()
+    //        Request.Builder initialRequest = new Request.Builder()
+    //        initialRequest.url(GOOGLE_URL_STRING)
+    //        response.request(initialRequest.build())
+    //        response.protocol(Protocol.HTTP_1_1)
+    //        response.code(200)
+    //        response.message("OK");
+    //        Request request = authenticator.authenticate(route, response.build())
+    //        assert null == request
+    //    }
+    //
+    //    @Test
+    //    public void testAuthenticateResponseNoChallenge(){
+    //        String proxyUser = "TestUser"
+    //        String proxyPassword = "Password"
+    //        OkAuthenticator authenticator = new OkAuthenticator(proxyUser,proxyPassword)
+    //        Proxy proxy = new Proxy()
+    //        def route = mockRoute(proxy)
+    //        Response.Builder response = new Response.Builder()
+    //        Request.Builder initialRequest = new Request.Builder()
+    //        initialRequest.url(GOOGLE_URL_STRING)
+    //        response.request(initialRequest.build())
+    //        response.protocol(Protocol.HTTP_1_1)
+    //        response.code(407)
+    //        response.message("Proxy Authentication Required");
+    //        Request request = authenticator.authenticate(route, response.build())
+    //        assert null == request
+    //    }
 }

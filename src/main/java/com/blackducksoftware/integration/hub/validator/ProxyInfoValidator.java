@@ -1,5 +1,5 @@
 /**
- * integration-rest
+ * hub-common-rest
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -42,6 +42,7 @@ public class ProxyInfoValidator extends AbstractValidator {
     public static final String MSG_PROXY_HOST_REQUIRED = "Proxy port specified, but proxy host not specified.";
     public static final String MSG_PROXY_PORT_REQUIRED = "Proxy host specified, but proxy port not specified.";
     public static final String MSG_PROXY_HOST_NOT_SPECIFIED = "Proxy host not specified.";
+    public static final String MSG_PROXY_NTLM_CREDENTIALS_REQUIRED = "Proxy username and password must be set for the NTLM proxy.";
 
     private String host;
     private String port;
@@ -49,6 +50,8 @@ public class ProxyInfoValidator extends AbstractValidator {
     private String password;
     private int passwordLength;
     private String ignoredProxyHosts;
+    private String ntlmDomain;
+    private String ntlmWorkstation;
 
     @Override
     public ValidationResults assertValid() {
@@ -89,6 +92,20 @@ public class ProxyInfoValidator extends AbstractValidator {
         if (StringUtils.isNotBlank(username) && StringUtils.isBlank(password) || StringUtils.isBlank(username) && StringUtils.isNotBlank(password)) {
             result.addResult(ProxyInfoFieldEnum.PROXYUSERNAME, new ValidationResult(ValidationResultEnum.ERROR, MSG_CREDENTIALS_INVALID));
             result.addResult(ProxyInfoFieldEnum.PROXYPASSWORD, new ValidationResult(ValidationResultEnum.ERROR, MSG_CREDENTIALS_INVALID));
+        }
+        if (StringUtils.isNotBlank(ntlmDomain)) {
+            if (StringUtils.isBlank(username)) {
+                result.addResult(ProxyInfoFieldEnum.PROXYUSERNAME, new ValidationResult(ValidationResultEnum.ERROR, MSG_PROXY_NTLM_CREDENTIALS_REQUIRED));
+            } else if (StringUtils.isBlank(password)) {
+                result.addResult(ProxyInfoFieldEnum.PROXYPASSWORD, new ValidationResult(ValidationResultEnum.ERROR, MSG_PROXY_NTLM_CREDENTIALS_REQUIRED));
+            }
+        }
+        if (StringUtils.isNotBlank(ntlmWorkstation)) {
+            if (StringUtils.isBlank(username)) {
+                result.addResult(ProxyInfoFieldEnum.PROXYUSERNAME, new ValidationResult(ValidationResultEnum.ERROR, MSG_PROXY_NTLM_CREDENTIALS_REQUIRED));
+            } else if (StringUtils.isBlank(password)) {
+                result.addResult(ProxyInfoFieldEnum.PROXYPASSWORD, new ValidationResult(ValidationResultEnum.ERROR, MSG_PROXY_NTLM_CREDENTIALS_REQUIRED));
+            }
         }
     }
 
@@ -168,12 +185,25 @@ public class ProxyInfoValidator extends AbstractValidator {
         this.ignoredProxyHosts = ignoredProxyHosts;
     }
 
-    public boolean hasProxySettings() {
-        return StringUtils.isNotBlank(host) || (StringUtils.isNotBlank(port) && !"0".equals(port)) || StringUtils.isNotBlank(username) || StringUtils.isNotBlank(password) || StringUtils.isNotBlank(ignoredProxyHosts);
+    public String getNtlmDomain() {
+        return ntlmDomain;
     }
 
-    public boolean hasAuthenticatedProxySettings() {
-        return StringUtils.isNotBlank(password) && StringUtils.isNotBlank(username);
+    public void setNtlmDomain(final String ntlmDomain) {
+        this.ntlmDomain = ntlmDomain;
+    }
+
+    public String getNtlmWorkstation() {
+        return ntlmWorkstation;
+    }
+
+    public void setNtlmWorkstation(final String ntlmWorkstation) {
+        this.ntlmWorkstation = ntlmWorkstation;
+    }
+
+    public boolean hasProxySettings() {
+        return StringUtils.isNotBlank(host) || (StringUtils.isNotBlank(port) && !"0".equals(port)) || StringUtils.isNotBlank(username) || StringUtils.isNotBlank(password) || StringUtils.isNotBlank(ignoredProxyHosts)
+                || StringUtils.isNotBlank(ntlmDomain) || StringUtils.isNotBlank(ntlmWorkstation);
     }
 
 }

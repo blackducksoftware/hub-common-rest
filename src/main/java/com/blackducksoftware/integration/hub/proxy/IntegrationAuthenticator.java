@@ -23,26 +23,28 @@
  */
 package com.blackducksoftware.integration.hub.proxy;
 
-import com.blackducksoftware.integration.validator.FieldEnum;
+import java.net.Proxy;
 
-public enum ProxyInfoFieldEnum implements FieldEnum {
-    PROXYHOST("proxyHost"),
-    PROXYPORT("proxyPort"),
-    PROXYUSERNAME("proxyUsername"),
-    PROXYPASSWORD("proxyPassword"),
-    NOPROXYHOSTS("noProxyHosts"),
-    PROXYNTLMDOMAIN("ntlmDomain"),
-    PROXYNTLMWORKSTATION("ntlmWorkstation");
+import okhttp3.Authenticator;
+import okhttp3.Route;
 
-    private String key;
+public abstract class IntegrationAuthenticator implements Authenticator {
+    public static final String PROXY_AUTH = "Proxy-Authenticate";
+    public static final String PROXY_AUTH_RESP = "Proxy-Authorization";
+    public static final String WWW_AUTH = "WWW-Authenticate";
+    public static final String WWW_AUTH_RESP = "Authorization";
 
-    private ProxyInfoFieldEnum(final String key) {
-        this.key = key;
+    public String getResponseHeader(final Route route) {
+        Boolean proxy = false;
+        if (route.proxy() != null && route.proxy() != Proxy.NO_PROXY) {
+            proxy = true;
+        }
+        String headerKey;
+        if (proxy) {
+            headerKey = PROXY_AUTH_RESP;
+        } else {
+            headerKey = WWW_AUTH_RESP;
+        }
+        return headerKey;
     }
-
-    @Override
-    public String getKey() {
-        return key;
-    }
-
 }

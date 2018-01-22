@@ -1,5 +1,5 @@
 /**
- * integration-rest
+ * hub-common-rest
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -26,7 +26,6 @@ package com.blackducksoftware.integration.hub.rest;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -56,6 +55,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.certificate.CertTrustManager;
+import com.blackducksoftware.integration.hub.proxy.DispatchingAuthenticator;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException;
 import com.blackducksoftware.integration.log.IntLogger;
@@ -184,26 +184,18 @@ public abstract class RestConnection {
     }
 
     private void addBuilderProxyInformation() throws IntegrationException {
-        if (shouldUseProxyForUrl(hubBaseUrl)) {
-            builder.proxy(getProxy(hubBaseUrl));
-            try {
-                builder.proxyAuthenticator(new com.blackducksoftware.integration.hub.proxy.OkAuthenticator(this.proxyInfo.getUsername(), this.proxyInfo.getDecryptedPassword()));
-            } catch (IllegalArgumentException | EncryptionException ex) {
-                throw new IntegrationException(ex);
-            }
-        }
-    }
-
-    private Proxy getProxy(final URL hubUrl) {
-        final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(this.proxyInfo.getHost(), this.proxyInfo.getPort()));
-        return proxy;
-    }
-
-    private boolean shouldUseProxyForUrl(final URL url) {
         if (this.proxyInfo == null) {
             throw new IllegalStateException(ERROR_MSG_PROXY_INFO_NULL);
         }
-        return this.proxyInfo.shouldUseProxyForUrl(url);
+        final Proxy proxy = this.proxyInfo.getProxy(hubBaseUrl);
+        if (proxy != null && Proxy.NO_PROXY != proxy) {
+            builder.proxy(this.proxyInfo.getProxy(hubBaseUrl));
+            try {
+                builder.proxyAuthenticator(new DispatchingAuthenticator(this.proxyInfo));
+            } catch (IllegalArgumentException | EncryptionException e) {
+                throw new IntegrationException(e);
+            }
+        }
     }
 
     public HttpUrl createHttpUrl() {

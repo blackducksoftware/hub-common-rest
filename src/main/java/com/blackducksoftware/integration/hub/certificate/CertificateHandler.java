@@ -1,5 +1,5 @@
 /**
- * integration-rest
+ * hub-common-rest
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -41,20 +40,18 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.blackducksoftware.integration.exception.IntegrationCertificateException;
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.proxy.DispatchingAuthenticator;
+import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.rest.TLSSocketFactory;
 import com.blackducksoftware.integration.log.IntLogger;
-import com.blackducksoftware.integration.util.proxy.ProxyUtil;
 
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -65,11 +62,7 @@ public class CertificateHandler {
     public final IntLogger logger;
 
     public int timeout = 120;
-    public String proxyHost;
-    public int proxyPort;
-    public String proxyNoHosts;
-    public String proxyUsername;
-    public String proxyPassword;
+    public ProxyInfo proxyInfo;
 
     private File javaHomeOverride;
 
@@ -134,9 +127,10 @@ public class CertificateHandler {
         clientBuilder.writeTimeout(timeout, TimeUnit.SECONDS);
         clientBuilder.readTimeout(timeout, TimeUnit.SECONDS);
 
-        if (shouldUseProxyForUrl(url)) {
-            clientBuilder.proxy(getProxy(url));
-            clientBuilder.proxyAuthenticator(new com.blackducksoftware.integration.hub.proxy.OkAuthenticator(proxyUsername, proxyPassword));
+        final Proxy proxy = proxyInfo.getProxy(url);
+        if (proxy != null && Proxy.NO_PROXY != proxy) {
+            clientBuilder.proxy(proxyInfo.getProxy(url));
+            clientBuilder.proxyAuthenticator(new DispatchingAuthenticator(proxyInfo));
         }
 
         final String version = System.getProperty("java.version");
@@ -279,19 +273,6 @@ public class CertificateHandler {
         } catch (final GeneralSecurityException e) {
             throw new IntegrationException(e); // The system has no TLS. Just give up.
         }
-    }
-
-    private Proxy getProxy(final URL hubUrl) {
-        final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
-        return proxy;
-    }
-
-    private boolean shouldUseProxyForUrl(final URL url) {
-        if (StringUtils.isBlank(proxyHost) || proxyPort <= 0) {
-            return false;
-        }
-        final List<Pattern> ignoredProxyHostPatterns = ProxyUtil.getIgnoredProxyHostPatterns(proxyNoHosts);
-        return !ProxyUtil.shouldIgnoreHost(url.getHost(), ignoredProxyHostPatterns);
     }
 
 }

@@ -47,7 +47,6 @@ class BuilderFieldEnumTest {
 
     @Test
     public void testProxyInfoFieldEnum() {
-        ProxyInfoFieldEnum
 
         assert "proxyHost" == ProxyInfoFieldEnum.PROXYHOST.getKey();
         assert "proxyPort" == ProxyInfoFieldEnum.PROXYPORT.getKey();

@@ -17,6 +17,8 @@ dependencies {
 	compile 'com.blackducksoftware.integration:integration-common:9.0.0'
 	compile 'com.squareup.okhttp3:okhttp:3.9.0'
 	compile 'com.squareup.okhttp3:okhttp-urlconnection:3.9.0'
+    compile 'org.apache.httpcomponents:httpcore:4.4.8'
+    compile 'com.burgstaller:okhttp-digest:1.15'
 
 	testCompile 'org.codehaus.groovy:groovy-all:2.4.12'
 	testCompile 'com.squareup.okhttp3:mockwebserver:3.9.0'

@@ -1,5 +1,5 @@
 /**
- * integration-rest
+ * hub-common-rest
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -34,16 +34,13 @@ import com.blackducksoftware.integration.validator.AbstractValidator;
 
 public class ProxyInfoBuilder extends AbstractBuilder<ProxyInfo> {
     private String host;
-
     private String port;
-
     private String username;
-
     private String password;
-
     private int passwordLength;
-
     private String ignoredProxyHosts;
+    private String ntlmDomain;
+    private String ntlmWorkstation;
 
     @Override
     public ProxyInfo buildObject() throws IllegalArgumentException {
@@ -57,11 +54,11 @@ public class ProxyInfoBuilder extends AbstractBuilder<ProxyInfo> {
             credBuilder.setPasswordLength(passwordLength);
             final Credentials credResult = credBuilder.build();
 
-            proxyInfo = new ProxyInfo(host, proxyPort, credResult, ignoredProxyHosts);
+            proxyInfo = new ProxyInfo(host, proxyPort, credResult, ignoredProxyHosts, ntlmDomain, ntlmWorkstation);
         } else {
             // password is blank or already encrypted so we just pass in the
             // values given to us
-            proxyInfo = new ProxyInfo(host, proxyPort, null, ignoredProxyHosts);
+            proxyInfo = new ProxyInfo(host, proxyPort, null, ignoredProxyHosts, ntlmDomain, ntlmWorkstation);
         }
 
         return proxyInfo;
@@ -76,6 +73,8 @@ public class ProxyInfoBuilder extends AbstractBuilder<ProxyInfo> {
         validator.setPassword(getPassword());
         validator.setPasswordLength(getPasswordLength());
         validator.setIgnoredProxyHosts(getIgnoredProxyHosts());
+        validator.setNtlmDomain(ntlmDomain);
+        validator.setNtlmWorkstation(ntlmWorkstation);
         return validator;
     }
 
@@ -134,8 +133,20 @@ public class ProxyInfoBuilder extends AbstractBuilder<ProxyInfo> {
         this.ignoredProxyHosts = ignoredProxyHosts;
     }
 
-    public boolean hasProxySettings() {
-        return StringUtils.isNotBlank(host) || StringUtils.isNotBlank(port) || StringUtils.isNotBlank(username) || StringUtils.isNotBlank(password) || StringUtils.isNotBlank(ignoredProxyHosts);
+    public String getNtlmDomain() {
+        return ntlmDomain;
+    }
+
+    public void setNtlmDomain(final String ntlmDomain) {
+        this.ntlmDomain = ntlmDomain;
+    }
+
+    public String getNtlmWorkstation() {
+        return ntlmWorkstation;
+    }
+
+    public void setNtlmWorkstation(final String ntlmWorkstation) {
+        this.ntlmWorkstation = ntlmWorkstation;
     }
 
 }
