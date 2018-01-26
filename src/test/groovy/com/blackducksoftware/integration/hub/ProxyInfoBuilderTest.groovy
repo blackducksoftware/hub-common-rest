@@ -39,23 +39,27 @@ class ProxyInfoBuilderTest {
         final String proxyHost = "proxyHost"
         final int proxyPort = 25
         final String proxyIgnoredHosts = ".*"
+        String ntlmDomain = "domain"
+        String ntlmWorkstation = "workstation"
         final ProxyInfoBuilder builder = new ProxyInfoBuilder()
         builder.host = proxyHost
         builder.port = proxyPort
         builder.username = username
         builder.password = password
         builder.ignoredProxyHosts = proxyIgnoredHosts
+        builder.ntlmDomain = ntlmDomain
+        builder.ntlmWorkstation = ntlmWorkstation
         final ProxyInfo proxyInfo1 = builder.build()
         final String maskedPassword = proxyInfo1.getMaskedPassword()
         assert proxyHost == proxyInfo1.host
         assert proxyPort == proxyInfo1.port
         assert proxyIgnoredHosts == proxyInfo1.ignoredProxyHosts
+        assert ntlmDomain == proxyInfo1.ntlmDomain
+        assert ntlmWorkstation == proxyInfo1.ntlmWorkstation
 
         assert maskedPassword.length() == password.length()
         assert password != maskedPassword
         assert StringUtils.containsOnly(maskedPassword, "*")
-
-        assert builder.hasProxySettings()
     }
 
     @Test
@@ -65,6 +69,8 @@ class ProxyInfoBuilderTest {
         final String proxyHost = "proxyHost"
         final int proxyPort = 25
         final String proxyIgnoredHosts = ".*"
+        String ntlmDomain = "domain"
+        String ntlmWorkstation = "workstation"
         final String encryptedPassword = PasswordEncrypter.encrypt(password)
         final ProxyInfoBuilder builder = new ProxyInfoBuilder()
         builder.host = proxyHost
@@ -73,19 +79,21 @@ class ProxyInfoBuilderTest {
         builder.password = encryptedPassword
         builder.passwordLength = password.length()
         builder.ignoredProxyHosts = proxyIgnoredHosts
+        builder.ntlmDomain = ntlmDomain
+        builder.ntlmWorkstation = ntlmWorkstation
         final ProxyInfo proxyInfo1 = builder.build()
         final String maskedPassword = proxyInfo1.getMaskedPassword()
         assert proxyHost == proxyInfo1.host
         assert proxyPort == proxyInfo1.port
         assert proxyIgnoredHosts == proxyInfo1.ignoredProxyHosts
+        assert ntlmDomain == proxyInfo1.ntlmDomain
+        assert ntlmWorkstation == proxyInfo1.ntlmWorkstation
 
         assert password != builder.password
         assert password.length() == builder.passwordLength
         assert maskedPassword.length() == password.length()
         assert password != maskedPassword
         assert StringUtils.containsOnly(maskedPassword, "*")
-
-        assert builder.hasProxySettings()
     }
 
     @Test
@@ -102,6 +110,5 @@ class ProxyInfoBuilderTest {
         assert proxyHost == proxyInfo1.host
         assert proxyPort == proxyInfo1.port
         assert proxyIgnoredHosts == proxyInfo1.ignoredProxyHosts
-        assert builder.hasProxySettings()
     }
 }

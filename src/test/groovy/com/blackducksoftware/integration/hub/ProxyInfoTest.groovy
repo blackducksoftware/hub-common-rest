@@ -30,22 +30,25 @@ import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 
 class ProxyInfoTest {
 
-    private static final String VALID_URL = "http://www.google.com"
+    private static  String VALID_URL = "http://www.google.com"
 
     @Test
     public void testProxyConstructor() {
-
-        final String username1 = null
-        final String password1 = null
+        String username1 = null
+        String password1 = null
         Credentials credentials1 = null
-        final String proxyHost1 = null
-        final int proxyPort1 = 0
-        final String proxyIgnoredHosts1 = null
-        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1)
+        String proxyHost1 = null
+        int proxyPort1 = 0
+        String proxyIgnoredHosts1 = null
+        String ntlmDomain = null
+        String ntlmWorkstation = null
+        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, ntlmDomain, ntlmWorkstation)
         assert null == proxyInfo1.host
         assert 0 == proxyInfo1.port
         assert null == proxyInfo1.proxyCredentials
         assert null == proxyInfo1.ignoredProxyHosts
+        assert null == proxyInfo1.ntlmDomain
+        assert null == proxyInfo1.ntlmWorkstation
 
         username1 = "username"
         password1 = "password"
@@ -53,12 +56,16 @@ class ProxyInfoTest {
         proxyHost1 = "proxyHost"
         proxyPort1 = 25
         proxyIgnoredHosts1 = "*"
-        proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1)
-        final String maskedPassword = proxyInfo1.getMaskedPassword()
+        ntlmDomain = "domain"
+        ntlmWorkstation = "workstation"
+        proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, ntlmDomain, ntlmWorkstation)
+        String maskedPassword = proxyInfo1.getMaskedPassword()
         assert proxyHost1 == proxyInfo1.host
         assert proxyPort1 == proxyInfo1.port
         assert credentials1 == proxyInfo1.proxyCredentials
         assert proxyIgnoredHosts1 == proxyInfo1.ignoredProxyHosts
+        assert ntlmDomain == proxyInfo1.ntlmDomain
+        assert ntlmWorkstation == proxyInfo1.ntlmWorkstation
 
         assert password1 != proxyInfo1.encryptedPassword
         assert password1.length() == proxyInfo1.actualPasswordLength
@@ -69,113 +76,125 @@ class ProxyInfoTest {
 
     @Test
     public void testOpenConnection() {
-        final String username1 = "username"
-        final String password1 = "password"
+        String username1 = "username"
+        String password1 = "password"
         Credentials credentials1 = new Credentials(username1, password1);
-        final String proxyHost1 = "proxyHost"
-        final int proxyPort1 = 25
-        final String proxyIgnoredHosts1 = ".*"
-        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1)
+        String proxyHost1 = "proxyHost"
+        int proxyPort1 = 25
+        String proxyIgnoredHosts1 = ".*"
+        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, null, null)
 
         proxyInfo1.openConnection(new URL(VALID_URL))
     }
 
     @Test
     public void testShouldUseProxy() {
-        final String username1 = "username"
-        final String password1 = "password"
+        String username1 = "username"
+        String password1 = "password"
         Credentials credentials1 = new Credentials(username1, password1);
-        final String proxyHost1 = "proxyHost"
-        final int proxyPort1 = 25
+        String proxyHost1 = "proxyHost"
+        int proxyPort1 = 25
         String proxyIgnoredHosts1 = ""
-        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1)
+        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, null, null)
 
         assert true == proxyInfo1.shouldUseProxyForUrl(new URL(VALID_URL))
 
         proxyIgnoredHosts1 = ".*"
-        proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1)
-        final boolean result = proxyInfo1.shouldUseProxyForUrl(new URL(VALID_URL))
+        proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, null, null)
+        boolean result = proxyInfo1.shouldUseProxyForUrl(new URL(VALID_URL))
         assert !result
     }
 
     @Test
     public void testGetProxy() {
-        final String username1 = "username"
-        final String password1 = "password"
+        String username1 = "username"
+        String password1 = "password"
         Credentials credentials1 = new Credentials(username1, password1);
-        final String proxyHost1 = "proxyHost"
-        final int proxyPort1 = 25
+        String proxyHost1 = "proxyHost"
+        int proxyPort1 = 25
         String proxyIgnoredHosts1 = ""
-        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1)
+        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, null, null)
         assert null != proxyInfo1.getProxy(new URL(VALID_URL))
 
         proxyIgnoredHosts1 = ".*"
-        proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1)
+        proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1, null, null)
         assert Proxy.NO_PROXY == proxyInfo1.getProxy(new URL(VALID_URL))
     }
 
     @Test
     public void testHashCode() {
-        final String username1 = "username"
-        final String password1 = "password"
+        String username1 = "username"
+        String password1 = "password"
         Credentials credentials1 = new Credentials(username1, password1);
-        final String proxyHost1 = "proxyHost"
-        final int proxyPort1 = 25
-        final String proxyIgnoredHosts1 = "*"
-        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1)
+        String proxyHost1 = "proxyHost"
+        int proxyPort1 = 25
+        String proxyIgnoredHosts1 = "*"
+        String ntlmDomain = "domain"
+        String ntlmWorkstation = "workstation"
+        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1,ntlmDomain,ntlmWorkstation)
 
 
-        final String username2 = "username"
-        final String password2 = "password"
+        String username2 = "username"
+        String password2 = "password"
         Credentials credentials2 = new Credentials(username1, password1);
-        final String proxyHost2 = "proxyHost"
-        final int proxyPort2 = 25
-        final String proxyIgnoredHosts2 = "*"
-        ProxyInfo proxyInfo2 = new ProxyInfo(proxyHost2, proxyPort2, credentials2, proxyIgnoredHosts2)
+        String proxyHost2 = "proxyHost"
+        int proxyPort2 = 25
+        String proxyIgnoredHosts2 = "*"
+        String ntlmDomain2 = "domain"
+        String ntlmWorkstation2 = "workstation"
+        ProxyInfo proxyInfo2 = new ProxyInfo(proxyHost2, proxyPort2, credentials2, proxyIgnoredHosts2,ntlmDomain2,ntlmWorkstation2)
 
         assert proxyInfo1.hashCode() == proxyInfo2.hashCode()
     }
 
     @Test
     public void testEquals() {
-        final String username1 = "username"
-        final String password1 = "password"
+        String username1 = "username"
+        String password1 = "password"
         Credentials credentials1 = new Credentials(username1, password1);
-        final String proxyHost1 = "proxyHost"
-        final int proxyPort1 = 25
-        final String proxyIgnoredHosts1 = "*"
-        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1)
+        String proxyHost1 = "proxyHost"
+        int proxyPort1 = 25
+        String proxyIgnoredHosts1 = "*"
+        String ntlmDomain = "domain"
+        String ntlmWorkstation = "workstation"
+        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1,ntlmDomain,ntlmWorkstation)
 
 
-        final String username2 = "username"
-        final String password2 = "password"
+        String username2 = "username"
+        String password2 = "password"
         Credentials credentials2 = new Credentials(username1, password1);
-        final String proxyHost2 = "proxyHost"
-        final int proxyPort2 = 25
-        final String proxyIgnoredHosts2 = "*"
-        ProxyInfo proxyInfo2 = new ProxyInfo(proxyHost2, proxyPort2, credentials2, proxyIgnoredHosts2)
+        String proxyHost2 = "proxyHost"
+        int proxyPort2 = 25
+        String proxyIgnoredHosts2 = "*"
+        String ntlmDomain2 = "domain"
+        String ntlmWorkstation2 = "workstation"
+        ProxyInfo proxyInfo2 = new ProxyInfo(proxyHost2, proxyPort2, credentials2, proxyIgnoredHosts2,ntlmDomain2,ntlmWorkstation2)
 
         assert proxyInfo1.equals(proxyInfo2)
     }
 
     @Test
     public void testToString() {
-        final String username1 = "username"
-        final String password1 = "password"
+        String username1 = "username"
+        String password1 = "password"
         Credentials credentials1 = new Credentials(username1, password1);
-        final String proxyHost1 = "proxyHost"
-        final int proxyPort1 = 25
-        final String proxyIgnoredHosts1 = "*"
-        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1)
+        String proxyHost1 = "proxyHost"
+        int proxyPort1 = 25
+        String proxyIgnoredHosts1 = "*"
+        String ntlmDomain = "domain"
+        String ntlmWorkstation = "workstation"
+        ProxyInfo proxyInfo1 = new ProxyInfo(proxyHost1, proxyPort1, credentials1, proxyIgnoredHosts1,ntlmDomain,ntlmWorkstation)
 
 
-        final String username2 = "username"
-        final String password2 = "password"
+        String username2 = "username"
+        String password2 = "password"
         Credentials credentials2 = new Credentials(username1, password1);
-        final String proxyHost2 = "proxyHost"
-        final int proxyPort2 = 25
-        final String proxyIgnoredHosts2 = "*"
-        ProxyInfo proxyInfo2 = new ProxyInfo(proxyHost2, proxyPort2, credentials2, proxyIgnoredHosts2)
+        String proxyHost2 = "proxyHost"
+        int proxyPort2 = 25
+        String proxyIgnoredHosts2 = "*"
+        String ntlmDomain2 = "domain"
+        String ntlmWorkstation2 = "workstation"
+        ProxyInfo proxyInfo2 = new ProxyInfo(proxyHost2, proxyPort2, credentials2, proxyIgnoredHosts2,ntlmDomain2,ntlmWorkstation2)
 
         assert proxyInfo1.toString() == proxyInfo2.toString()
     }

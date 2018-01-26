@@ -93,17 +93,11 @@ public class ProxyInfoValidator extends AbstractValidator {
             result.addResult(ProxyInfoFieldEnum.PROXYUSERNAME, new ValidationResult(ValidationResultEnum.ERROR, MSG_CREDENTIALS_INVALID));
             result.addResult(ProxyInfoFieldEnum.PROXYPASSWORD, new ValidationResult(ValidationResultEnum.ERROR, MSG_CREDENTIALS_INVALID));
         }
-        if (StringUtils.isNotBlank(ntlmDomain)) {
+        if (StringUtils.isNotBlank(ntlmDomain) || StringUtils.isNotBlank(ntlmWorkstation)) {
             if (StringUtils.isBlank(username)) {
                 result.addResult(ProxyInfoFieldEnum.PROXYUSERNAME, new ValidationResult(ValidationResultEnum.ERROR, MSG_PROXY_NTLM_CREDENTIALS_REQUIRED));
-            } else if (StringUtils.isBlank(password)) {
-                result.addResult(ProxyInfoFieldEnum.PROXYPASSWORD, new ValidationResult(ValidationResultEnum.ERROR, MSG_PROXY_NTLM_CREDENTIALS_REQUIRED));
             }
-        }
-        if (StringUtils.isNotBlank(ntlmWorkstation)) {
-            if (StringUtils.isBlank(username)) {
-                result.addResult(ProxyInfoFieldEnum.PROXYUSERNAME, new ValidationResult(ValidationResultEnum.ERROR, MSG_PROXY_NTLM_CREDENTIALS_REQUIRED));
-            } else if (StringUtils.isBlank(password)) {
+            if (StringUtils.isBlank(password)) {
                 result.addResult(ProxyInfoFieldEnum.PROXYPASSWORD, new ValidationResult(ValidationResultEnum.ERROR, MSG_PROXY_NTLM_CREDENTIALS_REQUIRED));
             }
         }
