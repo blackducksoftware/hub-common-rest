@@ -27,20 +27,29 @@ import static com.blackducksoftware.integration.hub.RestConstants.QUERY_Q;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.xml.ws.Response;
-
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.RecursiveToStringStyle;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.FileEntity;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicNameValuePair;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.rest.HttpMethod;
@@ -57,8 +66,7 @@ public class HubRequest {
         this.restConnection = restConnection;
     }
 
-    private RequestBuilder createHttpRequest(final HttpMethod method)
-            throws IllegalArgumentException, URISyntaxException, IntegrationException {
+    private RequestBuilder createHttpRequest(final HttpMethod method, final Map<String, String> additionalHeaders) throws IllegalArgumentException, URISyntaxException, IntegrationException {
         String baseUrl = null;
         if (url != null) {
             baseUrl = url;
@@ -78,71 +86,139 @@ public class HubRequest {
                 uriBuilder.addParameter(queryParameter.getKey(), queryParameter.getValue());
             }
         }
-        final RequestBuilder requestBuilder = restConnection.getRequestBuilder(method);
+        final RequestBuilder requestBuilder = restConnection.getRequestBuilder(method, additionalHeaders);
         requestBuilder.setUri(uriBuilder.build());
         return requestBuilder;
     }
 
-    public Response executeGet() throws IntegrationException {
-        final RequestBuilder requestBuilder = createHttpRequest(HttpMethod.GET);
+    public HttpResponse executeGet() throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executeGet(ContentType.APPLICATION_JSON.getMimeType());
+    }
+
+    public HttpResponse executeGet(final String mimeType) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        final Map<String, String> additionalHeaders = new HashMap<>();
+        additionalHeaders.put(HttpHeaders.ACCEPT, mimeType);
+        return executeGet(additionalHeaders);
+    }
+
+    public HttpResponse executeGet(final Map<String, String> additionalHeaders) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        final RequestBuilder requestBuilder = createHttpRequest(HttpMethod.GET, additionalHeaders);
         final HttpUriRequest request = requestBuilder.build();
         return restConnection.createResponse(request);
     }
 
-    public Response executeGet(final String mediaType) throws IntegrationException {
-        final HttpUriRequest httpUrl = buildHttpUrl();
-        final Request request = restConnection.createGetRequest(httpUrl, mediaType);
+    public HttpResponse executeEncodedFormPost(final Map<String, String> contentMap) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executeEncodedFormPost(contentMap, Charsets.UTF_8);
+    }
+
+    public HttpResponse executeEncodedFormPost(final Map<String, String> contentMap, final Charset bodyEncoding) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executeEncodedForm(HttpMethod.POST, contentMap, bodyEncoding, null);
+    }
+
+    public HttpResponse executeEncodedFormPost(final Map<String, String> contentMap, final Charset bodyEncoding, final Map<String, String> additionalHeaders) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executeEncodedForm(HttpMethod.POST, contentMap, bodyEncoding, additionalHeaders);
+    }
+
+    public HttpResponse executePost(final String content) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executePost(ContentType.APPLICATION_JSON.getMimeType(), content);
+    }
+
+    public HttpResponse executePost(final String content, final String mimeType) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executePost(content, mimeType, Charsets.UTF_8);
+    }
+
+    public HttpResponse executePost(final String content, final String mimeType, final Charset bodyEncoding) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executePost(content, mimeType, bodyEncoding, null);
+    }
+
+    public HttpResponse executePost(final String content, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        final StringEntity entity = new StringEntity(content, ContentType.create(mimeType, bodyEncoding));
+        return executePost(entity, additionalHeaders);
+    }
+
+    public HttpResponse executePost(final File file) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        final FileEntity entity = new FileEntity(file, ContentType.APPLICATION_JSON);
+        return executePost(entity, null);
+    }
+
+    public HttpResponse executePost(final File file, final String mimeType) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        final FileEntity entity = new FileEntity(file, ContentType.create(mimeType, Charsets.UTF_8));
+        return executePost(entity, null);
+    }
+
+    public HttpResponse executePost(final File file, final String mimeType, final Charset bodyEncoding) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        final FileEntity entity = new FileEntity(file, ContentType.create(mimeType, bodyEncoding));
+        return executePost(entity, null);
+    }
+
+    public HttpResponse executePost(final File file, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        final FileEntity entity = new FileEntity(file, ContentType.create(mimeType, bodyEncoding));
+        return executePost(entity, additionalHeaders);
+    }
+
+    public HttpResponse executePost(final HttpEntity entity, final Map<String, String> additionalHeaders) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        final RequestBuilder requestBuilder = createHttpRequest(HttpMethod.POST, additionalHeaders);
+        requestBuilder.setEntity(entity);
+        final HttpUriRequest request = requestBuilder.build();
         return restConnection.createResponse(request);
     }
 
-    public Response executeEncodedFormPost(final Map<String, String> contentMap) throws IntegrationException {
-        final HttpUriRequest httpUrl = buildHttpUrl();
-        final Request request = restConnection.createPostRequest(httpUrl, restConnection.createEncodedFormBody(contentMap));
+    public HttpResponse executeEncodedFormPut(final Map<String, String> contentMap) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executeEncodedFormPut(contentMap, Charsets.UTF_8);
+    }
+
+    public HttpResponse executeEncodedFormPut(final Map<String, String> contentMap, final Charset bodyEncoding) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executeEncodedForm(HttpMethod.PUT, contentMap, bodyEncoding, null);
+    }
+
+    public HttpResponse executeEncodedFormPut(final Map<String, String> contentMap, final Charset bodyEncoding, final Map<String, String> additionalHeaders) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executeEncodedForm(HttpMethod.PUT, contentMap, bodyEncoding, additionalHeaders);
+    }
+
+    public HttpResponse executePut(final String content) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executePut(content, ContentType.APPLICATION_JSON.getMimeType());
+    }
+
+    public HttpResponse executePut(final String content, final String mimeType) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executePut(content, mimeType, Charsets.UTF_8);
+    }
+
+    public HttpResponse executePut(final String content, final String mimeType, final Charset bodyEncoding) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executePut(content, mimeType, bodyEncoding, null);
+    }
+
+    public HttpResponse executePut(final String content, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        final StringEntity entity = new StringEntity(content, ContentType.create(mimeType, bodyEncoding));
+        final RequestBuilder requestBuilder = createHttpRequest(HttpMethod.PUT, additionalHeaders);
+        requestBuilder.setEntity(entity);
+        final HttpUriRequest request = requestBuilder.build();
         return restConnection.createResponse(request);
     }
 
-    public Response executePost(final String content) throws IntegrationException {
-        final HttpUriRequest httpUrl = buildHttpUrl();
-        final Request request = restConnection.createPostRequest(httpUrl, restConnection.createJsonRequestBody(content));
+    public HttpResponse executeDelete() throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executeDelete(null);
+    }
+
+    public HttpResponse executeDelete(final Map<String, String> additionalHeaders) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        final RequestBuilder requestBuilder = createHttpRequest(HttpMethod.DELETE, additionalHeaders);
+        final HttpUriRequest request = requestBuilder.build();
         return restConnection.createResponse(request);
     }
 
-    public Response executePost(final String mediaType, final String content) throws IntegrationException {
-        final HttpUriRequest httpUrl = buildHttpUrl();
-        final Request request = restConnection.createPostRequest(httpUrl, restConnection.createJsonRequestBody(mediaType, content));
-        return restConnection.createResponse(request);
-    }
-
-    public Response executePost(final String mediaType, final File file) throws IntegrationException {
-        final HttpUrl httpUrl = buildHttpUrl();
-        final Request request = restConnection.createPostRequest(httpUrl, restConnection.createFileRequestBody(mediaType, file));
-        return restConnection.createResponse(request);
-    }
-
-    public Response executeEncodedFormPut(final Map<String, String> contentMap) throws IntegrationException {
-        final HttpUrl httpUrl = buildHttpUrl();
-        final Request request = restConnection.createPutRequest(httpUrl, restConnection.createEncodedFormBody(contentMap));
-        return restConnection.createResponse(request);
-    }
-
-    public Response executePut(final String content) throws IntegrationException {
-        final HttpUrl httpUrl = buildHttpUrl();
-        final Request request = restConnection.createPutRequest(httpUrl, restConnection.createJsonRequestBody(content));
-        return restConnection.createResponse(request);
-    }
-
-    public Response executePut(final String mediaType, final String content) throws IntegrationException {
-        final HttpUrl httpUrl = buildHttpUrl();
-        final Request request = restConnection.createPutRequest(httpUrl, restConnection.createJsonRequestBody(mediaType, content));
-        return restConnection.createResponse(request);
-    }
-
-    public void executeDelete() throws IntegrationException {
-        final HttpUrl httpUrl = buildHttpUrl();
-        final Request request = restConnection.createDeleteRequest(httpUrl);
-        try (Response response = restConnection.createResponse(request)) {
-
+    private HttpResponse executeEncodedForm(final HttpMethod method, final Map<String, String> contentMap, final Charset bodyEncoding, final Map<String, String> additionalHeaders)
+            throws IllegalArgumentException, URISyntaxException, IntegrationException {
+        final RequestBuilder requestBuilder = createHttpRequest(method, additionalHeaders);
+        final List<NameValuePair> parameters = new ArrayList<>();
+        if (contentMap != null && !contentMap.isEmpty()) {
+            for (final Entry<String, String> entry : contentMap.entrySet()) {
+                final NameValuePair nameValuePair = new BasicNameValuePair(entry.getKey(), entry.getValue());
+                parameters.add(nameValuePair);
+            }
         }
+        final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(parameters, bodyEncoding);
+        requestBuilder.setEntity(entity);
+        final HttpUriRequest request = requestBuilder.build();
+        return restConnection.createResponse(request);
     }
 
     protected void populateQueryParameters() {

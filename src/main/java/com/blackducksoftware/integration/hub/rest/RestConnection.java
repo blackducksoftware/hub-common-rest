@@ -41,11 +41,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
@@ -80,7 +81,7 @@ public abstract class RestConnection {
     private final HttpClientBuilder clientBuilder = HttpClientBuilder.create();
     private final RequestConfig.Builder defaultRequestConfigBuilder = RequestConfig.custom();
 
-    private HttpClient client;
+    private CloseableHttpClient client;
 
     public static Date parseDateString(final String dateString) throws ParseException {
         final SimpleDateFormat sdf = new SimpleDateFormat(JSON_DATE_FORMAT);
@@ -170,43 +171,15 @@ public abstract class RestConnection {
     // return builder.build();
     // }
     //
-    // public Request createGetRequest(final HttpUrl httpUrl) {
-    // return createGetRequest(httpUrl, "application/json");
-    // }
-    //
-    // public Request createGetRequest(final HttpUrl httpUrl, final String mediaType) {
-    // final Map<String, String> headers = new HashMap<>();
-    // headers.put("Accept", mediaType);
-    // return createGetRequest(httpUrl, headers);
-    // }
-    //
-    // public Request createGetRequest(final HttpUrl httpUrl, final Map<String, String> headers) {
-    // return getRequestBuilder(headers).url(httpUrl).get().build();
-    // }
-    //
-    // public Request createPostRequest(final HttpUrl httpUrl, final RequestBody body) {
-    // return getRequestBuilder().url(httpUrl).post(body).build();
-    // }
-    //
-    // public Request createPostRequest(final HttpUrl httpUrl, final Map<String, String> headers, final RequestBody body) {
-    // return getRequestBuilder(headers).url(httpUrl).post(body).build();
-    // }
-    //
-    // public Request createPutRequest(final HttpUrl httpUrl, final RequestBody body) {
-    // return getRequestBuilder().url(httpUrl).put(body).build();
-    // }
-    //
-    // public Request createDeleteRequest(final HttpUrl httpUrl) {
-    // return getRequestBuilder().url(httpUrl).delete().build();
-    // }
-    //
-    //
 
-    public RequestBuilder getRequestBuilder(final HttpMethod method) {
+    public RequestBuilder getRequestBuilder(final HttpMethod method) throws IllegalArgumentException {
         return getRequestBuilder(method, null);
     }
 
-    public RequestBuilder getRequestBuilder(final HttpMethod method, final Map<String, String> additionalHeaders) {
+    public RequestBuilder getRequestBuilder(final HttpMethod method, final Map<String, String> additionalHeaders) throws IllegalArgumentException {
+        if (method == null) {
+            throw new IllegalArgumentException("Missing field 'method'");
+        }
         final RequestBuilder requestBuilder = RequestBuilder.create(method.name());
 
         final Map<String, String> requestHeaders = new HashMap<>();
@@ -240,17 +213,21 @@ public abstract class RestConnection {
                     logger.debug("Automatically trusting the certificate for " + urlString);
                 }
                 logRequestHeaders(request);
-                final HttpResponse response = client.execute(request);
+                final CloseableHttpResponse response = client.execute(request);
                 final int statusCode = response.getStatusLine().getStatusCode();
                 final String statusMessage = response.getStatusLine().getReasonPhrase();
                 if (statusCode < 200 || statusCode > 299) {
-                    if (statusCode == 401 && retryCount < 2) {
-                        connect();
-                        final HttpUriRequest newRequest = RequestBuilder.copy(request).build();
-                        return handleExecuteClientCall(newRequest, retryCount + 1);
-                    } else {
-                        throw new IntegrationRestException(statusCode, statusMessage,
-                                String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), urlString, statusCode, statusMessage));
+                    try {
+                        if (statusCode == 401 && retryCount < 2) {
+                            connect();
+                            final HttpUriRequest newRequest = RequestBuilder.copy(request).build();
+                            return handleExecuteClientCall(newRequest, retryCount + 1);
+                        } else {
+                            throw new IntegrationRestException(statusCode, statusMessage,
+                                    String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), urlString, statusCode, statusMessage));
+                        }
+                    } finally {
+                        response.close();
                     }
                 }
                 logResponseHeaders(response);
@@ -323,11 +300,11 @@ public abstract class RestConnection {
         return "RestConnection [baseUrl=" + hubBaseUrl + "]";
     }
 
-    public HttpClient getClient() {
+    public CloseableHttpClient getClient() {
         return client;
     }
 
-    public void setClient(final HttpClient client) {
+    public void setClient(final CloseableHttpClient client) {
         this.client = client;
     }
 
