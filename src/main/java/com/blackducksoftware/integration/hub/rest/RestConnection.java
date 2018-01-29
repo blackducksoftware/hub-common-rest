@@ -151,27 +151,6 @@ public abstract class RestConnection {
         credentialsProvider.setCredentials(new AuthScope(this.proxyInfo.getHost(), this.proxyInfo.getPort()), creds);
     }
 
-    // public RequestBody createJsonRequestBody(final String content) {
-    // return createJsonRequestBody("application/json", content);
-    // }
-    //
-    // public RequestBody createJsonRequestBody(final String mediaType, final String content) {
-    // return RequestBody.create(MediaType.parse(mediaType), content);
-    // }
-    //
-    // public RequestBody createFileRequestBody(final String mediaType, final File file) {
-    // return RequestBody.create(MediaType.parse(mediaType), file);
-    // }
-    //
-    // public RequestBody createEncodedFormBody(final Map<String, String> content) {
-    // final FormBody.Builder builder = new FormBody.Builder();
-    // for (final Entry<String, String> contentEntry : content.entrySet()) {
-    // builder.add(contentEntry.getKey(), contentEntry.getValue());
-    // }
-    // return builder.build();
-    // }
-    //
-
     public RequestBuilder getRequestBuilder(final HttpMethod method) throws IllegalArgumentException {
         return getRequestBuilder(method, null);
     }
