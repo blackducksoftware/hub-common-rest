@@ -51,12 +51,16 @@ public class ProxyInfo implements Serializable {
     private final int port;
     private final Credentials proxyCredentials;
     private final String ignoredProxyHosts;
+    private final String ntlmDomain;
+    private final String ntlmWorkstation;
 
-    public ProxyInfo(final String host, final int port, final Credentials proxyCredentials, final String ignoredProxyHosts) {
+    public ProxyInfo(final String host, final int port, final Credentials proxyCredentials, final String ignoredProxyHosts, final String ntlmDomain, final String ntlmWorkstation) {
         this.host = host;
         this.port = port;
         this.proxyCredentials = proxyCredentials;
         this.ignoredProxyHosts = ignoredProxyHosts;
+        this.ntlmDomain = ntlmDomain;
+        this.ntlmWorkstation = ntlmWorkstation;
     }
 
     public URLConnection openConnection(final URL url) throws IOException {
@@ -65,7 +69,6 @@ public class ProxyInfo implements Serializable {
     }
 
     public Proxy getProxy(final URL url) {
-        // TODO: Change rest connection to use this method
         if (shouldUseProxyForUrl(url)) {
             final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
             return proxy;
@@ -155,11 +158,19 @@ public class ProxyInfo implements Serializable {
         return proxyCredentials;
     };
 
+    public String getNtlmDomain() {
+        return ntlmDomain;
+    }
+
+    public String getNtlmWorkstation() {
+        return ntlmWorkstation;
+    }
+
     private final static class NoProxyInfo extends ProxyInfo {
         private static final long serialVersionUID = 7646573390510702513L;
 
         public NoProxyInfo() {
-            super("", 0, null, "");
+            super("", 0, null, "", null, null);
         }
     }
 

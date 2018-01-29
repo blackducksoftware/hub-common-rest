@@ -30,7 +30,9 @@ public enum ProxyInfoFieldEnum implements FieldEnum {
     PROXYPORT("proxyPort"),
     PROXYUSERNAME("proxyUsername"),
     PROXYPASSWORD("proxyPassword"),
-    NOPROXYHOSTS("noProxyHosts");
+    NOPROXYHOSTS("noProxyHosts"),
+    PROXYNTLMDOMAIN("ntlmDomain"),
+    PROXYNTLMWORKSTATION("ntlmWorkstation");
 
     private String key;
 

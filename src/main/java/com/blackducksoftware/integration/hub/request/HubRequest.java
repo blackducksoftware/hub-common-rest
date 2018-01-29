@@ -26,25 +26,26 @@ package com.blackducksoftware.integration.hub.request;
 import static com.blackducksoftware.integration.hub.RestConstants.QUERY_Q;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.xml.ws.Response;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.RecursiveToStringStyle;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.client.utils.URIBuilder;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.rest.HttpMethod;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
-import okhttp3.HttpUrl;
-import okhttp3.Request;
-import okhttp3.Response;
-
-/**
- * Most usages of the Hub endpoints as of 2016-11-23 (Hub 3.3.1) should use the HubPagedRequest, but there are several REST endpoints that do not consume limit or offset, and those should use this implementation.
- */
 public class HubRequest {
     public final RestConnection restConnection;
     public String url;
@@ -56,32 +57,58 @@ public class HubRequest {
         this.restConnection = restConnection;
     }
 
+    private RequestBuilder createHttpRequest(final HttpMethod method)
+            throws IllegalArgumentException, URISyntaxException, IntegrationException {
+        String baseUrl = null;
+        if (url != null) {
+            baseUrl = url;
+        } else if (restConnection.hubBaseUrl != null) {
+            baseUrl = restConnection.hubBaseUrl.toURI().toString();
+        } else {
+            throw new IntegrationException("Can not create this request without a URL");
+        }
+        final URIBuilder uriBuilder = new URIBuilder(baseUrl);
+        if (urlSegments != null) {
+            final String path = StringUtils.join(urlSegments, "/");
+            uriBuilder.setPath(path);
+        }
+        populateQueryParameters();
+        if (queryParameters != null) {
+            for (final Entry<String, String> queryParameter : queryParameters.entrySet()) {
+                uriBuilder.addParameter(queryParameter.getKey(), queryParameter.getValue());
+            }
+        }
+        final RequestBuilder requestBuilder = restConnection.getRequestBuilder(method);
+        requestBuilder.setUri(uriBuilder.build());
+        return requestBuilder;
+    }
+
     public Response executeGet() throws IntegrationException {
-        final HttpUrl httpUrl = buildHttpUrl();
-        final Request request = restConnection.createGetRequest(httpUrl);
+        final RequestBuilder requestBuilder = createHttpRequest(HttpMethod.GET);
+        final HttpUriRequest request = requestBuilder.build();
         return restConnection.createResponse(request);
     }
 
     public Response executeGet(final String mediaType) throws IntegrationException {
-        final HttpUrl httpUrl = buildHttpUrl();
+        final HttpUriRequest httpUrl = buildHttpUrl();
         final Request request = restConnection.createGetRequest(httpUrl, mediaType);
         return restConnection.createResponse(request);
     }
 
     public Response executeEncodedFormPost(final Map<String, String> contentMap) throws IntegrationException {
-        final HttpUrl httpUrl = buildHttpUrl();
+        final HttpUriRequest httpUrl = buildHttpUrl();
         final Request request = restConnection.createPostRequest(httpUrl, restConnection.createEncodedFormBody(contentMap));
         return restConnection.createResponse(request);
     }
 
     public Response executePost(final String content) throws IntegrationException {
-        final HttpUrl httpUrl = buildHttpUrl();
+        final HttpUriRequest httpUrl = buildHttpUrl();
         final Request request = restConnection.createPostRequest(httpUrl, restConnection.createJsonRequestBody(content));
         return restConnection.createResponse(request);
     }
 
     public Response executePost(final String mediaType, final String content) throws IntegrationException {
-        final HttpUrl httpUrl = buildHttpUrl();
+        final HttpUriRequest httpUrl = buildHttpUrl();
         final Request request = restConnection.createPostRequest(httpUrl, restConnection.createJsonRequestBody(mediaType, content));
         return restConnection.createResponse(request);
     }
@@ -122,14 +149,6 @@ public class HubRequest {
         if (StringUtils.isNotBlank(q)) {
             queryParameters.put(QUERY_Q, q);
         }
-    }
-
-    private HttpUrl buildHttpUrl() {
-        populateQueryParameters();
-        if (StringUtils.isBlank(url)) {
-            url = restConnection.hubBaseUrl.toString();
-        }
-        return restConnection.createHttpUrl(url, urlSegments, queryParameters);
     }
 
     public void addUrlSegment(final String urlSegment) {
