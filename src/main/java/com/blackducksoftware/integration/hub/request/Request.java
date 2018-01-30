@@ -71,15 +71,14 @@ public class Request extends Stringable {
     }
 
     protected RequestBuilder createHttpRequest() throws IllegalArgumentException, URISyntaxException, IntegrationException {
-        String baseUrl = null;
-        if (url != null) {
-            baseUrl = url;
-        } else if (restConnection.baseUrl != null) {
-            baseUrl = restConnection.baseUrl.toURI().toString();
-        } else {
+        final RequestBuilder requestBuilder = restConnection.createRequestBuilder(method, additionalHeaders);
+        if (url == null) {
+            url = requestBuilder.getUri().toString();
+        }
+        if (url == null) {
             throw new IntegrationException("Can not create this request without a URL");
         }
-        final URIBuilder uriBuilder = new URIBuilder(baseUrl);
+        final URIBuilder uriBuilder = new URIBuilder(url);
         if (urlSegments != null) {
             final String path = StringUtils.join(urlSegments, "/");
             uriBuilder.setPath(path);
@@ -90,7 +89,6 @@ public class Request extends Stringable {
                 uriBuilder.addParameter(queryParameter.getKey(), queryParameter.getValue());
             }
         }
-        final RequestBuilder requestBuilder = restConnection.getRequestBuilder(method, additionalHeaders);
         requestBuilder.setUri(uriBuilder.build());
         return requestBuilder;
     }

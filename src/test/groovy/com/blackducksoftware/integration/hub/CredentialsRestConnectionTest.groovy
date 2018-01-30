@@ -23,19 +23,19 @@
  */
 package com.blackducksoftware.integration.hub
 
+import org.apache.http.client.methods.RequestBuilder
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnectionBuilder
+import com.blackducksoftware.integration.hub.rest.HttpMethod
 import com.blackducksoftware.integration.hub.rest.RestConnection
 import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
 
-import okhttp3.HttpUrl
-import okhttp3.Request
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -93,19 +93,19 @@ class CredentialsRestConnectionTest {
     @Test
     public void testHandleExecuteClientCallSuccessful(){
         RestConnection restConnection = getRestConnection(getSuccessResponse())
-        HttpUrl httpUrl = restConnection.createHttpUrl()
-        Request request = restConnection.createGetRequest(httpUrl)
-        restConnection.handleExecuteClientCall(request).withCloseable{ assert 200 == it.code }
-        assert null != restConnection.client.cookieJar
+        RequestBuilder requestBuilder =  restConnection.createRequestBuilder(HttpMethod.GET);
+        restConnection.createResponse(requestBuilder.build()).withCloseable{ assert 200 == it.getStatusCode() }
+
+        assert null != restConnection.getClientBuilder().cookieStore
+        assert null != restConnection.getDefaultRequestConfigBuilder().cookieSpec
     }
 
     @Test
     public void testHandleExecuteClientCallUnauthorized(){
         RestConnection restConnection = getRestConnection(getUnauthorizedResponse())
-        HttpUrl httpUrl = restConnection.createHttpUrl()
-        Request request = restConnection.createGetRequest(httpUrl)
+        RequestBuilder requestBuilder =  restConnection.createRequestBuilder(HttpMethod.GET);
         try{
-            restConnection.handleExecuteClientCall(request)
+            restConnection.createResponse(requestBuilder.build())
             fail('Should have thrown exception')
         } catch (IntegrationRestException e) {
             assert 401 == e.httpStatusCode
@@ -116,10 +116,9 @@ class CredentialsRestConnectionTest {
     @Test
     public void testHandleExecuteClientCallFail(){
         RestConnection restConnection = getRestConnection(getFailureResponse())
-        HttpUrl httpUrl = restConnection.createHttpUrl()
-        Request request = restConnection.createGetRequest(httpUrl)
+        RequestBuilder requestBuilder =  restConnection.createRequestBuilder(HttpMethod.GET);
         try{
-            restConnection.handleExecuteClientCall(request)
+            restConnection.createResponse(requestBuilder.build())
             fail('Should have thrown exception')
         } catch (IntegrationRestException e) {
             assert 404 == e.httpStatusCode

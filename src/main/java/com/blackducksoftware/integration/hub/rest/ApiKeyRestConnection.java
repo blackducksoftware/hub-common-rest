@@ -86,7 +86,7 @@ public class ApiKeyRestConnection extends RestConnection {
             uriBuilder.setPath(StringUtils.join(segments, "/"));
 
             if (StringUtils.isNotBlank(hubApiKey)) {
-                final RequestBuilder requestBuilder = getRequestBuilder(HttpMethod.POST, getRequestHeaders());
+                final RequestBuilder requestBuilder = createRequestBuilder(HttpMethod.POST, getRequestHeaders());
                 requestBuilder.setCharset(Charsets.UTF_8);
                 requestBuilder.setUri(uriBuilder.build());
                 final HttpUriRequest request = requestBuilder.build();

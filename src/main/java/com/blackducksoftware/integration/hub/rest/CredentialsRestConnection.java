@@ -79,7 +79,7 @@ public class CredentialsRestConnection extends RestConnection {
                 bodyValues.add(new BasicNameValuePair("j_password", hubPassword));
                 final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(bodyValues, Charsets.UTF_8);
 
-                final RequestBuilder requestBuilder = getRequestBuilder(HttpMethod.POST, null);
+                final RequestBuilder requestBuilder = createRequestBuilder(HttpMethod.POST, null);
                 requestBuilder.setCharset(Charsets.UTF_8);
                 requestBuilder.setUri(uriBuilder.build());
                 requestBuilder.setEntity(entity);

@@ -25,6 +25,7 @@ package com.blackducksoftware.integration.hub.rest;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -128,9 +129,9 @@ public abstract class RestConnection {
     public abstract void clientAuthenticate() throws IntegrationException;
 
     private void addBuilderConnectionTimes() {
-        defaultRequestConfigBuilder.setConnectTimeout(timeout);
-        defaultRequestConfigBuilder.setSocketTimeout(timeout);
-        defaultRequestConfigBuilder.setConnectionRequestTimeout(timeout);
+        defaultRequestConfigBuilder.setConnectTimeout(timeout * 1000);
+        defaultRequestConfigBuilder.setSocketTimeout(timeout * 1000);
+        defaultRequestConfigBuilder.setConnectionRequestTimeout(timeout * 1000);
     }
 
     private void assembleClient() throws IntegrationException {
@@ -180,11 +181,11 @@ public abstract class RestConnection {
         credentialsProvider.setCredentials(new AuthScope(this.proxyInfo.getHost(), this.proxyInfo.getPort()), creds);
     }
 
-    public RequestBuilder getRequestBuilder(final HttpMethod method) throws IllegalArgumentException {
-        return getRequestBuilder(method, null);
+    public RequestBuilder createRequestBuilder(final HttpMethod method) throws IllegalArgumentException, URISyntaxException {
+        return createRequestBuilder(method, null);
     }
 
-    public RequestBuilder getRequestBuilder(final HttpMethod method, final Map<String, String> additionalHeaders) throws IllegalArgumentException {
+    public RequestBuilder createRequestBuilder(final HttpMethod method, final Map<String, String> additionalHeaders) throws IllegalArgumentException, URISyntaxException {
         if (method == null) {
             throw new IllegalArgumentException("Missing field 'method'");
         }
@@ -197,6 +198,9 @@ public abstract class RestConnection {
         }
         for (final Entry<String, String> header : requestHeaders.entrySet()) {
             requestBuilder.addHeader(header.getKey(), header.getValue());
+        }
+        if (baseUrl != null) {
+            requestBuilder.setUri(baseUrl.toURI());
         }
         return requestBuilder;
     }

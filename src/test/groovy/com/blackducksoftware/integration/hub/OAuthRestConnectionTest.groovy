@@ -132,9 +132,9 @@ class OAuthRestConnectionTest {
         RestConnection restConnection = getRestConnection(getTokenManager(), AccessType.CLIENT)
         Request request = new Request(restConnection)
         request.execute().withCloseable{ assert 200 == it.getStatusCode() }
-        Object client =  restConnection.getClient()
-        Object requestInterceptors = client.execChain.requestExecutor.requestExecutor.httpProcessor.requestInterceptors
-        Object ourLambdaInterceptor = requestInterceptors.last()
+        def client =  restConnection.getClient()
+        def requestInterceptors = client.execChain.requestExecutor.requestExecutor.httpProcessor.requestInterceptors
+        def ourLambdaInterceptor = requestInterceptors.last()
         String lambdaString = ourLambdaInterceptor.toString()
         assert lambdaString.contains("OAuthRestConnection")
         assert lambdaString.contains("Lambda")
