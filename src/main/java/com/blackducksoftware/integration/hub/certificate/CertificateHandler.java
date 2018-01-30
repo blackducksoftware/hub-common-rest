@@ -28,10 +28,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.URL;
-import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStore.PasswordProtection;
@@ -39,37 +36,44 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.SSLSession;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.NTCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.conn.ManagedHttpClientConnection;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustAllStrategy;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
+import org.apache.http.ssl.SSLContextBuilder;
 
+import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationCertificateException;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.rest.TLSSocketFactory;
+import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
+import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.log.IntLogger;
-import com.blackducksoftware.integration.util.proxy.ProxyUtil;
-
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class CertificateHandler {
+    public static final String PEER_CERTIFICATES = "PEER_CERTIFICATES";
     public final IntLogger logger;
 
     public int timeout = 120;
-    public String proxyHost;
-    public int proxyPort;
-    public String proxyNoHosts;
-    public String proxyUsername;
-    public String proxyPassword;
+    public ProxyInfo proxyInfo;
 
     private File javaHomeOverride;
 
@@ -107,51 +111,67 @@ public class CertificateHandler {
 
         Certificate certificate = null;
         try {
-            final OkHttpClient client = getOkHttpClient(url);
+            final HttpClient client = getHttpClient(url);
+            final RequestBuilder requestBuilder = RequestBuilder.create("GET");
+            final HttpUriRequest request = requestBuilder.build();
+            final HttpContext context = new BasicHttpContext();
+            client.execute(request, context);
+            final Certificate[] peerCertificates = (Certificate[]) context.getAttribute(PEER_CERTIFICATES);
 
-            final HttpUrl.Builder urlBuilder = HttpUrl.get(url).newBuilder();
-            final HttpUrl httpUrl = urlBuilder.build();
-
-            final Request.Builder requestBuilder = new Request.Builder();
-            final Request request = requestBuilder.url(httpUrl).get().build();
-
-            final Response response = client.newCall(request).execute();
-
-            final List<Certificate> certificates = response.handshake().peerCertificates();
-
-            certificate = certificates.get(0);
+            certificate = peerCertificates[0];
         } catch (final Exception e) {
             throw new IntegrationException(e);
         }
         return certificate;
     }
 
-    protected OkHttpClient getOkHttpClient(final URL url) throws IntegrationException {
-        final CertTrustManager trustManager = new CertTrustManager();
-        final OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
+    protected HttpClient getHttpClient(final URL url) throws IntegrationException {
+        try {
+            final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            final HttpClientBuilder clientBuilder = HttpClientBuilder.create();
+            final RequestConfig.Builder defaultRequestConfigBuilder = RequestConfig.custom();
 
-        clientBuilder.connectTimeout(timeout, TimeUnit.SECONDS);
-        clientBuilder.writeTimeout(timeout, TimeUnit.SECONDS);
-        clientBuilder.readTimeout(timeout, TimeUnit.SECONDS);
+            defaultRequestConfigBuilder.setConnectTimeout(timeout);
+            defaultRequestConfigBuilder.setSocketTimeout(timeout);
+            defaultRequestConfigBuilder.setConnectionRequestTimeout(timeout);
 
-        if (shouldUseProxyForUrl(url)) {
-            clientBuilder.proxy(getProxy(url));
-            clientBuilder.proxyAuthenticator(new com.blackducksoftware.integration.hub.proxy.OkAuthenticator(proxyUsername, proxyPassword));
-        }
-
-        final String version = System.getProperty("java.version");
-        if (url.getProtocol().equalsIgnoreCase("https") && version.startsWith("1.7") || version.startsWith("1.6")) {
-            // We do not need to do this for Java 8+
-            try {
-                // Java 7 does not enable TLS1.2 so we use our TLSSocketFactory to enable all protocols
-                clientBuilder.sslSocketFactory(new TLSSocketFactory(trustManager), trustManager);
-            } catch (KeyManagementException | NoSuchAlgorithmException e) {
-                throw new IntegrationException(e);
+            if (this.proxyInfo == null) {
+                throw new IllegalStateException(RestConnection.ERROR_MSG_PROXY_INFO_NULL);
             }
-        } else {
-            clientBuilder.sslSocketFactory(systemDefaultSslSocketFactory(trustManager), trustManager);
+
+            if (this.proxyInfo.shouldUseProxyForUrl(url)) {
+                defaultRequestConfigBuilder.setProxy(new HttpHost(this.proxyInfo.getHost(), this.proxyInfo.getPort()));
+                try {
+                    final org.apache.http.auth.Credentials creds = new NTCredentials(this.proxyInfo.getUsername(), this.proxyInfo.getDecryptedPassword(), this.proxyInfo.getNtlmWorkstation(), this.proxyInfo.getNtlmDomain());
+                    credentialsProvider.setCredentials(new AuthScope(this.proxyInfo.getHost(), this.proxyInfo.getPort()), creds);
+                } catch (IllegalArgumentException | EncryptionException ex) {
+                    throw new IntegrationException(ex);
+                }
+            }
+            clientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+            clientBuilder.setDefaultRequestConfig(defaultRequestConfigBuilder.build());
+
+            final SSLContext sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustAllStrategy()).build();
+            final HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
+            final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, allowAllHosts);
+            clientBuilder.setSSLSocketFactory(connectionFactory);
+
+            final HttpResponseInterceptor certificateInterceptor = (httpResponse, context) -> {
+                final ManagedHttpClientConnection routedConnection = (ManagedHttpClientConnection) context.getAttribute(HttpCoreContext.HTTP_CONNECTION);
+                final SSLSession sslSession = routedConnection.getSSLSession();
+                if (sslSession != null) {
+                    // get the server certificates from the {@Link SSLSession}
+                    final Certificate[] certificates = sslSession.getPeerCertificates();
+
+                    // add the certificates to the context, where we can later grab it from
+                    context.setAttribute(PEER_CERTIFICATES, certificates);
+                }
+            };
+            clientBuilder.addInterceptorLast(certificateInterceptor);
+            return clientBuilder.build();
+        } catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+            throw new IntegrationException(e.getMessage(), e);
         }
-        return clientBuilder.build();
     }
 
     public Certificate retrieveHttpsCertificateFromTrustStore(final URL url) throws IntegrationException {
@@ -269,29 +289,6 @@ public class CertificateHandler {
         }
 
         return trustStoreFile;
-    }
-
-    private SSLSocketFactory systemDefaultSslSocketFactory(final X509TrustManager trustManager) throws IntegrationException {
-        try {
-            final SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[] { trustManager }, null);
-            return sslContext.getSocketFactory();
-        } catch (final GeneralSecurityException e) {
-            throw new IntegrationException(e); // The system has no TLS. Just give up.
-        }
-    }
-
-    private Proxy getProxy(final URL hubUrl) {
-        final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
-        return proxy;
-    }
-
-    private boolean shouldUseProxyForUrl(final URL url) {
-        if (StringUtils.isBlank(proxyHost) || proxyPort <= 0) {
-            return false;
-        }
-        final List<Pattern> ignoredProxyHostPatterns = ProxyUtil.getIgnoredProxyHostPatterns(proxyNoHosts);
-        return !ProxyUtil.shouldIgnoreHost(url.getHost(), ignoredProxyHostPatterns);
     }
 
 }

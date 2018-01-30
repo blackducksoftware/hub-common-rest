@@ -26,6 +26,9 @@ package com.blackducksoftware.integration.hub.rest;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,6 +36,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -45,9 +51,13 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.ssl.SSLContextBuilder;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
@@ -64,7 +74,7 @@ import com.google.gson.JsonParser;
  * The parent class of all Hub connections.
  */
 public abstract class RestConnection {
-    private static final String ERROR_MSG_PROXY_INFO_NULL = "A RestConnection's proxy information cannot be null";
+    public static final String ERROR_MSG_PROXY_INFO_NULL = "A RestConnection's proxy information cannot be null";
 
     public static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
     public static final String X_CSRF_TOKEN = "X-CSRF-TOKEN";
@@ -122,9 +132,24 @@ public abstract class RestConnection {
         defaultRequestConfigBuilder.setConnectionRequestTimeout(timeout);
     }
 
-    private void assembleClient() {
-        clientBuilder.setDefaultCredentialsProvider(credentialsProvider);
-        clientBuilder.setDefaultRequestConfig(defaultRequestConfigBuilder.build());
+    private void assembleClient() throws IntegrationException {
+        try {
+            clientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+            clientBuilder.setDefaultRequestConfig(defaultRequestConfigBuilder.build());
+
+            SSLContext sslContext = null;
+            if (alwaysTrustServerCertificate) {
+                sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustAllStrategy()).build();
+            }
+            // else {
+            // sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustSelfSignedStrategy()).build();
+            // }
+            final HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
+            final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, allowAllHosts);
+            clientBuilder.setSSLSocketFactory(connectionFactory);
+        } catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+            throw new IntegrationException(e.getMessage(), e);
+        }
     }
 
     private void addBuilderProxyInformation() throws IntegrationException {

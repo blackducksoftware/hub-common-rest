@@ -23,7 +23,10 @@
  */
 package com.blackducksoftware.integration.hub.rest.oauth;
 
+import java.io.IOException;
 import java.net.URL;
+
+import org.apache.http.HttpRequestInterceptor;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
@@ -42,7 +45,17 @@ public class OAuthRestConnection extends RestConnection {
 
     @Override
     public void addBuilderAuthentication() throws IntegrationException {
-        builder.authenticator(new OkOauthAuthenticator(tokenManager, accessType, this));
+        final HttpRequestInterceptor requestInterceptor = (httpRequest, context) -> {
+            String credential;
+            try {
+                credential = tokenManager.createTokenCredential(tokenManager.getToken(accessType).accessToken);
+            } catch (final IntegrationException e) {
+                throw new IOException("Cannot refresh token", e);
+            }
+            commonRequestHeaders.put(TokenManager.WWW_AUTH_RESP, credential);
+            httpRequest.addHeader(TokenManager.WWW_AUTH_RESP, credential);
+        };
+        getClientBuilder().addInterceptorLast(requestInterceptor);
     }
 
     @Override

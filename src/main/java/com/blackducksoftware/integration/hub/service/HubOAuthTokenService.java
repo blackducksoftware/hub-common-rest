@@ -24,6 +24,7 @@
 package com.blackducksoftware.integration.hub.service;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,19 +33,18 @@ import org.apache.commons.lang3.StringUtils;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.oauth.Token;
 import com.blackducksoftware.integration.hub.request.Request;
-import com.blackducksoftware.integration.hub.request.Request;
+import com.blackducksoftware.integration.hub.request.Response;
+import com.blackducksoftware.integration.hub.rest.HttpMethod;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.google.gson.Gson;
 
-import okhttp3.Response;
-
 public class HubOAuthTokenService {
     private final Gson gson;
-    private final HubRequestFactory hubRequestFactory;
+    private final RestConnection restConnection;
 
     public HubOAuthTokenService(final RestConnection restConnection) {
         this.gson = restConnection.gson;
-        this.hubRequestFactory = new HubRequestFactory(restConnection);
+        this.restConnection = restConnection;
     }
 
     public Token requestUserToken(final String clientId, final String authCode, final String redirectUri) throws IntegrationException {
@@ -98,11 +98,12 @@ public class HubOAuthTokenService {
     }
 
     private Token getTokenFromEncodedPost(final Map<String, String> formDataMap) throws IntegrationException {
-        final Request request = hubRequestFactory.createRequest();
-        try (Response response = request.executeEncodedFormPost(formDataMap)) {
-            final String jsonToken = response.body().string();
+        final Request request = new Request(restConnection);
+        request.method = HttpMethod.POST;
+        try (Response response = request.execute(formDataMap)) {
+            final String jsonToken = response.getContentString();
             return gson.fromJson(jsonToken, Token.class);
-        } catch (final IOException e) {
+        } catch (final IOException | IllegalArgumentException | URISyntaxException e) {
             throw new IntegrationException(e);
         }
     }
