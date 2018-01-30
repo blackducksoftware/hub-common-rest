@@ -26,8 +26,6 @@ package com.blackducksoftware.integration.hub.request;
 import static com.blackducksoftware.integration.hub.RestConstants.QUERY_LIMIT;
 import static com.blackducksoftware.integration.hub.RestConstants.QUERY_OFFSET;
 
-import java.util.Map;
-
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
 public class PagedRequest extends Request {
@@ -51,17 +49,4 @@ public class PagedRequest extends Request {
         // if offset is not provided, the default is 0
         addQueryParameter(QUERY_OFFSET, String.valueOf(offset));
     }
-
-    @Override
-    public PagedRequest addQueryParameter(final String queryParameterName, final String queryParameterValue) {
-        super.addQueryParameter(queryParameterName, queryParameterValue);
-        return this;
-    }
-
-    @Override
-    public PagedRequest addQueryParameters(final Map<String, String> queryParameters) {
-        super.addQueryParameters(queryParameters);
-        return this;
-    }
-
 }

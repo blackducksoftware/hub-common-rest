@@ -70,7 +70,7 @@ public class Request extends Stringable {
         this.restConnection = restConnection;
     }
 
-    private RequestBuilder createHttpRequest(final HttpMethod method, final Map<String, String> additionalHeaders) throws IllegalArgumentException, URISyntaxException, IntegrationException {
+    protected RequestBuilder createHttpRequest() throws IllegalArgumentException, URISyntaxException, IntegrationException {
         String baseUrl = null;
         if (url != null) {
             baseUrl = url;
@@ -99,7 +99,7 @@ public class Request extends Stringable {
         if (HttpMethod.GET == method && !additionalHeaders.containsKey(HttpHeaders.ACCEPT)) {
             additionalHeaders.put(HttpHeaders.ACCEPT, mimeType);
         }
-        final RequestBuilder requestBuilder = createHttpRequest(method, additionalHeaders);
+        final RequestBuilder requestBuilder = createHttpRequest();
         requestBuilder.setCharset(bodyEncoding);
         final HttpUriRequest request = requestBuilder.build();
         return restConnection.createResponse(request);
@@ -128,7 +128,7 @@ public class Request extends Stringable {
     }
 
     private Response execute(final HttpEntity entity) throws IntegrationException, IllegalArgumentException, URISyntaxException {
-        final RequestBuilder requestBuilder = createHttpRequest(method, additionalHeaders);
+        final RequestBuilder requestBuilder = createHttpRequest();
         requestBuilder.setCharset(bodyEncoding);
         requestBuilder.setEntity(entity);
         final HttpUriRequest request = requestBuilder.build();
@@ -160,7 +160,7 @@ public class Request extends Stringable {
     }
 
     public Request addAdditionalHeader(final String headerName, final String headerValue) {
-        this.queryParameters.put(headerName, headerValue);
+        this.additionalHeaders.put(headerName, headerValue);
         return this;
     }
 

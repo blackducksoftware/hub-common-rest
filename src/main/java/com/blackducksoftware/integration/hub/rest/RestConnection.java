@@ -58,6 +58,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
@@ -140,6 +141,8 @@ public abstract class RestConnection {
             SSLContext sslContext = null;
             if (alwaysTrustServerCertificate) {
                 sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustAllStrategy()).build();
+            } else {
+                sslContext = SSLContexts.createDefault();
             }
             // else {
             // sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustSelfSignedStrategy()).build();

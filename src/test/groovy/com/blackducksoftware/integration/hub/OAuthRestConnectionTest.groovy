@@ -29,16 +29,14 @@ import org.junit.Test
 
 import com.blackducksoftware.integration.hub.api.oauth.OAuthConfiguration
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
+import com.blackducksoftware.integration.hub.request.Request
 import com.blackducksoftware.integration.hub.rest.RestConnection
 import com.blackducksoftware.integration.hub.rest.oauth.AccessType
 import com.blackducksoftware.integration.hub.rest.oauth.OAuthRestConnectionBuilder
-import com.blackducksoftware.integration.hub.rest.oauth.OkOauthAuthenticator
 import com.blackducksoftware.integration.hub.rest.oauth.TokenManager
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
 
-import okhttp3.HttpUrl
-import okhttp3.Request
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -132,10 +130,13 @@ class OAuthRestConnectionTest {
     @Test
     public void testHandleExecuteClientCallSuccessful(){
         RestConnection restConnection = getRestConnection(getTokenManager(), AccessType.CLIENT)
-        HttpUrl httpUrl = restConnection.createHttpUrl()
-        Request request = restConnection.createGetRequest(httpUrl)
-        restConnection.handleExecuteClientCall(request).withCloseable{ assert 200 == it.code }
-        assert null != restConnection.client.authenticator
-        assert OkOauthAuthenticator.class == restConnection.client.authenticator.getClass()
+        Request request = new Request(restConnection)
+        request.execute().withCloseable{ assert 200 == it.getStatusCode() }
+        Object client =  restConnection.getClient()
+        Object requestInterceptors = client.execChain.requestExecutor.requestExecutor.httpProcessor.requestInterceptors
+        Object ourLambdaInterceptor = requestInterceptors.last()
+        String lambdaString = ourLambdaInterceptor.toString()
+        assert lambdaString.contains("OAuthRestConnection")
+        assert lambdaString.contains("Lambda")
     }
 }
