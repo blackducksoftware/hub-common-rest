@@ -52,6 +52,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
+import com.blackducksoftware.integration.hub.request.Response;
 import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException;
 import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.log.LogLevel;
@@ -71,7 +72,7 @@ public abstract class RestConnection {
     public final Gson gson = new GsonBuilder().setDateFormat(JSON_DATE_FORMAT).create();
     public final JsonParser jsonParser = new JsonParser();
     public final Map<String, String> commonRequestHeaders = new HashMap<>();
-    public final URL hubBaseUrl;
+    public final URL baseUrl;
     public int timeout = 120;
     private final ProxyInfo proxyInfo;
     public boolean alwaysTrustServerCertificate;
@@ -95,9 +96,9 @@ public abstract class RestConnection {
         return sdf.format(date);
     }
 
-    public RestConnection(final IntLogger logger, final URL hubBaseUrl, final int timeout, final ProxyInfo proxyInfo) {
+    public RestConnection(final IntLogger logger, final URL baseUrl, final int timeout, final ProxyInfo proxyInfo) {
         this.logger = logger;
-        this.hubBaseUrl = hubBaseUrl;
+        this.baseUrl = baseUrl;
         this.timeout = timeout;
         this.proxyInfo = proxyInfo;
     }
@@ -131,7 +132,7 @@ public abstract class RestConnection {
             throw new IllegalStateException(ERROR_MSG_PROXY_INFO_NULL);
         }
 
-        if (this.proxyInfo.shouldUseProxyForUrl(hubBaseUrl)) {
+        if (this.proxyInfo.shouldUseProxyForUrl(baseUrl)) {
             defaultRequestConfigBuilder.setProxy(getProxyHttpHost());
             try {
                 addProxyCredentials();
@@ -141,12 +142,12 @@ public abstract class RestConnection {
         }
     }
 
-    public HttpHost getProxyHttpHost() {
+    private HttpHost getProxyHttpHost() {
         final HttpHost httpHost = new HttpHost(this.proxyInfo.getHost(), this.proxyInfo.getPort());
         return httpHost;
     }
 
-    public void addProxyCredentials() throws IllegalArgumentException, EncryptionException {
+    private void addProxyCredentials() throws IllegalArgumentException, EncryptionException {
         final org.apache.http.auth.Credentials creds = new NTCredentials(this.proxyInfo.getUsername(), this.proxyInfo.getDecryptedPassword(), this.proxyInfo.getNtlmWorkstation(), this.proxyInfo.getNtlmDomain());
         credentialsProvider.setCredentials(new AuthScope(this.proxyInfo.getHost(), this.proxyInfo.getPort()), creds);
     }
@@ -172,7 +173,7 @@ public abstract class RestConnection {
         return requestBuilder;
     }
 
-    public HttpResponse createResponse(final HttpUriRequest request) throws IntegrationException {
+    public Response createResponse(final HttpUriRequest request) throws IntegrationException {
         final long start = System.currentTimeMillis();
         logMessage(LogLevel.TRACE, "starting request: " + request.getURI().toString());
         try {
@@ -183,7 +184,7 @@ public abstract class RestConnection {
         }
     }
 
-    private HttpResponse handleExecuteClientCall(final HttpUriRequest request, final int retryCount) throws IntegrationException {
+    private Response handleExecuteClientCall(final HttpUriRequest request, final int retryCount) throws IntegrationException {
         if (client != null) {
             try {
                 final URI uri = request.getURI();
@@ -210,7 +211,7 @@ public abstract class RestConnection {
                     }
                 }
                 logResponseHeaders(response);
-                return response;
+                return new Response(response);
             } catch (final IOException e) {
                 throw new IntegrationException(e.getMessage(), e);
             }
@@ -276,7 +277,7 @@ public abstract class RestConnection {
 
     @Override
     public String toString() {
-        return "RestConnection [baseUrl=" + hubBaseUrl + "]";
+        return "RestConnection [baseUrl=" + baseUrl + "]";
     }
 
     public CloseableHttpClient getClient() {
@@ -290,4 +291,17 @@ public abstract class RestConnection {
     public ProxyInfo getProxyInfo() {
         return proxyInfo;
     }
+
+    public CredentialsProvider getCredentialsProvider() {
+        return credentialsProvider;
+    }
+
+    public HttpClientBuilder getClientBuilder() {
+        return clientBuilder;
+    }
+
+    public RequestConfig.Builder getDefaultRequestConfigBuilder() {
+        return defaultRequestConfigBuilder;
+    }
+
 }

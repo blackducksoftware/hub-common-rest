@@ -26,8 +26,8 @@ package com.blackducksoftware.integration.hub
 import org.junit.Test
 
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
-import com.blackducksoftware.integration.hub.request.HubPagedRequest
-import com.blackducksoftware.integration.hub.request.HubRequest
+import com.blackducksoftware.integration.hub.request.PagedRequest
+import com.blackducksoftware.integration.hub.request.Request
 import com.blackducksoftware.integration.hub.request.HubRequestFactory
 import com.blackducksoftware.integration.hub.rest.RestConnection
 import com.blackducksoftware.integration.hub.rest.UnauthenticatedRestConnectionBuilder
@@ -54,7 +54,7 @@ class HubRequestFactoryTest {
     public void testCreatePagedRequest(){
         HubRequestFactory hubRequestFactory = new HubRequestFactory(getRestConnection())
         def urlSegments = ["hello", "test"]
-        HubPagedRequest pagedRequest = hubRequestFactory.createPagedRequest(urlSegments)
+        PagedRequest pagedRequest = hubRequestFactory.createPagedRequest(urlSegments)
         assert 100 == pagedRequest.limit
         urlSegments.each {
             assert pagedRequest.urlSegments.contains(it)
@@ -135,7 +135,7 @@ class HubRequestFactoryTest {
     public void testCreateRequest(){
         HubRequestFactory hubRequestFactory = new HubRequestFactory(getRestConnection())
         def urlSegments = ["hello", "test"]
-        HubRequest request = hubRequestFactory.createRequest(urlSegments)
+        Request request = hubRequestFactory.createRequest(urlSegments)
         urlSegments.each {
             assert request.urlSegments.contains(it)
         }

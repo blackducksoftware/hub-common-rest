@@ -28,8 +28,8 @@ import org.junit.Before
 import org.junit.Test
 
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
-import com.blackducksoftware.integration.hub.request.HubPagedRequest
-import com.blackducksoftware.integration.hub.request.HubRequest
+import com.blackducksoftware.integration.hub.request.PagedRequest
+import com.blackducksoftware.integration.hub.request.Request
 import com.blackducksoftware.integration.hub.request.HubRequestFactory
 import com.blackducksoftware.integration.hub.rest.RestConnection
 import com.blackducksoftware.integration.hub.rest.UnauthenticatedRestConnectionBuilder
@@ -80,14 +80,14 @@ class HubRequestExecutionTest {
     @Test
     public void testExecuteGet(){
         HubRequestFactory hubRequestFactory = new HubRequestFactory(getRestConnection())
-        HubRequest request = hubRequestFactory.createRequest()
+        Request request = hubRequestFactory.createRequest()
         request.executeGet().withCloseable{ assert 200 == it.code }
     }
 
     @Test
     public void testExecuteGetWithQuery(){
         HubRequestFactory hubRequestFactory = new HubRequestFactory(getRestConnection())
-        HubRequest request = hubRequestFactory.createRequest()
+        Request request = hubRequestFactory.createRequest()
         request.q = "query"
         request.executeGet().withCloseable{ assert 200 == it.code }
     }
@@ -95,7 +95,7 @@ class HubRequestExecutionTest {
     @Test
     public void testExecutePagedGet(){
         HubRequestFactory hubRequestFactory = new HubRequestFactory(getRestConnection())
-        HubPagedRequest request = hubRequestFactory.createPagedRequest(server.url("/").toString())
+        PagedRequest request = hubRequestFactory.createPagedRequest(server.url("/").toString())
         request.executeGet().withCloseable{ assert 200 == it.code }
 
         request = hubRequestFactory.createPagedRequest(-245, server.url("/").toString())
@@ -109,21 +109,21 @@ class HubRequestExecutionTest {
     public void testExecuteEncodedFormPost(){
         HubRequestFactory hubRequestFactory = new HubRequestFactory(getRestConnection())
         def formBody = [name:"hello"]
-        HubRequest request = hubRequestFactory.createRequest()
+        Request request = hubRequestFactory.createRequest()
         request.executeEncodedFormPost(formBody).withCloseable{ assert 200 == it.code }
     }
 
     @Test
     public void testExecutePost(){
         HubRequestFactory hubRequestFactory = new HubRequestFactory(getRestConnection())
-        HubRequest request = hubRequestFactory.createRequest()
+        Request request = hubRequestFactory.createRequest()
         request.executePost("hello").withCloseable{ assert 200 == it.code }
     }
 
     @Test
     public void testExecutePostWithMediaType(){
         HubRequestFactory hubRequestFactory = new HubRequestFactory(getRestConnection())
-        HubRequest request = hubRequestFactory.createRequest()
+        Request request = hubRequestFactory.createRequest()
         request.executePost("text/plain", "hello").withCloseable{ assert 200 == it.code }
     }
 
@@ -131,28 +131,28 @@ class HubRequestExecutionTest {
     public void testExecuteEncodedFormPut(){
         HubRequestFactory hubRequestFactory = new HubRequestFactory(getRestConnection())
         def formBody = [name:"hello"]
-        HubRequest request = hubRequestFactory.createRequest()
+        Request request = hubRequestFactory.createRequest()
         request.executeEncodedFormPut(formBody).withCloseable{ assert 200 == it.code }
     }
 
     @Test
     public void testExecutePut(){
         HubRequestFactory hubRequestFactory = new HubRequestFactory(getRestConnection())
-        HubRequest request = hubRequestFactory.createRequest()
+        Request request = hubRequestFactory.createRequest()
         request.executePut("hello").withCloseable{ assert 200 == it.code }
     }
 
     @Test
     public void testExecutePutWithMediaType(){
         HubRequestFactory hubRequestFactory = new HubRequestFactory(getRestConnection())
-        HubRequest request = hubRequestFactory.createRequest()
+        Request request = hubRequestFactory.createRequest()
         request.executePut("text/plain", "hello").withCloseable{ assert 200 == it.code }
     }
 
     @Test
     public void testExecuteDelete(){
         HubRequestFactory hubRequestFactory = new HubRequestFactory(getRestConnection())
-        HubRequest request = hubRequestFactory.createRequest()
+        Request request = hubRequestFactory.createRequest()
         request.executeDelete()
     }
 
@@ -160,7 +160,7 @@ class HubRequestExecutionTest {
     public void testExecuteDeleteNotAllowed(){
         MockResponse response = new MockResponse().setResponseCode(405)
         HubRequestFactory hubRequestFactory = new HubRequestFactory(getRestConnection(response))
-        HubRequest request = hubRequestFactory.createRequest()
+        Request request = hubRequestFactory.createRequest()
         try{
             request.executeDelete()
             fail('Should have thrown exception')

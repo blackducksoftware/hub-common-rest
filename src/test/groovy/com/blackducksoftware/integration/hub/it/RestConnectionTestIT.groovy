@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory
 import com.blackducksoftware.integration.IntegrationTest
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder
-import com.blackducksoftware.integration.hub.request.HubRequest
+import com.blackducksoftware.integration.hub.request.Request
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnectionBuilder
 import com.blackducksoftware.integration.hub.rest.RestConnection
 import com.blackducksoftware.integration.log.LogLevel
@@ -119,7 +119,7 @@ class RestConnectionTestIT {
         builder.timeout = 120;
         final RestConnection restConnection = builder.build()
 
-        final HubRequest hubRequest = new HubRequest(restConnection)
+        final Request hubRequest = new Request(restConnection)
         hubRequest.url = url.toString() + "/api/notifications?offset=0&endDate=2017-01-25T18:43:46.685Z&limit=100&startDate=2017-01-17T21:19:33.311Z"
         System.out.println("Executing: " + hubRequest.toString())
         try {
@@ -142,7 +142,7 @@ class RestConnectionTestIT {
         builder.alwaysTrustServerCertificate = true;
         final RestConnection restConnection = builder.build()
 
-        final HubRequest hubRequest = new HubRequest(restConnection)
+        final Request hubRequest = new Request(restConnection)
         hubRequest.url = url.toString() + "/api/projects"
         System.out.println("Executing: " + hubRequest.toString())
         hubRequest.executeGet()

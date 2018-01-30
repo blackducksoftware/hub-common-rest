@@ -30,11 +30,11 @@ import java.util.Map;
 
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
-public class HubPagedRequest extends HubRequest {
-    public int limit = 10;
+public class PagedRequest extends Request {
+    public int limit = 100;
     public int offset = 0;
 
-    public HubPagedRequest(final RestConnection restConnection) {
+    public PagedRequest(final RestConnection restConnection) {
         super(restConnection);
     }
 
@@ -53,13 +53,13 @@ public class HubPagedRequest extends HubRequest {
     }
 
     @Override
-    public HubPagedRequest addQueryParameter(final String queryParameterName, final String queryParameterValue) {
+    public PagedRequest addQueryParameter(final String queryParameterName, final String queryParameterValue) {
         super.addQueryParameter(queryParameterName, queryParameterValue);
         return this;
     }
 
     @Override
-    public HubPagedRequest addQueryParameters(final Map<String, String> queryParameters) {
+    public PagedRequest addQueryParameters(final Map<String, String> queryParameters) {
         super.addQueryParameters(queryParameters);
         return this;
     }
