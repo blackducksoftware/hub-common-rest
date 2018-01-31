@@ -177,8 +177,10 @@ public abstract class RestConnection {
     }
 
     private void addProxyCredentials() throws IllegalArgumentException, EncryptionException {
-        final org.apache.http.auth.Credentials creds = new NTCredentials(this.proxyInfo.getUsername(), this.proxyInfo.getDecryptedPassword(), this.proxyInfo.getNtlmWorkstation(), this.proxyInfo.getNtlmDomain());
-        credentialsProvider.setCredentials(new AuthScope(this.proxyInfo.getHost(), this.proxyInfo.getPort()), creds);
+        if (this.proxyInfo.hasAuthenticatedProxySettings()) {
+            final org.apache.http.auth.Credentials creds = new NTCredentials(this.proxyInfo.getUsername(), this.proxyInfo.getDecryptedPassword(), this.proxyInfo.getNtlmWorkstation(), this.proxyInfo.getNtlmDomain());
+            credentialsProvider.setCredentials(new AuthScope(this.proxyInfo.getHost(), this.proxyInfo.getPort()), creds);
+        }
     }
 
     public RequestBuilder createRequestBuilder(final HttpMethod method) throws IllegalArgumentException, URISyntaxException {

@@ -166,6 +166,10 @@ public class ProxyInfo implements Serializable {
         return ntlmWorkstation;
     }
 
+    public boolean hasAuthenticatedProxySettings() {
+        return proxyCredentials != null && StringUtils.isNotBlank(proxyCredentials.getUsername()) && StringUtils.isNotBlank(proxyCredentials.getEncryptedPassword());
+    }
+
     private final static class NoProxyInfo extends ProxyInfo {
         private static final long serialVersionUID = 7646573390510702513L;
 

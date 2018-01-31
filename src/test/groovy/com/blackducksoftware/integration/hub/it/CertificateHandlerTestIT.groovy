@@ -27,6 +27,7 @@ import static org.junit.Assert.assertFalse
 import static org.junit.Assert.assertNotNull
 import static org.junit.Assert.assertTrue
 
+import java.security.KeyStore
 import java.security.cert.Certificate
 
 import org.apache.commons.lang3.StringUtils
@@ -117,6 +118,19 @@ class CertificateHandlerTestIT {
         assertTrue(tmpTrustStore.length() == 0)
         try {
             System.setProperty("javax.net.ssl.trustStore", tmpTrustStore.getAbsolutePath())
+            final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
+            keyStore.load(null, null)
+            OutputStream stream = null
+            try  {
+                stream = new BufferedOutputStream(new FileOutputStream(tmpTrustStore))
+                // to create a valid empty keystore file
+                keyStore.store(stream, "changeit".toCharArray())
+            } finally {
+                if(stream!= null) {
+                    stream.close()
+                }
+            }
+
             final CertificateHandler certificateHandler = new CertificateHandler(logger, null)
             certificateHandler.retrieveAndImportHttpsCertificate(url)
             assertTrue(certificateHandler.isCertificateInTrustStore(url))

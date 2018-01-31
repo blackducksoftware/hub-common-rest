@@ -27,16 +27,12 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
-import org.apache.http.HeaderElement;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
 public class Response implements Closeable {
@@ -94,7 +90,7 @@ public class Response implements Closeable {
 
     public String getContentEncoding() {
         if (response.getEntity() != null && response.getEntity().getContentEncoding() != null) {
-            return getHeaderValueAsString(response.getEntity().getContentEncoding());
+            return response.getEntity().getContentEncoding().getValue();
         } else {
             return null;
         }
@@ -102,7 +98,7 @@ public class Response implements Closeable {
 
     public String getContentType() {
         if (response.getEntity() != null && response.getEntity().getContentType() != null) {
-            return getHeaderValueAsString(response.getEntity().getContentType());
+            return response.getEntity().getContentType().getValue();
         } else {
             return null;
         }
@@ -110,24 +106,12 @@ public class Response implements Closeable {
 
     public Map<String, String> getHeaders() {
         final Map<String, String> headers = new HashMap<>();
-        for (final Header header : response.getAllHeaders()) {
-            headers.put(header.getName(), getHeaderValueAsString(header));
+        if (response.getAllHeaders() != null && response.getAllHeaders().length > 0) {
+            for (final Header header : response.getAllHeaders()) {
+                headers.put(header.getName(), header.getValue());
+            }
         }
         return headers;
-    }
-
-    private String getHeaderValueAsString(final Header header) {
-        String value;
-        if (header.getElements() != null && header.getElements().length > 0) {
-            final List<String> elements = new ArrayList<>();
-            for (final HeaderElement headerElement : header.getElements()) {
-                elements.add(headerElement.getValue());
-            }
-            value = StringUtils.join(elements, ",");
-        } else {
-            value = header.getValue();
-        }
-        return value;
     }
 
     public CloseableHttpResponse getActualResponse() {

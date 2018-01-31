@@ -123,28 +123,10 @@ class RestConnectionTestIT {
         hubRequest.url = url.toString() + "/api/notifications?offset=0&endDate=2017-01-25T18:43:46.685Z&limit=100&startDate=2017-01-17T21:19:33.311Z"
         System.out.println("Executing: " + hubRequest.toString())
         try {
-            hubRequest.executeGet()
+            hubRequest.execute()
             fail("Expected Unauthorized Exception")
         } catch (final Exception e) {
             assertTrue(e.getMessage().contains("Unauthorized"))
         }
-    }
-
-    @Test
-    public void testTLS() throws Exception {
-        String url = restConnectionTestHelper.getProperty("TEST_HTTPS_HUB_SERVER_URL")
-        CredentialsRestConnectionBuilder builder = new CredentialsRestConnectionBuilder();
-        builder.logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
-        builder.baseUrl = url
-        builder.username = "sysadmin"
-        builder.password = "blackduck"
-        builder.timeout = 120;
-        builder.alwaysTrustServerCertificate = true;
-        final RestConnection restConnection = builder.build()
-
-        final Request hubRequest = new Request(restConnection)
-        hubRequest.url = url.toString() + "/api/projects"
-        System.out.println("Executing: " + hubRequest.toString())
-        hubRequest.executeGet()
     }
 }

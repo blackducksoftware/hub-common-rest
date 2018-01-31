@@ -73,7 +73,7 @@ public class CertificateHandler {
     public final IntLogger logger;
 
     public int timeout = 120;
-    public ProxyInfo proxyInfo;
+    public ProxyInfo proxyInfo = ProxyInfo.NO_PROXY_INFO;
 
     private File javaHomeOverride;
 
@@ -113,6 +113,7 @@ public class CertificateHandler {
         try {
             final HttpClient client = getHttpClient(url);
             final RequestBuilder requestBuilder = RequestBuilder.create("GET");
+            requestBuilder.setUri(url.toURI());
             final HttpUriRequest request = requestBuilder.build();
             final HttpContext context = new BasicHttpContext();
             client.execute(request, context);
