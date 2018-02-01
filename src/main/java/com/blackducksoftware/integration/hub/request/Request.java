@@ -55,7 +55,7 @@ import com.blackducksoftware.integration.util.Stringable;
 
 public class Request extends Stringable {
     public final RestConnection restConnection;
-    public String url;
+    public String uri;
     public final Map<String, String> queryParameters = new HashMap<>();
     public String q;
     public HttpMethod method = HttpMethod.GET;
@@ -71,13 +71,13 @@ public class Request extends Stringable {
 
     protected RequestBuilder createHttpRequest() throws IllegalArgumentException, URISyntaxException, IntegrationException {
         final RequestBuilder requestBuilder = restConnection.createRequestBuilder(method, additionalHeaders);
-        if (url == null) {
-            url = requestBuilder.getUri().toString();
+        if (uri == null) {
+            uri = requestBuilder.getUri().toString();
         }
-        if (url == null) {
+        if (uri == null) {
             throw new IntegrationException("Can not create this request without a URL");
         }
-        final URIBuilder uriBuilder = new URIBuilder(url);
+        final URIBuilder uriBuilder = new URIBuilder(uri);
         populateQueryParameters();
         if (queryParameters != null) {
             for (final Entry<String, String> queryParameter : queryParameters.entrySet()) {
