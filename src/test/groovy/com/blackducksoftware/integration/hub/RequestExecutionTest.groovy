@@ -88,13 +88,12 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
 
         RequestBuilder requestBuilder = request.createHttpRequest()
 
-        String expectedUri = getRestConnection().baseUrl.toURI().toString()[0..-2]
+        String expectedUri = getRestConnection().baseUrl.toURI().toString()
         String actualUri = requestBuilder.uri.toString()
         assert expectedUri == actualUri
     }
@@ -109,13 +108,12 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
 
         RequestBuilder requestBuilder = request.createHttpRequest()
 
-        String expectedUri = getRestConnection().baseUrl.toURI().toString()[0..-2]
+        String expectedUri = getRestConnection().baseUrl.toURI().toString()
         String actualUri = requestBuilder.uri.toString()
         assert expectedUri == actualUri
     }
@@ -129,7 +127,6 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null != request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
 
@@ -151,7 +148,6 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null != request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
 
@@ -161,47 +157,6 @@ class RequestExecutionTest {
         assert expectedUri == actualUri
     }
 
-    @Test
-    public void testCreateHttpRequestWithSegments(){
-        Request request = new Request(getRestConnection())
-        request.addUrlSegment('test')
-        request.addUrlSegment('segment')
-        assert HttpMethod.GET == request.method
-        assert Charsets.UTF_8 == request.bodyEncoding
-        assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
-        assert null == request.q
-        assert !request.urlSegments.isEmpty()
-        assert request.queryParameters.isEmpty()
-        assert request.additionalHeaders.isEmpty()
-
-        RequestBuilder requestBuilder = request.createHttpRequest()
-
-        String expectedUri = getRestConnection().baseUrl.toURI().toString() + 'test/segment'
-        String actualUri = requestBuilder.uri.toString()
-        assert expectedUri == actualUri
-    }
-
-    @Test
-    public void testCreateHttpRequestWithSegmentList(){
-        Request request = new Request(getRestConnection())
-        def segments = ['test', 'segment'] as ArrayList
-        request.addUrlSegments(segments)
-        assert HttpMethod.GET == request.method
-        assert Charsets.UTF_8 == request.bodyEncoding
-        assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
-        assert null == request.q
-        assert !request.urlSegments.isEmpty()
-        assert request.queryParameters.isEmpty()
-        assert request.additionalHeaders.isEmpty()
-
-        RequestBuilder requestBuilder = request.createHttpRequest()
-
-        String expectedUri = getRestConnection().baseUrl.toURI().toString() + 'test/segment'
-        String actualUri = requestBuilder.uri.toString()
-        assert expectedUri == actualUri
-    }
 
     @Test
     public void testCreateHttpRequestWithQ(){
@@ -212,7 +167,6 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null != request.q
-        assert request.urlSegments.isEmpty()
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
 
@@ -233,7 +187,6 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert !request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
 
@@ -253,7 +206,6 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert !request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
 
@@ -273,13 +225,12 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert request.queryParameters.isEmpty()
         assert !request.additionalHeaders.isEmpty()
 
         RequestBuilder requestBuilder = request.createHttpRequest()
 
-        String expectedUri = getRestConnection().baseUrl.toURI().toString()[0..-2]
+        String expectedUri = getRestConnection().baseUrl.toURI().toString()
         String actualUri = requestBuilder.uri.toString()
         assert expectedUri == actualUri
 
@@ -297,13 +248,12 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert request.queryParameters.isEmpty()
         assert !request.additionalHeaders.isEmpty()
 
         RequestBuilder requestBuilder = request.createHttpRequest()
 
-        String expectedUri = getRestConnection().baseUrl.toURI().toString()[0..-2]
+        String expectedUri = getRestConnection().baseUrl.toURI().toString()
         String actualUri = requestBuilder.uri.toString()
         assert expectedUri == actualUri
 
@@ -322,7 +272,6 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert !request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
 
@@ -346,7 +295,6 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
 
@@ -368,7 +316,6 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert request.queryParameters.isEmpty()
         assert !request.additionalHeaders.isEmpty()
 
@@ -389,7 +336,6 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert request.queryParameters.isEmpty()
         assert !request.additionalHeaders.isEmpty()
 
@@ -409,7 +355,6 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
 
@@ -428,7 +373,6 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
 
@@ -449,7 +393,6 @@ class RequestExecutionTest {
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.url
         assert null == request.q
-        assert request.urlSegments.isEmpty()
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
 

@@ -56,7 +56,6 @@ import com.blackducksoftware.integration.util.Stringable;
 public class Request extends Stringable {
     public final RestConnection restConnection;
     public String url;
-    public final List<String> urlSegments = new ArrayList<>();
     public final Map<String, String> queryParameters = new HashMap<>();
     public String q;
     public HttpMethod method = HttpMethod.GET;
@@ -79,10 +78,6 @@ public class Request extends Stringable {
             throw new IntegrationException("Can not create this request without a URL");
         }
         final URIBuilder uriBuilder = new URIBuilder(url);
-        if (urlSegments != null) {
-            final String path = StringUtils.join(urlSegments, "/");
-            uriBuilder.setPath(path);
-        }
         populateQueryParameters();
         if (queryParameters != null) {
             for (final Entry<String, String> queryParameter : queryParameters.entrySet()) {
@@ -137,14 +132,6 @@ public class Request extends Stringable {
         if (StringUtils.isNotBlank(q)) {
             queryParameters.put(QUERY_Q, q);
         }
-    }
-
-    public void addUrlSegment(final String urlSegment) {
-        urlSegments.add(urlSegment);
-    }
-
-    public void addUrlSegments(final List<String> urlSegment) {
-        urlSegments.addAll(urlSegment);
     }
 
     public Request addQueryParameter(final String queryParameterName, final String queryParameterValue) {
