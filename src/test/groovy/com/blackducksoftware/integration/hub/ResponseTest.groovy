@@ -232,11 +232,12 @@ class ResponseTest {
 
     @Test
     public void testGetHeaders() throws Exception {
-        CloseableHttpResponse closeableHttpResponse = [getAllHeaders: {return null}, close: {}] as CloseableHttpResponse
+        CloseableHttpResponse closeableHttpResponse = [containsHeader: {return false}, getAllHeaders: {return null}, close: {}] as CloseableHttpResponse
         Response response = null
         try  {
             response = new Response(closeableHttpResponse)
             assertEquals(Collections.emptyMap(), response.getHeaders())
+            assertNull(response.getHeaderValue("TestName"))
         } finally {
             if(response!= null) {
                 response.close()
@@ -245,16 +246,18 @@ class ResponseTest {
 
         Header[] headers = new Header[1]
         headers[0] = new BasicHeader("TestName","Value")
-        closeableHttpResponse = [getAllHeaders: {return headers}, close: {}] as CloseableHttpResponse
+        closeableHttpResponse = [getFirstHeader: {return headers[0]} , containsHeader: {return true}, getAllHeaders: {return headers}, close: {}] as CloseableHttpResponse
         try  {
             response = new Response(closeableHttpResponse)
             assertTrue(!response.getHeaders().isEmpty())
+            assertEquals("Value", response.getHeaderValue("TestName"))
         } finally {
             if(response!= null) {
                 response.close()
             }
         }
     }
+
 
 
     @Test

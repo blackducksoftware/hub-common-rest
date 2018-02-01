@@ -114,6 +114,13 @@ public class Response implements Closeable {
         return headers;
     }
 
+    public String getHeaderValue(final String name) {
+        if (response.containsHeader(name)) {
+            return response.getFirstHeader(name).getValue();
+        }
+        return null;
+    }
+
     public CloseableHttpResponse getActualResponse() {
         return response;
     }
