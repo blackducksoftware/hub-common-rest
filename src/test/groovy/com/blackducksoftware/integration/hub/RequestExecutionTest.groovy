@@ -86,7 +86,7 @@ class RequestExecutionTest {
         assert HttpMethod.GET == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null == request.q
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
@@ -106,7 +106,7 @@ class RequestExecutionTest {
         assert HttpMethod.PATCH == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null == request.q
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
@@ -121,11 +121,11 @@ class RequestExecutionTest {
     @Test
     public void testCreateHttpRequestWithInvalidUrl(){
         Request request = new Request(getRestConnection())
-        request.url = 'http :// a d v'
+        request.uri = 'http :// a d v'
         assert HttpMethod.GET == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null != request.url
+        assert null != request.uri
         assert null == request.q
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
@@ -142,11 +142,11 @@ class RequestExecutionTest {
     public void testCreateHttpRequestWithUrl(){
         String expectedUri = 'http://test'
         Request request = new Request(getRestConnection())
-        request.url = expectedUri
+        request.uri = expectedUri
         assert HttpMethod.GET == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null != request.url
+        assert null != request.uri
         assert null == request.q
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
@@ -165,7 +165,7 @@ class RequestExecutionTest {
         assert HttpMethod.GET == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null != request.q
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
@@ -185,7 +185,7 @@ class RequestExecutionTest {
         assert HttpMethod.GET == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null == request.q
         assert !request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
@@ -204,7 +204,7 @@ class RequestExecutionTest {
         assert HttpMethod.GET == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null == request.q
         assert !request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
@@ -223,7 +223,7 @@ class RequestExecutionTest {
         assert HttpMethod.GET == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null == request.q
         assert request.queryParameters.isEmpty()
         assert !request.additionalHeaders.isEmpty()
@@ -246,7 +246,7 @@ class RequestExecutionTest {
         assert HttpMethod.GET == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null == request.q
         assert request.queryParameters.isEmpty()
         assert !request.additionalHeaders.isEmpty()
@@ -270,7 +270,7 @@ class RequestExecutionTest {
         assert HttpMethod.GET == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null == request.q
         assert !request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
@@ -293,7 +293,7 @@ class RequestExecutionTest {
         assert HttpMethod.GET == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null == request.q
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
@@ -314,7 +314,7 @@ class RequestExecutionTest {
         assert HttpMethod.GET == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null == request.q
         assert request.queryParameters.isEmpty()
         assert !request.additionalHeaders.isEmpty()
@@ -334,7 +334,7 @@ class RequestExecutionTest {
         assert HttpMethod.POST == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null == request.q
         assert request.queryParameters.isEmpty()
         assert !request.additionalHeaders.isEmpty()
@@ -353,7 +353,7 @@ class RequestExecutionTest {
         assert HttpMethod.POST == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null == request.q
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
@@ -371,7 +371,7 @@ class RequestExecutionTest {
         assert HttpMethod.POST == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null == request.q
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
@@ -391,7 +391,7 @@ class RequestExecutionTest {
         assert HttpMethod.POST == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
-        assert null == request.url
+        assert null == request.uri
         assert null == request.q
         assert request.queryParameters.isEmpty()
         assert request.additionalHeaders.isEmpty()
