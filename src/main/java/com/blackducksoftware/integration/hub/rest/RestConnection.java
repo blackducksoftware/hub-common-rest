@@ -27,13 +27,16 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
@@ -41,29 +44,41 @@ import java.util.TimeZone;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
+import org.apache.commons.codec.Charsets;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustAllStrategy;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.FileEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
+import com.blackducksoftware.integration.hub.request.Request;
 import com.blackducksoftware.integration.hub.request.Response;
 import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException;
 import com.blackducksoftware.integration.log.IntLogger;
@@ -205,6 +220,75 @@ public abstract class RestConnection {
             requestBuilder.setUri(baseUrl.toURI());
         }
         return requestBuilder;
+    }
+
+    public HttpUriRequest createHttpRequest(final Request request) throws IllegalArgumentException, URISyntaxException {
+        if (request == null) {
+            throw new IllegalArgumentException("Missing the Request");
+        }
+        if (request.getMethod() == null) {
+            throw new IllegalArgumentException("Missing the HttpMethod");
+        }
+        URIBuilder uriBuilder = null;
+        if (StringUtils.isNotBlank(request.getUri())) {
+            uriBuilder = new URIBuilder(request.getUri());
+        } else if (baseUrl != null) {
+            uriBuilder = new URIBuilder(baseUrl.toURI());
+        }
+        if (uriBuilder == null) {
+            throw new IllegalArgumentException("Missing the URI");
+        }
+        String mimeType = ContentType.APPLICATION_JSON.getMimeType();
+        Charset bodyEncoding = Charsets.UTF_8;
+        if (StringUtils.isNotBlank(request.getMimeType())) {
+            mimeType = request.getMimeType();
+        }
+        if (request.getBodyEncoding() != null) {
+            bodyEncoding = request.getBodyEncoding();
+        }
+        final RequestBuilder requestBuilder = RequestBuilder.create(request.getMethod().name());
+        if (HttpMethod.GET == request.getMethod() && (request.getAdditionalHeaders() == null || request.getAdditionalHeaders().isEmpty() || !request.getAdditionalHeaders().containsKey(HttpHeaders.ACCEPT))) {
+            requestBuilder.addHeader(HttpHeaders.ACCEPT, mimeType);
+        }
+        requestBuilder.setCharset(bodyEncoding);
+        if (request.getAdditionalHeaders() != null && !request.getAdditionalHeaders().isEmpty()) {
+            for (final Entry<String, String> header : request.getAdditionalHeaders().entrySet()) {
+                requestBuilder.addHeader(header.getKey(), header.getValue());
+            }
+        }
+        if (commonRequestHeaders != null && !commonRequestHeaders.isEmpty()) {
+            for (final Entry<String, String> header : commonRequestHeaders.entrySet()) {
+                requestBuilder.addHeader(header.getKey(), header.getValue());
+            }
+        }
+        final Map<String, String> populatedQueryParameters = request.getPopulatedQueryParameters();
+        if (!populatedQueryParameters.isEmpty()) {
+            for (final Entry<String, String> queryParameter : populatedQueryParameters.entrySet()) {
+                uriBuilder.addParameter(queryParameter.getKey(), queryParameter.getValue());
+            }
+        }
+        requestBuilder.setUri(uriBuilder.build());
+        HttpEntity entity = null;
+        if (request.getBodyContentFile() != null) {
+            entity = new FileEntity(request.getBodyContentFile(), ContentType.create(mimeType, bodyEncoding));
+        } else if (request.getBodyContentMap() != null && !request.getBodyContentMap().isEmpty()) {
+            final List<NameValuePair> parameters = new ArrayList<>();
+            for (final Entry<String, String> entry : request.getBodyContentMap().entrySet()) {
+                final NameValuePair nameValuePair = new BasicNameValuePair(entry.getKey(), entry.getValue());
+                parameters.add(nameValuePair);
+            }
+            entity = new UrlEncodedFormEntity(parameters, bodyEncoding);
+        } else if (StringUtils.isNotBlank(request.getBodyContent())) {
+            entity = new StringEntity(request.getBodyContent(), ContentType.create(mimeType, bodyEncoding));
+        }
+        if (entity != null) {
+            requestBuilder.setEntity(entity);
+        }
+        return requestBuilder.build();
+    }
+
+    public Response createResponse(final Request request) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return createResponse(createHttpRequest(request));
     }
 
     public Response createResponse(final HttpUriRequest request) throws IntegrationException {

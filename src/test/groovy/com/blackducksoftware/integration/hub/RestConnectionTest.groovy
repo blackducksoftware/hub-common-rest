@@ -23,17 +23,25 @@
  */
 package com.blackducksoftware.integration.hub
 
+import java.nio.charset.Charset
+
+import org.apache.commons.codec.Charsets;
+import org.apache.http.HttpHeaders
+import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.client.methods.RequestBuilder
+import org.apache.http.entity.ContentType;
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder
+import com.blackducksoftware.integration.hub.request.PagedRequest
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnectionBuilder
 import com.blackducksoftware.integration.hub.rest.HttpMethod
 import com.blackducksoftware.integration.hub.rest.RestConnection
+import com.blackducksoftware.integration.hub.rest.UnauthenticatedRestConnection
 import com.blackducksoftware.integration.hub.rest.UnauthenticatedRestConnectionBuilder
 import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException
 import com.blackducksoftware.integration.log.IntLogger
@@ -193,4 +201,114 @@ class RestConnectionTest {
         Date date = RestConnection.parseDateString(dateString)
         assert dateString.equals(RestConnection.formatDate(date))
     }
+
+    @Test
+    public void testCreateHttpRequestNoRequest() {
+        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), null, 300, ProxyInfo.NO_PROXY_INFO)
+        try {
+            restConnection.createHttpRequest(null)
+            fail('Should have thrown exception')
+        } catch (IllegalArgumentException e) {
+            assert "Missing the Request" == e.getMessage()
+        }
+    }
+
+    @Test
+    public void testCreateHttpRequestNoURI() {
+        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), null, 300, ProxyInfo.NO_PROXY_INFO)
+        PagedRequest pagedRequest = new PagedRequest(null)
+        try {
+            restConnection.createHttpRequest(pagedRequest)
+            fail('Should have thrown exception')
+        } catch (IllegalArgumentException e) {
+            assert "Missing the URI" == e.getMessage()
+        }
+    }
+
+    @Test
+    public void testCreateHttpRequestNoMethod() {
+        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), null, 300, ProxyInfo.NO_PROXY_INFO)
+        PagedRequest pagedRequest = new PagedRequest(null, null, null, null, null, null, null)
+        try {
+            restConnection.createHttpRequest(pagedRequest)
+            fail('Should have thrown exception')
+        } catch (IllegalArgumentException e) {
+            assert "Missing the HttpMethod" == e.getMessage()
+        }
+    }
+
+    @Test
+    public void testCreateHttpRequest() {
+        RestConnection restConnection = getRestConnection()
+
+        String uri = restConnection.baseUrl.toURI().toString()
+        Map<String, String> queryParametes = [test:"one",query:"two"]
+        String q = 'q'
+        HttpMethod method = HttpMethod.DELETE
+        String mimeType = 'mime'
+        Charset  bodyEncoding = Charsets.UTF_8
+        Map<String, String> additionalHeaders = [header:"one",thing:"two"]
+
+        PagedRequest pagedRequest = new PagedRequest(null)
+        HttpRequestBase request = restConnection.createHttpRequest(pagedRequest)
+        assert HttpMethod.GET.name() == request.method
+        assert ContentType.APPLICATION_JSON.getMimeType() == request.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert null != request.getURI()
+        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert request.getURI().toString().contains('offset=0')
+        assert request.getURI().toString().contains('limit=100')
+
+
+        pagedRequest = new PagedRequest(uri)
+        request = restConnection.createHttpRequest(pagedRequest)
+        assert HttpMethod.GET.name() == request.method
+        assert ContentType.APPLICATION_JSON.getMimeType() == request.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert null != request.getURI()
+        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert request.getURI().toString().contains('offset=0')
+        assert request.getURI().toString().contains('limit=100')
+
+
+        pagedRequest = new PagedRequest(null, null, null, method, null, null, null)
+        request = restConnection.createHttpRequest(pagedRequest)
+        assert method.name() == request.method
+        assert 0 == request.getAllHeaders().size()
+        assert null != request.getURI()
+        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert request.getURI().toString().contains('offset=0')
+        assert request.getURI().toString().contains('limit=100')
+
+        pagedRequest = new PagedRequest(uri, queryParametes, q, method, mimeType, bodyEncoding, additionalHeaders)
+        request = restConnection.createHttpRequest(pagedRequest)
+        assert method.name() == request.method
+        assert 'one' == request.getFirstHeader('header').getValue()
+        assert 'two' == request.getFirstHeader('thing').getValue()
+        assert null != request.getURI()
+        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert request.getURI().toString().contains('offset=0')
+        assert request.getURI().toString().contains('limit=100')
+
+        pagedRequest = new PagedRequest(uri, queryParametes, q, method, mimeType, bodyEncoding, additionalHeaders, 5, 20)
+        request = restConnection.createHttpRequest(pagedRequest)
+        assert method.name() == request.method
+        assert 'one' == request.getFirstHeader('header').getValue()
+        assert 'two' == request.getFirstHeader('thing').getValue()
+        assert null != request.getURI()
+        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert request.getURI().toString().contains('offset=20')
+        assert request.getURI().toString().contains('limit=5')
+
+        additionalHeaders.put(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.getMimeType())
+        pagedRequest = new PagedRequest(uri, queryParametes, q, HttpMethod.GET, mimeType, bodyEncoding, additionalHeaders)
+        request = restConnection.createHttpRequest(pagedRequest)
+        assert HttpMethod.GET.name() == request.method
+        assert ContentType.APPLICATION_XML.getMimeType() == request.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert null != request.getURI()
+        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert request.getURI().toString().contains('offset=0')
+        assert request.getURI().toString().contains('limit=100')
+    }
+
+
+    //createResponse
 }

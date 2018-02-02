@@ -26,27 +26,49 @@ package com.blackducksoftware.integration.hub.request;
 import static com.blackducksoftware.integration.hub.RestConstants.QUERY_LIMIT;
 import static com.blackducksoftware.integration.hub.RestConstants.QUERY_OFFSET;
 
-import com.blackducksoftware.integration.hub.rest.RestConnection;
+import java.nio.charset.Charset;
+import java.util.Map;
+
+import com.blackducksoftware.integration.hub.rest.HttpMethod;
 
 public class PagedRequest extends Request {
-    public int limit = 100;
-    public int offset = 0;
 
-    public PagedRequest(final RestConnection restConnection) {
-        super(restConnection);
+    private final int limit;
+    private final int offset;
+
+    public PagedRequest(final String uri) {
+        super(uri);
+        limit = 100;
+        offset = 0;
+    }
+
+    public PagedRequest(final String uri, final Map<String, String> queryParameters, final String q, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders) {
+        super(uri, queryParameters, q, method, mimeType, bodyEncoding, additionalHeaders);
+        limit = 100;
+        offset = 0;
+    }
+
+    public PagedRequest(final String uri, final Map<String, String> queryParameters, final String q, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders, final int limit,
+            final int offset) {
+        super(uri, queryParameters, q, method, mimeType, bodyEncoding, additionalHeaders);
+        this.limit = limit;
+        this.offset = offset;
     }
 
     @Override
-    protected void populateQueryParameters() {
-        super.populateQueryParameters();
-
-        // if limit is not provided, the default is 10
-        if (limit <= 0) {
-            limit = 10;
-        }
-        addQueryParameter(QUERY_LIMIT, String.valueOf(limit));
-
-        // if offset is not provided, the default is 0
-        addQueryParameter(QUERY_OFFSET, String.valueOf(offset));
+    public Map<String, String> getPopulatedQueryParameters() {
+        final Map<String, String> populatedQueryParameters = super.getPopulatedQueryParameters();
+        populatedQueryParameters.put(QUERY_LIMIT, String.valueOf(limit));
+        populatedQueryParameters.put(QUERY_OFFSET, String.valueOf(offset));
+        return populatedQueryParameters;
     }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
 }

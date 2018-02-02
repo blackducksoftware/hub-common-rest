@@ -26,131 +26,112 @@ package com.blackducksoftware.integration.hub.request;
 import static com.blackducksoftware.integration.hub.RestConstants.QUERY_Q;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicNameValuePair;
 
-import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.rest.HttpMethod;
-import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.util.Stringable;
 
 public class Request extends Stringable {
-    public final RestConnection restConnection;
-    public String uri;
-    public final Map<String, String> queryParameters = new HashMap<>();
-    public String q;
-    public HttpMethod method = HttpMethod.GET;
+    private final String uri;
+    private final Map<String, String> queryParameters;
+    private final String q;
+    private final HttpMethod method;
+    private final String mimeType;
+    private final Charset bodyEncoding;
+    private final Map<String, String> additionalHeaders;
 
-    public String mimeType = ContentType.APPLICATION_JSON.getMimeType();
-    public Charset bodyEncoding = Charsets.UTF_8;
+    private File bodyContentFile;
+    private Map<String, String> bodyContentMap;
+    private String bodyContent;
 
-    public final Map<String, String> additionalHeaders = new HashMap<>();
-
-    public Request(final RestConnection restConnection) {
-        this.restConnection = restConnection;
+    public Request(final String uri) {
+        this.uri = uri;
+        this.queryParameters = null;
+        this.q = null;
+        this.method = HttpMethod.GET;
+        this.mimeType = ContentType.APPLICATION_JSON.getMimeType();
+        this.bodyEncoding = Charsets.UTF_8;
+        this.additionalHeaders = null;
     }
 
-    protected RequestBuilder createHttpRequest() throws IllegalArgumentException, URISyntaxException, IntegrationException {
-        final RequestBuilder requestBuilder = restConnection.createRequestBuilder(method, additionalHeaders);
-        if (uri == null) {
-            uri = requestBuilder.getUri().toString();
-        }
-        if (uri == null) {
-            throw new IntegrationException("Can not create this request without a URL");
-        }
-        final URIBuilder uriBuilder = new URIBuilder(uri);
-        populateQueryParameters();
-        if (queryParameters != null) {
-            for (final Entry<String, String> queryParameter : queryParameters.entrySet()) {
-                uriBuilder.addParameter(queryParameter.getKey(), queryParameter.getValue());
-            }
-        }
-        requestBuilder.setUri(uriBuilder.build());
-        return requestBuilder;
+    public Request(final String uri, final Map<String, String> queryParameters, final String q, final HttpMethod method, final String mimeType, final Charset bodyEncoding,
+            final Map<String, String> additionalHeaders) {
+        this.uri = uri;
+        this.queryParameters = queryParameters;
+        this.q = q;
+        this.method = method;
+        this.mimeType = mimeType;
+        this.bodyEncoding = bodyEncoding;
+        this.additionalHeaders = additionalHeaders;
     }
 
-    public Response execute() throws IntegrationException, IllegalArgumentException, URISyntaxException {
-        if (HttpMethod.GET == method && !additionalHeaders.containsKey(HttpHeaders.ACCEPT)) {
-            additionalHeaders.put(HttpHeaders.ACCEPT, mimeType);
-        }
-        final RequestBuilder requestBuilder = createHttpRequest();
-        requestBuilder.setCharset(bodyEncoding);
-        final HttpUriRequest request = requestBuilder.build();
-        return restConnection.createResponse(request);
+    public String getUri() {
+        return uri;
     }
 
-    public Response execute(final File bodyContentFile) throws IntegrationException, IllegalArgumentException, URISyntaxException {
-        final FileEntity entity = new FileEntity(bodyContentFile, ContentType.create(mimeType, bodyEncoding));
-        return execute(entity);
+    public Map<String, String> getQueryParameters() {
+        return queryParameters;
     }
 
-    public Response execute(final Map<String, String> bodyContentMap) throws IntegrationException, IllegalArgumentException, URISyntaxException {
-        final List<NameValuePair> parameters = new ArrayList<>();
-        if (bodyContentMap != null && !bodyContentMap.isEmpty()) {
-            for (final Entry<String, String> entry : bodyContentMap.entrySet()) {
-                final NameValuePair nameValuePair = new BasicNameValuePair(entry.getKey(), entry.getValue());
-                parameters.add(nameValuePair);
-            }
-        }
-        final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(parameters, bodyEncoding);
-        return execute(entity);
-    }
-
-    public Response execute(final String bodyContent) throws IntegrationException, IllegalArgumentException, URISyntaxException {
-        final StringEntity entity = new StringEntity(bodyContent, ContentType.create(mimeType, bodyEncoding));
-        return execute(entity);
-    }
-
-    private Response execute(final HttpEntity entity) throws IntegrationException, IllegalArgumentException, URISyntaxException {
-        final RequestBuilder requestBuilder = createHttpRequest();
-        requestBuilder.setCharset(bodyEncoding);
-        requestBuilder.setEntity(entity);
-        final HttpUriRequest request = requestBuilder.build();
-        return restConnection.createResponse(request);
-    }
-
-    protected void populateQueryParameters() {
+    public Map<String, String> getPopulatedQueryParameters() {
+        final Map<String, String> populatedQueryParameters = new HashMap<>();
         if (StringUtils.isNotBlank(q)) {
-            queryParameters.put(QUERY_Q, q);
+            populatedQueryParameters.put(QUERY_Q, q);
         }
+        if (this.queryParameters != null && !this.queryParameters.isEmpty()) {
+            populatedQueryParameters.putAll(this.queryParameters);
+        }
+        return populatedQueryParameters;
     }
 
-    public Request addQueryParameter(final String queryParameterName, final String queryParameterValue) {
-        this.queryParameters.put(queryParameterName, queryParameterValue);
-        return this;
+    public String getQ() {
+        return q;
     }
 
-    public Request addQueryParameters(final Map<String, String> queryParameters) {
-        this.queryParameters.putAll(queryParameters);
-        return this;
+    public HttpMethod getMethod() {
+        return method;
     }
 
-    public Request addAdditionalHeader(final String headerName, final String headerValue) {
-        this.additionalHeaders.put(headerName, headerValue);
-        return this;
+    public String getMimeType() {
+        return mimeType;
     }
 
-    public Request addAdditionalHeaders(final Map<String, String> additionalHeaders) {
-        this.additionalHeaders.putAll(additionalHeaders);
-        return this;
+    public Charset getBodyEncoding() {
+        return bodyEncoding;
     }
+
+    public Map<String, String> getAdditionalHeaders() {
+        return additionalHeaders;
+    }
+
+    public File getBodyContentFile() {
+        return bodyContentFile;
+    }
+
+    public Map<String, String> getBodyContentMap() {
+        return bodyContentMap;
+    }
+
+    public String getBodyContent() {
+        return bodyContent;
+    }
+
+    public void setBodyContentFile(final File bodyContentFile) {
+        this.bodyContentFile = bodyContentFile;
+    }
+
+    public void setBodyContentMap(final Map<String, String> bodyContentMap) {
+        this.bodyContentMap = bodyContentMap;
+    }
+
+    public void setBodyContent(final String bodyContent) {
+        this.bodyContent = bodyContent;
+    }
+
 }

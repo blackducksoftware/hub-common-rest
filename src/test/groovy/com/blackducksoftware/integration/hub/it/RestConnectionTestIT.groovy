@@ -119,11 +119,10 @@ class RestConnectionTestIT {
         builder.timeout = 120;
         final RestConnection restConnection = builder.build()
 
-        final Request hubRequest = new Request(restConnection)
-        hubRequest.url = url.toString() + "/api/notifications?offset=0&endDate=2017-01-25T18:43:46.685Z&limit=100&startDate=2017-01-17T21:19:33.311Z"
+        final Request hubRequest = new Request(url.toString() + "/api/notifications?offset=0&endDate=2017-01-25T18:43:46.685Z&limit=100&startDate=2017-01-17T21:19:33.311Z")
         System.out.println("Executing: " + hubRequest.toString())
         try {
-            hubRequest.execute()
+            restConnection.createResponse(hubRequest)
             fail("Expected Unauthorized Exception")
         } catch (final Exception e) {
             assertTrue(e.getMessage().contains("Unauthorized"))
