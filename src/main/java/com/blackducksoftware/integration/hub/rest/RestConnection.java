@@ -160,9 +160,6 @@ public abstract class RestConnection {
             } else {
                 sslContext = SSLContexts.createDefault();
             }
-            // else {
-            // sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustSelfSignedStrategy()).build();
-            // }
             final HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
             final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, allowAllHosts);
             clientBuilder.setSSLSocketFactory(connectionFactory);
