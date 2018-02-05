@@ -27,9 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.Charsets;
@@ -78,12 +76,8 @@ public class ApiKeyRestConnection extends RestConnection {
     @Override
     public void clientAuthenticate() throws IntegrationException {
         try {
-            final List<String> segments = new ArrayList<>();
-            segments.add("api");
-            segments.add("tokens");
-            segments.add("authenticate");
             final URIBuilder uriBuilder = new URIBuilder(baseUrl.toURI());
-            uriBuilder.setPath(StringUtils.join(segments, "/"));
+            uriBuilder.setPath("api/tokens/authenticate");
 
             if (StringUtils.isNotBlank(hubApiKey)) {
                 final RequestBuilder requestBuilder = createRequestBuilder(HttpMethod.POST, getRequestHeaders());

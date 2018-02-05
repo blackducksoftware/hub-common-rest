@@ -100,7 +100,7 @@ public class HubOAuthTokenService {
     private Token getTokenFromEncodedPost(final Map<String, String> formDataMap) throws IntegrationException {
         final Request request = new Request(null, null, null, HttpMethod.POST, null, null, null);
         request.setBodyContentMap(formDataMap);
-        try (Response response = restConnection.createResponse(request)) {
+        try (Response response = restConnection.executeRequest(request)) {
             final String jsonToken = response.getContentString();
             return gson.fromJson(jsonToken, Token.class);
         } catch (final IOException | IllegalArgumentException | URISyntaxException e) {

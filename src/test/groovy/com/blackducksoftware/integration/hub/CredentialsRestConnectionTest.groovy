@@ -94,7 +94,7 @@ class CredentialsRestConnectionTest {
     public void testHandleExecuteClientCallSuccessful(){
         RestConnection restConnection = getRestConnection(getSuccessResponse())
         RequestBuilder requestBuilder =  restConnection.createRequestBuilder(HttpMethod.GET);
-        restConnection.createResponse(requestBuilder.build()).withCloseable{ assert 200 == it.getStatusCode() }
+        restConnection.executeRequest(requestBuilder.build()).withCloseable{ assert 200 == it.getStatusCode() }
 
         assert null != restConnection.getClientBuilder().cookieStore
         assert null != restConnection.getDefaultRequestConfigBuilder().cookieSpec
@@ -105,7 +105,7 @@ class CredentialsRestConnectionTest {
         RestConnection restConnection = getRestConnection(getUnauthorizedResponse())
         RequestBuilder requestBuilder =  restConnection.createRequestBuilder(HttpMethod.GET);
         try{
-            restConnection.createResponse(requestBuilder.build())
+            restConnection.executeRequest(requestBuilder.build())
             fail('Should have thrown exception')
         } catch (IntegrationRestException e) {
             assert 401 == e.httpStatusCode
@@ -118,7 +118,7 @@ class CredentialsRestConnectionTest {
         RestConnection restConnection = getRestConnection(getFailureResponse())
         RequestBuilder requestBuilder =  restConnection.createRequestBuilder(HttpMethod.GET);
         try{
-            restConnection.createResponse(requestBuilder.build())
+            restConnection.executeRequest(requestBuilder.build())
             fail('Should have thrown exception')
         } catch (IntegrationRestException e) {
             assert 404 == e.httpStatusCode

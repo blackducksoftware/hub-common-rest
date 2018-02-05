@@ -25,7 +25,7 @@ package com.blackducksoftware.integration.hub
 
 import org.junit.Test
 
-import com.blackducksoftware.integration.hub.proxy.ProxyInfoFieldEnum
+import com.blackducksoftware.integration.hub.proxy.ProxyInfoField
 import com.blackducksoftware.integration.hub.validator.ProxyInfoValidator
 import com.blackducksoftware.integration.validator.ValidationResults
 
@@ -87,7 +87,7 @@ class ProxyInfoValidatorTest {
         assert "-1" == validator.port
         assert validator.hasProxySettings()
         assert result.hasErrors()
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYPORT).contains(ProxyInfoValidator.MSG_PROXY_PORT_INVALID)
+        assert result.getResultString(ProxyInfoField.PROXYPORT).contains(ProxyInfoValidator.MSG_PROXY_PORT_INVALID)
 
         validator = new ProxyInfoValidator()
         result = new ValidationResults()
@@ -99,7 +99,7 @@ class ProxyInfoValidatorTest {
         assert proxyPortStr == validator.port
         assert validator.hasProxySettings()
         assert result.hasErrors()
-        assert null != result.getResultString(ProxyInfoFieldEnum.PROXYPORT)
+        assert null != result.getResultString(ProxyInfoField.PROXYPORT)
 
         validator = new ProxyInfoValidator()
         result = new ValidationResults()
@@ -111,7 +111,7 @@ class ProxyInfoValidatorTest {
         assert proxyPortStr == validator.port
         assert validator.hasProxySettings()
         assert result.hasErrors()
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYHOST).contains(ProxyInfoValidator.MSG_PROXY_HOST_REQUIRED)
+        assert result.getResultString(ProxyInfoField.PROXYHOST).contains(ProxyInfoValidator.MSG_PROXY_HOST_REQUIRED)
 
         validator = new ProxyInfoValidator()
         result = new ValidationResults()
@@ -123,7 +123,7 @@ class ProxyInfoValidatorTest {
         assert proxyPortStr == validator.port
         assert validator.hasProxySettings()
         assert result.hasErrors()
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYPORT).contains(ProxyInfoValidator.MSG_PROXY_PORT_REQUIRED)
+        assert result.getResultString(ProxyInfoField.PROXYPORT).contains(ProxyInfoValidator.MSG_PROXY_PORT_REQUIRED)
     }
 
     @Test
@@ -163,7 +163,7 @@ class ProxyInfoValidatorTest {
         assert password == validator.password
         assert validator.hasProxySettings()
         assert result.hasErrors()
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYHOST).contains(ProxyInfoValidator.MSG_PROXY_HOST_NOT_SPECIFIED)
+        assert result.getResultString(ProxyInfoField.PROXYHOST).contains(ProxyInfoValidator.MSG_PROXY_HOST_NOT_SPECIFIED)
 
         validator = new ProxyInfoValidator()
         result = new ValidationResults()
@@ -183,8 +183,8 @@ class ProxyInfoValidatorTest {
         assert password == validator.password
         assert validator.hasProxySettings()
         assert result.hasErrors()
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYUSERNAME).contains(ProxyInfoValidator.MSG_CREDENTIALS_INVALID)
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYPASSWORD).contains(ProxyInfoValidator.MSG_CREDENTIALS_INVALID)
+        assert result.getResultString(ProxyInfoField.PROXYUSERNAME).contains(ProxyInfoValidator.MSG_CREDENTIALS_INVALID)
+        assert result.getResultString(ProxyInfoField.PROXYPASSWORD).contains(ProxyInfoValidator.MSG_CREDENTIALS_INVALID)
 
         validator = new ProxyInfoValidator()
         result = new ValidationResults()
@@ -203,8 +203,8 @@ class ProxyInfoValidatorTest {
         assert password == validator.password
         assert validator.hasProxySettings()
         assert result.hasErrors()
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYUSERNAME).contains(ProxyInfoValidator.MSG_CREDENTIALS_INVALID)
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYPASSWORD).contains(ProxyInfoValidator.MSG_CREDENTIALS_INVALID)
+        assert result.getResultString(ProxyInfoField.PROXYUSERNAME).contains(ProxyInfoValidator.MSG_CREDENTIALS_INVALID)
+        assert result.getResultString(ProxyInfoField.PROXYPASSWORD).contains(ProxyInfoValidator.MSG_CREDENTIALS_INVALID)
 
 
         validator = new ProxyInfoValidator()
@@ -228,8 +228,8 @@ class ProxyInfoValidatorTest {
         assert password == validator.password
         assert validator.hasProxySettings()
         assert result.hasErrors()
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYUSERNAME).contains(ProxyInfoValidator.MSG_PROXY_NTLM_CREDENTIALS_REQUIRED)
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYPASSWORD).contains(ProxyInfoValidator.MSG_PROXY_NTLM_CREDENTIALS_REQUIRED)
+        assert result.getResultString(ProxyInfoField.PROXYUSERNAME).contains(ProxyInfoValidator.MSG_PROXY_NTLM_CREDENTIALS_REQUIRED)
+        assert result.getResultString(ProxyInfoField.PROXYPASSWORD).contains(ProxyInfoValidator.MSG_PROXY_NTLM_CREDENTIALS_REQUIRED)
 
         validator = new ProxyInfoValidator()
         result = new ValidationResults()
@@ -252,8 +252,8 @@ class ProxyInfoValidatorTest {
         assert password == validator.password
         assert validator.hasProxySettings()
         assert result.hasErrors()
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYUSERNAME).contains(ProxyInfoValidator.MSG_PROXY_NTLM_CREDENTIALS_REQUIRED)
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYPASSWORD).contains(ProxyInfoValidator.MSG_PROXY_NTLM_CREDENTIALS_REQUIRED)
+        assert result.getResultString(ProxyInfoField.PROXYUSERNAME).contains(ProxyInfoValidator.MSG_PROXY_NTLM_CREDENTIALS_REQUIRED)
+        assert result.getResultString(ProxyInfoField.PROXYPASSWORD).contains(ProxyInfoValidator.MSG_PROXY_NTLM_CREDENTIALS_REQUIRED)
 
 
         validator = new ProxyInfoValidator()
@@ -277,8 +277,8 @@ class ProxyInfoValidatorTest {
         assert password == validator.password
         assert validator.hasProxySettings()
         assert result.hasErrors()
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYUSERNAME).contains(ProxyInfoValidator.MSG_PROXY_NTLM_CREDENTIALS_REQUIRED)
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYPASSWORD).contains(ProxyInfoValidator.MSG_PROXY_NTLM_CREDENTIALS_REQUIRED)
+        assert result.getResultString(ProxyInfoField.PROXYUSERNAME).contains(ProxyInfoValidator.MSG_PROXY_NTLM_CREDENTIALS_REQUIRED)
+        assert result.getResultString(ProxyInfoField.PROXYPASSWORD).contains(ProxyInfoValidator.MSG_PROXY_NTLM_CREDENTIALS_REQUIRED)
     }
 
     @Test
@@ -315,7 +315,7 @@ class ProxyInfoValidatorTest {
         assert ignoredHost == validator.ignoredProxyHosts
         assert validator.hasProxySettings()
         assert result.hasErrors()
-        assert result.getResultString(ProxyInfoFieldEnum.NOPROXYHOSTS).contains(ProxyInfoValidator.MSG_IGNORE_HOSTS_INVALID)
+        assert result.getResultString(ProxyInfoField.NOPROXYHOSTS).contains(ProxyInfoValidator.MSG_IGNORE_HOSTS_INVALID)
 
         validator = new ProxyInfoValidator()
         result = new ValidationResults()
@@ -328,6 +328,6 @@ class ProxyInfoValidatorTest {
         assert ignoredHost == validator.ignoredProxyHosts
         assert validator.hasProxySettings()
         assert result.hasErrors()
-        assert result.getResultString(ProxyInfoFieldEnum.PROXYHOST).contains(ProxyInfoValidator.MSG_PROXY_HOST_NOT_SPECIFIED)
+        assert result.getResultString(ProxyInfoField.PROXYHOST).contains(ProxyInfoValidator.MSG_PROXY_HOST_NOT_SPECIFIED)
     }
 }

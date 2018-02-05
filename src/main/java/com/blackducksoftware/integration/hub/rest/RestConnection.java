@@ -287,22 +287,22 @@ public abstract class RestConnection {
         return requestBuilder.build();
     }
 
-    public Response createResponse(final Request request) throws IntegrationException, IllegalArgumentException, URISyntaxException {
-        return createResponse(createHttpRequest(request));
+    public Response executeRequest(final Request request) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+        return executeRequest(createHttpRequest(request));
     }
 
-    public Response createResponse(final HttpUriRequest request) throws IntegrationException {
+    public Response executeRequest(final HttpUriRequest request) throws IntegrationException {
         final long start = System.currentTimeMillis();
         logMessage(LogLevel.TRACE, "starting request: " + request.getURI().toString());
         try {
-            return handleExecuteClientCall(request, 0);
+            return handleClientExecution(request, 0);
         } finally {
             final long end = System.currentTimeMillis();
             logMessage(LogLevel.TRACE, String.format("completed request: %s (%d ms)", request.getURI().toString(), end - start));
         }
     }
 
-    private Response handleExecuteClientCall(final HttpUriRequest request, final int retryCount) throws IntegrationException {
+    private Response handleClientExecution(final HttpUriRequest request, final int retryCount) throws IntegrationException {
         if (client != null) {
             try {
                 final URI uri = request.getURI();
@@ -319,7 +319,7 @@ public abstract class RestConnection {
                         if (statusCode == 401 && retryCount < 2) {
                             connect();
                             final HttpUriRequest newRequest = RequestBuilder.copy(request).build();
-                            return handleExecuteClientCall(newRequest, retryCount + 1);
+                            return handleClientExecution(newRequest, retryCount + 1);
                         } else {
                             throw new IntegrationRestException(statusCode, statusMessage,
                                     String.format("There was a problem trying to %s this item: %s. Error: %s %s", request.getMethod(), urlString, statusCode, statusMessage));
@@ -336,7 +336,7 @@ public abstract class RestConnection {
         } else {
             connect();
             final HttpUriRequest newRequest = RequestBuilder.copy(request).build();
-            return handleExecuteClientCall(newRequest, retryCount);
+            return handleClientExecution(newRequest, retryCount);
         }
     }
 

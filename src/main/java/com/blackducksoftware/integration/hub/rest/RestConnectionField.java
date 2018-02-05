@@ -21,17 +21,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.rest.oauth;
+package com.blackducksoftware.integration.hub.rest;
 
 import com.blackducksoftware.integration.validator.FieldEnum;
 
-public enum OauthRestConnectionFieldEnum implements FieldEnum {
-    ACCESSTYPE("oauthAccessType"),
-    TOKENMANAGER("oauthTokenManager");
+public enum RestConnectionField implements FieldEnum {
+    URL("restConnectionUrl"),
+    TIMEOUT("restConnectionTimeout"),
+    LOGGER("restConnectionLogger"),
+    COMMON_HEADERS("restConnectionHeaders");
 
     private String key;
 
-    private OauthRestConnectionFieldEnum(final String key) {
+    private RestConnectionField(final String key) {
         this.key = key;
     }
 
@@ -39,5 +41,4 @@ public enum OauthRestConnectionFieldEnum implements FieldEnum {
     public String getKey() {
         return key;
     }
-
 }

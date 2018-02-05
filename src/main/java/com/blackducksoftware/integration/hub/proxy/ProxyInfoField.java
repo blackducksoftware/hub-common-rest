@@ -25,7 +25,7 @@ package com.blackducksoftware.integration.hub.proxy;
 
 import com.blackducksoftware.integration.validator.FieldEnum;
 
-public enum ProxyInfoFieldEnum implements FieldEnum {
+public enum ProxyInfoField implements FieldEnum {
     PROXYHOST("proxyHost"),
     PROXYPORT("proxyPort"),
     PROXYUSERNAME("proxyUsername"),
@@ -36,7 +36,7 @@ public enum ProxyInfoFieldEnum implements FieldEnum {
 
     private String key;
 
-    private ProxyInfoFieldEnum(final String key) {
+    private ProxyInfoField(final String key) {
         this.key = key;
     }
 

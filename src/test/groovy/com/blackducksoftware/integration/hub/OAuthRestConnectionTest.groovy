@@ -131,7 +131,7 @@ class OAuthRestConnectionTest {
     public void testHandleExecuteClientCallSuccessful(){
         RestConnection restConnection = getRestConnection(getTokenManager(), AccessType.CLIENT)
         Request request = new Request(null)
-        restConnection.createResponse(request).withCloseable{ assert 200 == it.getStatusCode() }
+        restConnection.executeRequest(request).withCloseable{ assert 200 == it.getStatusCode() }
         def client =  restConnection.getClient()
         def requestInterceptors = client.execChain.requestExecutor.requestExecutor.httpProcessor.requestInterceptors
         def ourLambdaInterceptor = requestInterceptors.last()

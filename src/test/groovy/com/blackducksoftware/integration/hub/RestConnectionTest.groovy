@@ -168,7 +168,7 @@ class RestConnectionTest {
         RequestBuilder requestBuilder = restConnection.createRequestBuilder(HttpMethod.DELETE);
         assert null != requestBuilder.getHeaders("Common")
 
-        restConnection.createResponse(requestBuilder.build()).withCloseable{  assert 200 == it.getStatusCode() }
+        restConnection.executeRequest(requestBuilder.build()).withCloseable{  assert 200 == it.getStatusCode() }
     }
 
     @Test
@@ -180,7 +180,7 @@ class RestConnectionTest {
 
         restConnection = getRestConnection(new MockResponse().setResponseCode(404))
         try{
-            restConnection.createResponse(request)
+            restConnection.executeRequest(request)
             fail('Should have thrown exception')
         } catch (IntegrationRestException e) {
             assert 404 == e.httpStatusCode
@@ -188,7 +188,7 @@ class RestConnectionTest {
 
         restConnection = getRestConnection(new MockResponse().setResponseCode(401))
         try{
-            restConnection.createResponse(request)
+            restConnection.executeRequest(request)
             fail('Should have thrown exception')
         } catch (IntegrationRestException e) {
             assert 401 == e.httpStatusCode
