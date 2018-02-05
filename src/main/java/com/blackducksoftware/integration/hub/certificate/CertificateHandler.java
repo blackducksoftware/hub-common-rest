@@ -152,7 +152,14 @@ public class CertificateHandler {
             clientBuilder.setDefaultCredentialsProvider(credentialsProvider);
             clientBuilder.setDefaultRequestConfig(defaultRequestConfigBuilder.build());
 
-            final SSLContext sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustAllStrategy()).build();
+            final File trustStore = getTrustStore();
+            final KeyStore keyStore;
+            try {
+                keyStore = getKeyStore(trustStore);
+            } catch (final Exception e) {
+                throw new IntegrationException(e);
+            }
+            final SSLContext sslContext = SSLContextBuilder.create().loadTrustMaterial(keyStore, new TrustAllStrategy()).build();
             final HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
             final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, allowAllHosts);
             clientBuilder.setSSLSocketFactory(connectionFactory);
