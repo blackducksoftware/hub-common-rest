@@ -148,6 +148,8 @@ class RestConnectionTestIT {
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_NTLM"))
             proxyBuilder.username = restConnectionTestHelper.getProperty("TEST_PROXY_USER_NTLM")
             proxyBuilder.password = restConnectionTestHelper.getProperty("TEST_PROXY_PASSWORD_NTLM")
+            proxyBuilder.ntlmDomain = restConnectionTestHelper.getProperty("TEST_PROXY_DOMAIN_NTLM")
+            proxyBuilder.ntlmWorkstation = restConnectionTestHelper.getProperty("TEST_PROXY_WORKSTATION_NTLM")
             ProxyInfo proxyInfo = proxyBuilder.build()
             final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
             restConnection.connect()
