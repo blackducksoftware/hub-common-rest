@@ -154,6 +154,19 @@ class RestConnectionTest {
     }
 
     @Test
+    public void testRestConnectionNoProxy(){
+        IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
+        int timeoutSeconds = 213
+        UnauthenticatedRestConnection restConnection = new UnauthenticatedRestConnection(logger, server.url("/").url(), timeoutSeconds, null)
+        try {
+            restConnection.connect();
+            fail('Should have thrown exception')
+        } catch (IllegalStateException e) {
+            assert RestConnection.ERROR_MSG_PROXY_INFO_NULL == e.getMessage()
+        }
+    }
+
+    @Test
     public void testToString(){
         RestConnection restConnection = getRestConnection()
         String s  = "RestConnection [baseUrl=${server.url("/").toString()}]"
@@ -308,7 +321,4 @@ class RestConnectionTest {
         assert request.getURI().toString().contains('offset=0')
         assert request.getURI().toString().contains('limit=100')
     }
-
-
-    //createResponse
 }
