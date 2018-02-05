@@ -63,6 +63,20 @@ class RestConnectionTestIT {
     }
 
     @Test
+    public void testPassthroughProxyWithHttp() {
+        try {
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_PASSTHROUGH")
+            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_PASSTHROUGH"))
+            ProxyInfo proxyInfo = proxyBuilder.build()
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            restConnection.connect()
+        } catch (final Exception e) {
+            fail("No exception should be thrown with a valid config: " + e.getMessage())
+        }
+    }
+
+    @Test
     public void testBasicProxyWithHttp() {
         try {
             ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
@@ -95,16 +109,66 @@ class RestConnectionTestIT {
     }
 
     @Test
-    public void testPassthroughProxyWithHttp() {
+    public void testDigestProxyWithHttp() {
         try {
             ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
-            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_PASSTHROUGH")
-            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_PASSTHROUGH"))
+            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_DIGEST")
+            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_DIGEST"))
+            proxyBuilder.username = restConnectionTestHelper.getProperty("TEST_PROXY_USER_DIGEST")
+            proxyBuilder.password = restConnectionTestHelper.getProperty("TEST_PROXY_PASSWORD_DIGEST")
             ProxyInfo proxyInfo = proxyBuilder.build()
             final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
             restConnection.connect()
         } catch (final Exception e) {
             fail("No exception should be thrown with a valid config: " + e.getMessage())
+        }
+    }
+
+    @Test
+    public void testDigestProxyFailsWithoutCredentialsWithHttp() {
+        try {
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_DIGEST")
+            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_DIGEST"))
+            ProxyInfo proxyInfo = proxyBuilder.build()
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            restConnection.connect()
+            fail("An exception should be thrown")
+        } catch (final Exception e) {
+            assertFalse(e.getMessage(), e.getMessage().contains("Can not reach this server"))
+            assertTrue(e.getMessage(), e.getMessage().contains("Proxy Authentication Required"))
+        }
+    }
+
+    @Test
+    public void testNtlmProxyWithHttp() {
+        try {
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_NTLM")
+            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_NTLM"))
+            proxyBuilder.username = restConnectionTestHelper.getProperty("TEST_PROXY_USER_NTLM")
+            proxyBuilder.password = restConnectionTestHelper.getProperty("TEST_PROXY_PASSWORD_NTLM")
+            ProxyInfo proxyInfo = proxyBuilder.build()
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            restConnection.connect()
+        } catch (final Exception e) {
+            fail("No exception should be thrown with a valid config: " + e.getMessage())
+        }
+    }
+
+    @Test
+    public void testNtlmProxyFailsWithoutCredentialsWithHttp() {
+        try {
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_NTLM")
+            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_NTLM"))
+            ProxyInfo proxyInfo = proxyBuilder.build()
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            restConnection.connect()
+            fail("An exception should be thrown")
+        } catch (final Exception e) {
+            assertFalse(e.getMessage(), e.getMessage().contains("Can not reach this server"))
+            assertTrue(e.getMessage(), e.getMessage().contains("Proxy Authentication Required"))
         }
     }
 
