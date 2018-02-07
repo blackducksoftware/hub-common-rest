@@ -7,7 +7,10 @@ buildscript {
 	dependencies { classpath "com.blackducksoftware.integration:common-gradle-plugin:0.0.+" }
 }
 
-plugins { id 'groovy' }
+plugins { 
+	id 'groovy' 
+	id 'org.sonarqube' version '2.6.1'
+}
 
 version = '5.1.1-SNAPSHOT'
 
@@ -25,3 +28,11 @@ dependencies {
 test { useJUnit { excludeCategories 'com.blackducksoftware.integration.IntegrationTest' } }
 
 task testIntegration(type: Test) { useJUnit { includeCategories 'com.blackducksoftware.integration.IntegrationTest' } }
+
+sonarqube {
+    properties {
+        property 'sonar.projectName', 'Integrations - Hub Common Rest'
+        property 'sonar.projectKey', 'com.blackducksoftware:int:hub-common-rest'
+        property 'sonar.verbose', false
+   }
+}
