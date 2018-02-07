@@ -44,6 +44,7 @@ class ProxyInfoValidatorTest {
         validator.host = proxyHost
         validator.port = proxyPort
         assert validator.hasProxySettings()
+        assert !validator.hasAuthenticatedProxySettings()
 
         result = new ValidationResults()
         proxyHost = "proxyhost"
@@ -139,6 +140,7 @@ class ProxyInfoValidatorTest {
         validator.username = username
         validator.password = password
         assert validator.hasProxySettings()
+        assert validator.hasAuthenticatedProxySettings()
         assert result.success
     }
 

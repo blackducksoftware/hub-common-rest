@@ -200,4 +200,8 @@ public class ProxyInfoValidator extends AbstractValidator {
                 || StringUtils.isNotBlank(ntlmDomain) || StringUtils.isNotBlank(ntlmWorkstation);
     }
 
+    public boolean hasAuthenticatedProxySettings() {
+        return StringUtils.isNotBlank(username) || StringUtils.isNotBlank(password) || StringUtils.isNotBlank(ntlmDomain) || StringUtils.isNotBlank(ntlmWorkstation);
+    }
+
 }
