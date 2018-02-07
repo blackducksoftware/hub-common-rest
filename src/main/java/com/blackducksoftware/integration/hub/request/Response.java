@@ -35,6 +35,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
+import com.blackducksoftware.integration.exception.IntegrationException;
+
 public class Response implements Closeable {
     private final CloseableHttpResponse response;
 
@@ -58,22 +60,28 @@ public class Response implements Closeable {
         }
     }
 
-    public InputStream getContent() throws UnsupportedOperationException, IOException {
+    public InputStream getContent() throws IntegrationException {
         if (response.getEntity() != null) {
-            return response.getEntity().getContent();
+            try {
+                return response.getEntity().getContent();
+            } catch (UnsupportedOperationException | IOException e) {
+                throw new IntegrationException(e.getMessage(), e);
+            }
         } else {
             return null;
         }
     }
 
-    public String getContentString() throws UnsupportedOperationException, IOException {
+    public String getContentString() throws IntegrationException {
         return getContentString(Charsets.UTF_8);
     }
 
-    public String getContentString(final Charset encoding) throws UnsupportedOperationException, IOException {
+    public String getContentString(final Charset encoding) throws IntegrationException {
         if (response.getEntity() != null) {
             try (final InputStream inputStream = response.getEntity().getContent()) {
                 return IOUtils.toString(inputStream, encoding);
+            } catch (UnsupportedOperationException | IOException e) {
+                throw new IntegrationException(e.getMessage(), e);
             }
         } else {
             return null;
