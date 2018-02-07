@@ -24,7 +24,6 @@
 package com.blackducksoftware.integration.hub.service;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -103,7 +102,7 @@ public class HubOAuthTokenService {
         try (Response response = restConnection.executeRequest(request)) {
             final String jsonToken = response.getContentString();
             return gson.fromJson(jsonToken, Token.class);
-        } catch (final IOException | IllegalArgumentException | URISyntaxException e) {
+        } catch (final IOException | IllegalArgumentException e) {
             throw new IntegrationException(e);
         }
     }

@@ -188,20 +188,20 @@ public abstract class RestConnection {
         return httpHost;
     }
 
-    private void addProxyCredentials() throws IllegalArgumentException, EncryptionException {
+    private void addProxyCredentials() throws IntegrationException {
         if (this.proxyInfo.hasAuthenticatedProxySettings()) {
             final org.apache.http.auth.Credentials creds = new NTCredentials(this.proxyInfo.getUsername(), this.proxyInfo.getDecryptedPassword(), this.proxyInfo.getNtlmWorkstation(), this.proxyInfo.getNtlmDomain());
             credentialsProvider.setCredentials(new AuthScope(this.proxyInfo.getHost(), this.proxyInfo.getPort()), creds);
         }
     }
 
-    public RequestBuilder createRequestBuilder(final HttpMethod method) throws IllegalArgumentException, URISyntaxException {
+    public RequestBuilder createRequestBuilder(final HttpMethod method) throws IntegrationException {
         return createRequestBuilder(method, null);
     }
 
-    public RequestBuilder createRequestBuilder(final HttpMethod method, final Map<String, String> additionalHeaders) throws IllegalArgumentException, URISyntaxException {
+    public RequestBuilder createRequestBuilder(final HttpMethod method, final Map<String, String> additionalHeaders) throws IntegrationException {
         if (method == null) {
-            throw new IllegalArgumentException("Missing field 'method'");
+            throw new IntegrationException("Missing field 'method'");
         }
         final RequestBuilder requestBuilder = RequestBuilder.create(method.name());
 
@@ -214,77 +214,85 @@ public abstract class RestConnection {
             requestBuilder.addHeader(header.getKey(), header.getValue());
         }
         if (baseUrl != null) {
-            requestBuilder.setUri(baseUrl.toURI());
+            try {
+                requestBuilder.setUri(baseUrl.toURI());
+            } catch (final URISyntaxException e) {
+                throw new IntegrationException(e.getMessage(), e);
+            }
         }
         return requestBuilder;
     }
 
-    public HttpUriRequest createHttpRequest(final Request request) throws IllegalArgumentException, URISyntaxException {
+    public HttpUriRequest createHttpRequest(final Request request) throws IntegrationException {
         if (request == null) {
-            throw new IllegalArgumentException("Missing the Request");
+            throw new IntegrationException("Missing the Request");
         }
         if (request.getMethod() == null) {
-            throw new IllegalArgumentException("Missing the HttpMethod");
+            throw new IntegrationException("Missing the HttpMethod");
         }
-        URIBuilder uriBuilder = null;
-        if (StringUtils.isNotBlank(request.getUri())) {
-            uriBuilder = new URIBuilder(request.getUri());
-        } else if (baseUrl != null) {
-            uriBuilder = new URIBuilder(baseUrl.toURI());
-        }
-        if (uriBuilder == null) {
-            throw new IllegalArgumentException("Missing the URI");
-        }
-        String mimeType = ContentType.APPLICATION_JSON.getMimeType();
-        Charset bodyEncoding = Charsets.UTF_8;
-        if (StringUtils.isNotBlank(request.getMimeType())) {
-            mimeType = request.getMimeType();
-        }
-        if (request.getBodyEncoding() != null) {
-            bodyEncoding = request.getBodyEncoding();
-        }
-        final RequestBuilder requestBuilder = RequestBuilder.create(request.getMethod().name());
-        if (HttpMethod.GET == request.getMethod() && (request.getAdditionalHeaders() == null || request.getAdditionalHeaders().isEmpty() || !request.getAdditionalHeaders().containsKey(HttpHeaders.ACCEPT))) {
-            requestBuilder.addHeader(HttpHeaders.ACCEPT, mimeType);
-        }
-        requestBuilder.setCharset(bodyEncoding);
-        if (request.getAdditionalHeaders() != null && !request.getAdditionalHeaders().isEmpty()) {
-            for (final Entry<String, String> header : request.getAdditionalHeaders().entrySet()) {
-                requestBuilder.addHeader(header.getKey(), header.getValue());
+        try {
+            URIBuilder uriBuilder = null;
+            if (StringUtils.isNotBlank(request.getUri())) {
+                uriBuilder = new URIBuilder(request.getUri());
+            } else if (baseUrl != null) {
+                uriBuilder = new URIBuilder(baseUrl.toURI());
             }
-        }
-        if (commonRequestHeaders != null && !commonRequestHeaders.isEmpty()) {
-            for (final Entry<String, String> header : commonRequestHeaders.entrySet()) {
-                requestBuilder.addHeader(header.getKey(), header.getValue());
+            if (uriBuilder == null) {
+                throw new IntegrationException("Missing the URI");
             }
-        }
-        final Map<String, String> populatedQueryParameters = request.getPopulatedQueryParameters();
-        if (!populatedQueryParameters.isEmpty()) {
-            for (final Entry<String, String> queryParameter : populatedQueryParameters.entrySet()) {
-                uriBuilder.addParameter(queryParameter.getKey(), queryParameter.getValue());
+            String mimeType = ContentType.APPLICATION_JSON.getMimeType();
+            Charset bodyEncoding = Charsets.UTF_8;
+            if (StringUtils.isNotBlank(request.getMimeType())) {
+                mimeType = request.getMimeType();
             }
-        }
-        requestBuilder.setUri(uriBuilder.build());
-        HttpEntity entity = null;
-        if (request.getBodyContentFile() != null) {
-            entity = new FileEntity(request.getBodyContentFile(), ContentType.create(mimeType, bodyEncoding));
-        } else if (request.getBodyContentMap() != null && !request.getBodyContentMap().isEmpty()) {
-            final List<NameValuePair> parameters = new ArrayList<>();
-            for (final Entry<String, String> entry : request.getBodyContentMap().entrySet()) {
-                final NameValuePair nameValuePair = new BasicNameValuePair(entry.getKey(), entry.getValue());
-                parameters.add(nameValuePair);
+            if (request.getBodyEncoding() != null) {
+                bodyEncoding = request.getBodyEncoding();
             }
-            entity = new UrlEncodedFormEntity(parameters, bodyEncoding);
-        } else if (StringUtils.isNotBlank(request.getBodyContent())) {
-            entity = new StringEntity(request.getBodyContent(), ContentType.create(mimeType, bodyEncoding));
+            final RequestBuilder requestBuilder = RequestBuilder.create(request.getMethod().name());
+            if (HttpMethod.GET == request.getMethod() && (request.getAdditionalHeaders() == null || request.getAdditionalHeaders().isEmpty() || !request.getAdditionalHeaders().containsKey(HttpHeaders.ACCEPT))) {
+                requestBuilder.addHeader(HttpHeaders.ACCEPT, mimeType);
+            }
+            requestBuilder.setCharset(bodyEncoding);
+            if (request.getAdditionalHeaders() != null && !request.getAdditionalHeaders().isEmpty()) {
+                for (final Entry<String, String> header : request.getAdditionalHeaders().entrySet()) {
+                    requestBuilder.addHeader(header.getKey(), header.getValue());
+                }
+            }
+            if (commonRequestHeaders != null && !commonRequestHeaders.isEmpty()) {
+                for (final Entry<String, String> header : commonRequestHeaders.entrySet()) {
+                    requestBuilder.addHeader(header.getKey(), header.getValue());
+                }
+            }
+            final Map<String, String> populatedQueryParameters = request.getPopulatedQueryParameters();
+            if (!populatedQueryParameters.isEmpty()) {
+                for (final Entry<String, String> queryParameter : populatedQueryParameters.entrySet()) {
+                    uriBuilder.addParameter(queryParameter.getKey(), queryParameter.getValue());
+                }
+            }
+            requestBuilder.setUri(uriBuilder.build());
+            HttpEntity entity = null;
+            if (request.getBodyContentFile() != null) {
+                entity = new FileEntity(request.getBodyContentFile(), ContentType.create(mimeType, bodyEncoding));
+            } else if (request.getBodyContentMap() != null && !request.getBodyContentMap().isEmpty()) {
+                final List<NameValuePair> parameters = new ArrayList<>();
+                for (final Entry<String, String> entry : request.getBodyContentMap().entrySet()) {
+                    final NameValuePair nameValuePair = new BasicNameValuePair(entry.getKey(), entry.getValue());
+                    parameters.add(nameValuePair);
+                }
+                entity = new UrlEncodedFormEntity(parameters, bodyEncoding);
+            } else if (StringUtils.isNotBlank(request.getBodyContent())) {
+                entity = new StringEntity(request.getBodyContent(), ContentType.create(mimeType, bodyEncoding));
+            }
+            if (entity != null) {
+                requestBuilder.setEntity(entity);
+            }
+            return requestBuilder.build();
+        } catch (final URISyntaxException e) {
+            throw new IntegrationException(e.getMessage(), e);
         }
-        if (entity != null) {
-            requestBuilder.setEntity(entity);
-        }
-        return requestBuilder.build();
     }
 
-    public Response executeRequest(final Request request) throws IntegrationException, IllegalArgumentException, URISyntaxException {
+    public Response executeRequest(final Request request) throws IntegrationException {
         return executeRequest(createHttpRequest(request));
     }
 

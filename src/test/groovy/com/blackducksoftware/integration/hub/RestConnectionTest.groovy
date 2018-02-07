@@ -35,6 +35,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
+import com.blackducksoftware.integration.exception.IntegrationException
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder
 import com.blackducksoftware.integration.hub.request.PagedRequest
@@ -221,7 +222,7 @@ class RestConnectionTest {
         try {
             restConnection.createHttpRequest(null)
             fail('Should have thrown exception')
-        } catch (IllegalArgumentException e) {
+        } catch (IntegrationException e) {
             assert "Missing the Request" == e.getMessage()
         }
     }
@@ -233,7 +234,7 @@ class RestConnectionTest {
         try {
             restConnection.createHttpRequest(pagedRequest)
             fail('Should have thrown exception')
-        } catch (IllegalArgumentException e) {
+        } catch (IntegrationException e) {
             assert "Missing the URI" == e.getMessage()
         }
     }
@@ -245,7 +246,7 @@ class RestConnectionTest {
         try {
             restConnection.createHttpRequest(pagedRequest)
             fail('Should have thrown exception')
-        } catch (IllegalArgumentException e) {
+        } catch (IntegrationException e) {
             assert "Missing the HttpMethod" == e.getMessage()
         }
     }
