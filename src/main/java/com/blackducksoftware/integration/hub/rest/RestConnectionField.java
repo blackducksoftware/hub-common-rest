@@ -21,25 +21,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.certificate;
+package com.blackducksoftware.integration.hub.rest;
 
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import com.blackducksoftware.integration.validator.FieldEnum;
 
-import javax.net.ssl.X509TrustManager;
+public enum RestConnectionField implements FieldEnum {
+    URL("restConnectionUrl"),
+    TIMEOUT("restConnectionTimeout"),
+    LOGGER("restConnectionLogger"),
+    COMMON_HEADERS("restConnectionHeaders");
 
-public class CertTrustManager implements X509TrustManager {
-    @Override
-    public void checkClientTrusted(final X509Certificate[] certificateChain, final String authType) throws CertificateException {
+    private String key;
+
+    private RestConnectionField(final String key) {
+        this.key = key;
     }
 
     @Override
-    public void checkServerTrusted(final X509Certificate[] certificateChain, final String authType) throws CertificateException {
+    public String getKey() {
+        return key;
     }
-
-    @Override
-    public X509Certificate[] getAcceptedIssuers() {
-        return new X509Certificate[] {};
-    }
-
 }

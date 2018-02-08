@@ -24,7 +24,7 @@
 package com.blackducksoftware.integration.hub.validator;
 
 import com.blackducksoftware.integration.hub.rest.oauth.AccessType;
-import com.blackducksoftware.integration.hub.rest.oauth.OauthRestConnectionFieldEnum;
+import com.blackducksoftware.integration.hub.rest.oauth.OauthRestConnectionField;
 import com.blackducksoftware.integration.hub.rest.oauth.TokenManager;
 import com.blackducksoftware.integration.validator.ValidationResult;
 import com.blackducksoftware.integration.validator.ValidationResultEnum;
@@ -61,13 +61,13 @@ public class OauthRestConnectionValidator extends AbstractRestConnectionValidato
 
     public void validateAccessType(final ValidationResults result) {
         if (accessType == null) {
-            result.addResult(OauthRestConnectionFieldEnum.ACCESSTYPE, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_ACCESS_TYPE_NULL));
+            result.addResult(OauthRestConnectionField.ACCESSTYPE, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_ACCESS_TYPE_NULL));
         }
     }
 
     public void validateTokenManager(final ValidationResults result) {
         if (tokenManager == null) {
-            result.addResult(OauthRestConnectionFieldEnum.TOKENMANAGER, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_TOKEN_MANAGER_NULL));
+            result.addResult(OauthRestConnectionField.TOKENMANAGER, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_TOKEN_MANAGER_NULL));
         }
     }
 

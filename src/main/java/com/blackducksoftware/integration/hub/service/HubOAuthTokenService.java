@@ -31,20 +31,19 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.oauth.Token;
-import com.blackducksoftware.integration.hub.request.HubRequest;
-import com.blackducksoftware.integration.hub.request.HubRequestFactory;
+import com.blackducksoftware.integration.hub.request.Request;
+import com.blackducksoftware.integration.hub.request.Response;
+import com.blackducksoftware.integration.hub.rest.HttpMethod;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.google.gson.Gson;
 
-import okhttp3.Response;
-
 public class HubOAuthTokenService {
     private final Gson gson;
-    private final HubRequestFactory hubRequestFactory;
+    private final RestConnection restConnection;
 
     public HubOAuthTokenService(final RestConnection restConnection) {
         this.gson = restConnection.gson;
-        this.hubRequestFactory = new HubRequestFactory(restConnection);
+        this.restConnection = restConnection;
     }
 
     public Token requestUserToken(final String clientId, final String authCode, final String redirectUri) throws IntegrationException {
@@ -98,11 +97,12 @@ public class HubOAuthTokenService {
     }
 
     private Token getTokenFromEncodedPost(final Map<String, String> formDataMap) throws IntegrationException {
-        final HubRequest request = hubRequestFactory.createRequest();
-        try (Response response = request.executeEncodedFormPost(formDataMap)) {
-            final String jsonToken = response.body().string();
+        final Request request = new Request(null, null, null, HttpMethod.POST, null, null, null);
+        request.setBodyContentMap(formDataMap);
+        try (Response response = restConnection.executeRequest(request)) {
+            final String jsonToken = response.getContentString();
             return gson.fromJson(jsonToken, Token.class);
-        } catch (final IOException e) {
+        } catch (final IOException | IllegalArgumentException e) {
             throw new IntegrationException(e);
         }
     }

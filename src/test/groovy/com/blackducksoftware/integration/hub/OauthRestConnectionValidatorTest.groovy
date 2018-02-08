@@ -26,9 +26,9 @@ package com.blackducksoftware.integration.hub
 import org.apache.commons.lang3.StringUtils
 import org.junit.Test
 
-import com.blackducksoftware.integration.hub.rest.RestConnectionFieldEnum
+import com.blackducksoftware.integration.hub.rest.RestConnectionField
 import com.blackducksoftware.integration.hub.rest.oauth.AccessType
-import com.blackducksoftware.integration.hub.rest.oauth.OauthRestConnectionFieldEnum
+import com.blackducksoftware.integration.hub.rest.oauth.OauthRestConnectionField
 import com.blackducksoftware.integration.hub.rest.oauth.TokenManager
 import com.blackducksoftware.integration.hub.validator.OauthRestConnectionValidator
 import com.blackducksoftware.integration.log.IntLogger
@@ -46,7 +46,7 @@ class OauthRestConnectionValidatorTest {
         validator.setTokenManager(tokenManager)
         ValidationResults result = new ValidationResults()
         validator.validateTokenManager(result)
-        final String resultString = result.getResultString(OauthRestConnectionFieldEnum.TOKENMANAGER)
+        String resultString = result.getResultString(OauthRestConnectionField.TOKENMANAGER)
         assert tokenManager == validator.getTokenManager()
         assert result.success
         assert StringUtils.isBlank(resultString)
@@ -58,7 +58,7 @@ class OauthRestConnectionValidatorTest {
         validator.setTokenManager(null)
         ValidationResults result = new ValidationResults()
         validator.validateTokenManager(result)
-        final String resultString = result.getResultString(OauthRestConnectionFieldEnum.TOKENMANAGER)
+        String resultString = result.getResultString(OauthRestConnectionField.TOKENMANAGER)
         assert null == validator.getTokenManager()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)
@@ -72,7 +72,7 @@ class OauthRestConnectionValidatorTest {
         validator.setAccessType(accessType)
         ValidationResults result = new ValidationResults()
         validator.validateAccessType(result)
-        final String resultString = result.getResultString(OauthRestConnectionFieldEnum.ACCESSTYPE)
+        String resultString = result.getResultString(OauthRestConnectionField.ACCESSTYPE)
         assert accessType == validator.getAccessType()
         assert result.success
         assert StringUtils.isBlank(resultString)
@@ -84,7 +84,7 @@ class OauthRestConnectionValidatorTest {
         validator.setTokenManager(null)
         ValidationResults result = new ValidationResults()
         validator.validateAccessType(result)
-        final String resultString = result.getResultString(OauthRestConnectionFieldEnum.ACCESSTYPE)
+        String resultString = result.getResultString(OauthRestConnectionField.ACCESSTYPE)
         assert null == validator.getAccessType()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)
@@ -122,7 +122,7 @@ class OauthRestConnectionValidatorTest {
         validator.setBaseUrl(baseUrl)
         ValidationResults result = new ValidationResults()
         validator.validateBaseUrl(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.URL)
+        String resultString = result.getResultString(RestConnectionField.URL)
         assert baseUrl == validator.getBaseUrl()
         assert result.success
         assert StringUtils.isBlank(resultString)
@@ -135,7 +135,7 @@ class OauthRestConnectionValidatorTest {
         validator.setBaseUrl(baseUrl)
         ValidationResults result = new ValidationResults()
         validator.validateBaseUrl(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.URL)
+        String resultString = result.getResultString(RestConnectionField.URL)
         assert null == validator.getBaseUrl()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)
@@ -145,7 +145,7 @@ class OauthRestConnectionValidatorTest {
         validator.setBaseUrl(baseUrl)
         result = new ValidationResults()
         validator.validateBaseUrl(result)
-        resultString = result.getResultString(RestConnectionFieldEnum.URL)
+        resultString = result.getResultString(RestConnectionField.URL)
         assert baseUrl == validator.getBaseUrl()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)
@@ -159,7 +159,7 @@ class OauthRestConnectionValidatorTest {
         validator.setLogger(logger)
         ValidationResults result = new ValidationResults()
         validator.validateLogger(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.LOGGER)
+        String resultString = result.getResultString(RestConnectionField.LOGGER)
         assert logger == validator.getLogger()
         assert result.success
         assert StringUtils.isBlank(resultString)
@@ -171,7 +171,7 @@ class OauthRestConnectionValidatorTest {
         validator.setLogger(null)
         ValidationResults result = new ValidationResults()
         validator.validateLogger(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.LOGGER)
+        String resultString = result.getResultString(RestConnectionField.LOGGER)
         assert null == validator.getLogger()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)
@@ -185,7 +185,7 @@ class OauthRestConnectionValidatorTest {
         validator.setTimeout(timeout)
         ValidationResults result = new ValidationResults()
         validator.validateTimeout(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.TIMEOUT)
+        String resultString = result.getResultString(RestConnectionField.TIMEOUT)
         assert timeout == validator.getTimeout()
         assert result.success
         assert StringUtils.isBlank(resultString)
@@ -197,7 +197,7 @@ class OauthRestConnectionValidatorTest {
         validator.setTimeout(-1)
         ValidationResults result = new ValidationResults()
         validator.validateTimeout(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.TIMEOUT)
+        String resultString = result.getResultString(RestConnectionField.TIMEOUT)
         assert -1 == validator.getTimeout()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)
@@ -211,7 +211,7 @@ class OauthRestConnectionValidatorTest {
         validator.setCommonRequestHeaders(headers)
         ValidationResults result = new ValidationResults()
         validator.validateCommonRequestHeaders(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.COMMON_HEADERS)
+        String resultString = result.getResultString(RestConnectionField.COMMON_HEADERS)
         assert headers == validator.getCommonRequestHeaders()
         assert result.success
         assert StringUtils.isBlank(resultString)
@@ -223,7 +223,7 @@ class OauthRestConnectionValidatorTest {
         validator.setCommonRequestHeaders(null)
         ValidationResults result = new ValidationResults()
         validator.validateCommonRequestHeaders(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.COMMON_HEADERS)
+        String resultString = result.getResultString(RestConnectionField.COMMON_HEADERS)
         assert null == validator.getCommonRequestHeaders()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)

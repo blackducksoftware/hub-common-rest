@@ -21,26 +21,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.proxy;
+package com.blackducksoftware.integration.hub.rest;
 
-import com.blackducksoftware.integration.validator.FieldEnum;
-
-public enum ProxyInfoFieldEnum implements FieldEnum {
-    PROXYHOST("proxyHost"),
-    PROXYPORT("proxyPort"),
-    PROXYUSERNAME("proxyUsername"),
-    PROXYPASSWORD("proxyPassword"),
-    NOPROXYHOSTS("noProxyHosts");
-
-    private String key;
-
-    private ProxyInfoFieldEnum(final String key) {
-        this.key = key;
-    }
-
-    @Override
-    public String getKey() {
-        return key;
-    }
-
+public enum HttpMethod {
+    GET,
+    PUT,
+    POST,
+    PATCH,
+    DELETE,
+    HEAD,
+    OPTIONS,
+    TRACE;
 }

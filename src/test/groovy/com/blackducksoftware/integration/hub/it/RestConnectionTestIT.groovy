@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory
 import com.blackducksoftware.integration.IntegrationTest
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder
-import com.blackducksoftware.integration.hub.request.HubRequest
+import com.blackducksoftware.integration.hub.request.Request
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnectionBuilder
 import com.blackducksoftware.integration.hub.rest.RestConnection
 import com.blackducksoftware.integration.log.LogLevel
@@ -60,6 +60,20 @@ class RestConnectionTestIT {
         final RestConnection restConnection = restConnectionTestHelper.getRestConnection()
         restConnection.timeout = 459
         assertEquals(459, restConnection.timeout)
+    }
+
+    @Test
+    public void testPassthroughProxyWithHttp() {
+        try {
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_PASSTHROUGH")
+            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_PASSTHROUGH"))
+            ProxyInfo proxyInfo = proxyBuilder.build()
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            restConnection.connect()
+        } catch (final Exception e) {
+            fail("No exception should be thrown with a valid config: " + e.getMessage())
+        }
     }
 
     @Test
@@ -95,16 +109,68 @@ class RestConnectionTestIT {
     }
 
     @Test
-    public void testPassthroughProxyWithHttp() {
+    public void testDigestProxyWithHttp() {
         try {
             ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
-            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_PASSTHROUGH")
-            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_PASSTHROUGH"))
+            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_DIGEST")
+            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_DIGEST"))
+            proxyBuilder.username = restConnectionTestHelper.getProperty("TEST_PROXY_USER_DIGEST")
+            proxyBuilder.password = restConnectionTestHelper.getProperty("TEST_PROXY_PASSWORD_DIGEST")
             ProxyInfo proxyInfo = proxyBuilder.build()
             final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
             restConnection.connect()
         } catch (final Exception e) {
             fail("No exception should be thrown with a valid config: " + e.getMessage())
+        }
+    }
+
+    @Test
+    public void testDigestProxyFailsWithoutCredentialsWithHttp() {
+        try {
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_DIGEST")
+            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_DIGEST"))
+            ProxyInfo proxyInfo = proxyBuilder.build()
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            restConnection.connect()
+            fail("An exception should be thrown")
+        } catch (final Exception e) {
+            assertFalse(e.getMessage(), e.getMessage().contains("Can not reach this server"))
+            assertTrue(e.getMessage(), e.getMessage().contains("Proxy Authentication Required"))
+        }
+    }
+
+    @Test
+    public void testNtlmProxyWithHttp() {
+        try {
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_NTLM")
+            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_NTLM"))
+            proxyBuilder.username = restConnectionTestHelper.getProperty("TEST_PROXY_USER_NTLM")
+            proxyBuilder.password = restConnectionTestHelper.getProperty("TEST_PROXY_PASSWORD_NTLM")
+            proxyBuilder.ntlmDomain = restConnectionTestHelper.getProperty("TEST_PROXY_DOMAIN_NTLM")
+            proxyBuilder.ntlmWorkstation = restConnectionTestHelper.getProperty("TEST_PROXY_WORKSTATION_NTLM")
+            ProxyInfo proxyInfo = proxyBuilder.build()
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            restConnection.connect()
+        } catch (final Exception e) {
+            fail("No exception should be thrown with a valid config: " + e.getMessage())
+        }
+    }
+
+    @Test
+    public void testNtlmProxyFailsWithoutCredentialsWithHttp() {
+        try {
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_NTLM")
+            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_NTLM"))
+            ProxyInfo proxyInfo = proxyBuilder.build()
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            restConnection.connect()
+            fail("An exception should be thrown")
+        } catch (final Exception e) {
+            assertFalse(e.getMessage(), e.getMessage().contains("Can not reach this server"))
+            assertTrue(e.getMessage(), e.getMessage().contains("Proxy Authentication Required"))
         }
     }
 
@@ -119,32 +185,13 @@ class RestConnectionTestIT {
         builder.timeout = 120;
         final RestConnection restConnection = builder.build()
 
-        final HubRequest hubRequest = new HubRequest(restConnection)
-        hubRequest.url = url.toString() + "/api/notifications?offset=0&endDate=2017-01-25T18:43:46.685Z&limit=100&startDate=2017-01-17T21:19:33.311Z"
+        final Request hubRequest = new Request(url.toString() + "/api/notifications?offset=0&endDate=2017-01-25T18:43:46.685Z&limit=100&startDate=2017-01-17T21:19:33.311Z")
         System.out.println("Executing: " + hubRequest.toString())
         try {
-            hubRequest.executeGet()
+            restConnection.executeRequest(hubRequest)
             fail("Expected Unauthorized Exception")
         } catch (final Exception e) {
             assertTrue(e.getMessage().contains("Unauthorized"))
         }
-    }
-
-    @Test
-    public void testTLS() throws Exception {
-        String url = restConnectionTestHelper.getProperty("TEST_HTTPS_HUB_SERVER_URL")
-        CredentialsRestConnectionBuilder builder = new CredentialsRestConnectionBuilder();
-        builder.logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
-        builder.baseUrl = url
-        builder.username = "sysadmin"
-        builder.password = "blackduck"
-        builder.timeout = 120;
-        builder.alwaysTrustServerCertificate = true;
-        final RestConnection restConnection = builder.build()
-
-        final HubRequest hubRequest = new HubRequest(restConnection)
-        hubRequest.url = url.toString() + "/api/projects"
-        System.out.println("Executing: " + hubRequest.toString())
-        hubRequest.executeGet()
     }
 }

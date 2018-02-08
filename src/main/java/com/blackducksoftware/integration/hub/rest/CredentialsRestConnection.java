@@ -24,32 +24,35 @@
 package com.blackducksoftware.integration.hub.rest;
 
 import java.io.IOException;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.message.BasicNameValuePair;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException;
 import com.blackducksoftware.integration.log.IntLogger;
 
-import okhttp3.HttpUrl;
-import okhttp3.JavaNetCookieJar;
-import okhttp3.Request;
-import okhttp3.Response;
-
 public class CredentialsRestConnection extends RestConnection {
     private final String hubUsername;
     private final String hubPassword;
 
-    public CredentialsRestConnection(final IntLogger logger, final URL hubBaseUrl, final String hubUsername, final String hubPassword, final int timeout, final ProxyInfo proxyInfo) {
-        super(logger, hubBaseUrl, timeout, proxyInfo);
+    public CredentialsRestConnection(final IntLogger logger, final URL baseUrl, final String hubUsername, final String hubPassword, final int timeout, final ProxyInfo proxyInfo) {
+        super(logger, baseUrl, timeout, proxyInfo);
         this.hubUsername = hubUsername;
         this.hubPassword = hubPassword;
     }
@@ -57,9 +60,8 @@ public class CredentialsRestConnection extends RestConnection {
     @Override
     public void addBuilderAuthentication() throws IntegrationRestException {
         if (StringUtils.isNotBlank(hubUsername) && StringUtils.isNotBlank(hubPassword)) {
-            final CookieManager cookieManager = new CookieManager();
-            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-            builder.cookieJar(new JavaNetCookieJar(cookieManager));
+            getClientBuilder().setDefaultCookieStore(new BasicCookieStore());
+            getDefaultRequestConfigBuilder().setCookieSpec(CookieSpecs.DEFAULT);
         }
     }
 
@@ -68,34 +70,42 @@ public class CredentialsRestConnection extends RestConnection {
      */
     @Override
     public void clientAuthenticate() throws IntegrationException {
-        final ArrayList<String> segments = new ArrayList<>();
-        segments.add("j_spring_security_check");
-        final HttpUrl httpUrl = createHttpUrl(segments, null);
+        try {
+            final URIBuilder uriBuilder = new URIBuilder(baseUrl.toURI());
+            uriBuilder.setPath("j_spring_security_check");
+            if (StringUtils.isNotBlank(hubUsername) && StringUtils.isNotBlank(hubPassword)) {
+                final List<NameValuePair> bodyValues = new ArrayList<>();
+                bodyValues.add(new BasicNameValuePair("j_username", hubUsername));
+                bodyValues.add(new BasicNameValuePair("j_password", hubPassword));
+                final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(bodyValues, Charsets.UTF_8);
 
-        final Map<String, String> content = new HashMap<>();
-        if (StringUtils.isNotBlank(hubUsername) && StringUtils.isNotBlank(hubPassword)) {
-            content.put("j_username", hubUsername);
-            content.put("j_password", hubPassword);
-            final Request request = createPostRequest(httpUrl, createEncodedFormBody(content));
-            Response response = null;
-            try {
+                final RequestBuilder requestBuilder = createRequestBuilder(HttpMethod.POST, null);
+                requestBuilder.setCharset(Charsets.UTF_8);
+                requestBuilder.setUri(uriBuilder.build());
+                requestBuilder.setEntity(entity);
+                final HttpUriRequest request = requestBuilder.build();
                 logRequestHeaders(request);
-                response = getClient().newCall(request).execute();
-                logResponseHeaders(response);
-                if (!response.isSuccessful()) {
-                    throw new IntegrationRestException(response.code(), response.message(), String.format("Connection Error: %s %s", response.code(), response.message()));
-                } else {
-                    // get the CSRF token
-                    final String csrfToken = response.header(X_CSRF_TOKEN);
-                    if (StringUtils.isNotBlank(csrfToken)) {
-                        commonRequestHeaders.put(X_CSRF_TOKEN, csrfToken);
+                try (final CloseableHttpResponse response = getClient().execute(request)) {
+                    logResponseHeaders(response);
+                    final int statusCode = response.getStatusLine().getStatusCode();
+                    final String statusMessage = response.getStatusLine().getReasonPhrase();
+                    if (statusCode < 200 || statusCode > 299) {
+                        throw new IntegrationRestException(statusCode, statusMessage, String.format("Connection Error: %s %s", statusCode, statusMessage));
+                    } else {
+                        // get the CSRF token
+                        final Header csrfToken = response.getFirstHeader(X_CSRF_TOKEN);
+                        if (csrfToken != null) {
+                            commonRequestHeaders.put(X_CSRF_TOKEN, csrfToken.getValue());
+                        } else {
+                            logger.error("No CSRF token found when authenticating");
+                        }
                     }
+                } catch (final IOException e) {
+                    throw new IntegrationException(e.getMessage(), e);
                 }
-            } catch (final IOException e) {
-                throw new IntegrationException(e.getMessage(), e);
-            } finally {
-                IOUtils.closeQuietly(response);
             }
+        } catch (final URISyntaxException e) {
+            throw new IntegrationException(e.getMessage(), e);
         }
     }
 

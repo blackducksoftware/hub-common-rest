@@ -29,7 +29,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.blackducksoftware.integration.hub.rest.RestConnectionFieldEnum;
+import com.blackducksoftware.integration.hub.rest.RestConnectionField;
 import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 import com.blackducksoftware.integration.validator.ValidationResult;
@@ -67,7 +67,7 @@ public abstract class AbstractRestConnectionValidator extends AbstractValidator 
 
     public void validateBaseUrl(final ValidationResults result) {
         if (baseUrl == null) {
-            result.addResult(RestConnectionFieldEnum.URL, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_URL_NOT_FOUND));
+            result.addResult(RestConnectionField.URL, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_URL_NOT_FOUND));
             return;
         }
 
@@ -76,26 +76,26 @@ public abstract class AbstractRestConnectionValidator extends AbstractValidator 
             hubURL = new URL(baseUrl);
             hubURL.toURI();
         } catch (final MalformedURLException | URISyntaxException e) {
-            result.addResult(RestConnectionFieldEnum.URL, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_URL_NOT_VALID));
+            result.addResult(RestConnectionField.URL, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_URL_NOT_VALID));
             return;
         }
     }
 
     public void validateTimeout(final ValidationResults result) {
         if (timeout <= 0) {
-            result.addResult(RestConnectionFieldEnum.TIMEOUT, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_TIMEOUT_NOT_VALID));
+            result.addResult(RestConnectionField.TIMEOUT, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_TIMEOUT_NOT_VALID));
         }
     }
 
     public void validateLogger(final ValidationResults result) {
         if (logger == null) {
-            result.addResult(RestConnectionFieldEnum.LOGGER, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_LOGGER_NOT_VALID));
+            result.addResult(RestConnectionField.LOGGER, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_LOGGER_NOT_VALID));
         }
     }
 
     public void validateCommonRequestHeaders(final ValidationResults result) {
         if (commonRequestHeaders == null) {
-            result.addResult(RestConnectionFieldEnum.COMMON_HEADERS, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_COMMON_HEADERS_NOT_VALID));
+            result.addResult(RestConnectionField.COMMON_HEADERS, new ValidationResult(ValidationResultEnum.ERROR, ERROR_MSG_COMMON_HEADERS_NOT_VALID));
         }
     }
 

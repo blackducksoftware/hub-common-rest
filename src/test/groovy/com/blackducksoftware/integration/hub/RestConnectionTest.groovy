@@ -23,25 +23,32 @@
  */
 package com.blackducksoftware.integration.hub
 
+import java.nio.charset.Charset
+
+import org.apache.commons.codec.Charsets;
+import org.apache.http.HttpHeaders
+import org.apache.http.client.methods.HttpRequestBase
+import org.apache.http.client.methods.HttpUriRequest
+import org.apache.http.client.methods.RequestBuilder
+import org.apache.http.entity.ContentType;
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
+import com.blackducksoftware.integration.exception.IntegrationException
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder
+import com.blackducksoftware.integration.hub.request.PagedRequest
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnectionBuilder
+import com.blackducksoftware.integration.hub.rest.HttpMethod
 import com.blackducksoftware.integration.hub.rest.RestConnection
+import com.blackducksoftware.integration.hub.rest.UnauthenticatedRestConnection
 import com.blackducksoftware.integration.hub.rest.UnauthenticatedRestConnectionBuilder
 import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException
 import com.blackducksoftware.integration.log.IntLogger
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
 
-import okhttp3.FormBody
-import okhttp3.HttpUrl
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -92,16 +99,17 @@ class RestConnectionTest {
         builder.baseUrl = server.url("/").url()
         builder.timeout = timeoutSeconds
         builder.applyProxyInfo(ProxyInfo.NO_PROXY_INFO)
+        builder.alwaysTrustServerCertificate = true
+
         RestConnection restConnection = builder.build()
-        OkHttpClient realClient = restConnection.client
+        def realClient = restConnection.client
         assert null == realClient
         restConnection.connect()
         realClient = restConnection.client
-        assert timeoutMilliSeconds == realClient.connectTimeout
-        assert timeoutMilliSeconds == realClient.writeTimeout
-        assert timeoutMilliSeconds == realClient.readTimeout
-        assert null == realClient.proxy
-        assert okhttp3.Authenticator.NONE == realClient.proxyAuthenticator
+        assert timeoutMilliSeconds == realClient.defaultConfig.socketTimeout
+        assert timeoutMilliSeconds == realClient.defaultConfig.connectionRequestTimeout
+        assert timeoutMilliSeconds == realClient.defaultConfig.connectTimeout
+        assert null == realClient.defaultConfig.proxy
 
         String proxyHost = "ProxyHost"
         int proxyPort = 3128
@@ -124,8 +132,7 @@ class RestConnectionTest {
 
         restConnection.connect()
         realClient = restConnection.client
-        assert null != realClient.proxy
-        assert okhttp3.Authenticator.NONE != realClient.proxyAuthenticator
+        assert null != realClient.defaultConfig.proxy
 
         proxyIgnoredHosts = ".*"
         proxyBuilder = new ProxyInfoBuilder()
@@ -144,8 +151,20 @@ class RestConnectionTest {
 
         restConnection.connect()
         realClient = restConnection.client
-        assert null == realClient.proxy
-        assert okhttp3.Authenticator.NONE == realClient.proxyAuthenticator
+        assert null == realClient.defaultConfig.proxy
+    }
+
+    @Test
+    public void testRestConnectionNoProxy(){
+        IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
+        int timeoutSeconds = 213
+        UnauthenticatedRestConnection restConnection = new UnauthenticatedRestConnection(logger, server.url("/").url(), timeoutSeconds, null)
+        try {
+            restConnection.connect();
+            fail('Should have thrown exception')
+        } catch (IllegalStateException e) {
+            assert RestConnection.ERROR_MSG_PROXY_INFO_NULL == e.getMessage()
+        }
     }
 
     @Test
@@ -155,148 +174,27 @@ class RestConnectionTest {
         assert s.equals(restConnection.toString())
     }
 
-    @Test
-    public void testCreatingHttpUrl(){
-        RestConnection restConnection = getRestConnection()
-        assert server.url("/").toString() == restConnection.createHttpUrl().url
-        assert server.url("/").toString() == restConnection.createHttpUrl(server.url("/").url()).url
-        assert server.url("/").toString() == restConnection.createHttpUrl(server.url("/").toString()).url
-        assert server.url("/").toString()+'test/whatsUp' == restConnection.createHttpUrl(["test", "whatsUp"]).url
-        assert server.url("/").toString()+'test/whatsUp?name=hello&question=who' == restConnection.createHttpUrl(["test", "whatsUp"], [name:'hello', question:'who']).url
-        assert server.url("/").toString()+'test/whatsUp?name=hello&question=who' == restConnection.createHttpUrl(server.url("/").toString(),["test", "whatsUp"], [name:'hello', question:'who']).url
-    }
-
-    @Test
-    public void testCreatingBody(){
-        RestConnection restConnection = getRestConnection()
-        String content = "hello"
-        RequestBody requestBody = restConnection.createJsonRequestBody(content)
-        assert "utf-8".equals(requestBody.contentType().charset)
-        assert "application".equals(requestBody.contentType().type)
-        assert "json".equals(requestBody.contentType().subtype)
-        assert content.length() == requestBody.contentLength()
-
-        requestBody =restConnection.createJsonRequestBody("text/plain",content)
-        assert "utf-8".equals(requestBody.contentType().charset)
-        assert "text".equals(requestBody.contentType().type)
-        assert "plain".equals(requestBody.contentType().subtype)
-        assert content.length() == requestBody.contentLength()
-
-        FormBody formBody =restConnection.createEncodedFormBody([name:'hello', question:'who'])
-        assert null == formBody.contentType().charset
-        assert "application".equals(formBody.contentType().type)
-        assert "x-www-form-urlencoded".equals(formBody.contentType().subtype)
-        assert formBody.encodedNames.contains('name')
-        assert formBody.encodedNames.contains('question')
-        assert formBody.encodedValues.contains('hello')
-        assert formBody.encodedValues.contains('who')
-    }
-
-    @Test
-    public void testCreatingGetRequest(){
-        RestConnection restConnection = getRestConnection()
-        restConnection.commonRequestHeaders.put("Common", "Header")
-        HttpUrl httpUrl = restConnection.createHttpUrl()
-        Request request = restConnection.createGetRequest(httpUrl)
-        assert "GET".equals(request.method)
-        assert httpUrl == request.url
-        assert "application/json".equals(request.header("Accept"))
-        assert "Header".equals(request.header("Common"))
-        assert !restConnection.commonRequestHeaders.isEmpty()
-
-        String mediaType = "text/plain"
-        request = restConnection.createGetRequest(httpUrl, mediaType)
-        assert "GET".equals(request.method)
-        assert httpUrl == request.url
-        assert mediaType.equals(request.header("Accept"))
-        assert "Header".equals(request.header("Common"))
-        assert !restConnection.commonRequestHeaders.isEmpty()
-
-        restConnection.commonRequestHeaders.remove("Common")
-        request = restConnection.createGetRequest(httpUrl, [name:'hello', question:'who'])
-        assert "GET".equals(request.method)
-        assert httpUrl == request.url
-        assert "hello".equals(request.header("name"))
-        assert "who".equals(request.header("question"))
-        assert null == request.header("Common")
-        assert restConnection.commonRequestHeaders.isEmpty()
-    }
-
-    @Test
-    public void testCreatingPostRequest(){
-        RestConnection restConnection = getRestConnection()
-        restConnection.commonRequestHeaders.put("Common", "Header")
-        HttpUrl httpUrl = restConnection.createHttpUrl()
-        RequestBody requestBody = restConnection.createJsonRequestBody("hello")
-        Request request = restConnection.createPostRequest(httpUrl,requestBody)
-        assert "POST".equals(request.method)
-        assert httpUrl == request.url
-        assert "Header".equals(request.header("Common"))
-        assert requestBody == request.body
-
-        restConnection.commonRequestHeaders.remove("Common")
-        request = restConnection.createPostRequest(httpUrl,requestBody)
-        assert "POST".equals(request.method)
-        assert httpUrl == request.url
-        assert null == request.header("Common")
-        assert requestBody == request.body
-    }
-
-    @Test
-    public void testCreatingPutRequest(){
-        RestConnection restConnection = getRestConnection()
-        restConnection.commonRequestHeaders.put("Common", "Header")
-        HttpUrl httpUrl = restConnection.createHttpUrl()
-        RequestBody requestBody = restConnection.createJsonRequestBody("hello")
-        Request request = restConnection.createPutRequest(httpUrl,requestBody)
-        assert "PUT".equals(request.method)
-        assert httpUrl == request.url
-        assert "Header".equals(request.header("Common"))
-        assert requestBody == request.body
-
-        restConnection.commonRequestHeaders.remove("Common")
-        request = restConnection.createPutRequest(httpUrl,requestBody)
-        assert "PUT".equals(request.method)
-        assert httpUrl == request.url
-        assert null == request.header("Common")
-        assert requestBody == request.body
-    }
-
-    @Test
-    public void testCreatingDeleteRequest(){
-        RestConnection restConnection = getRestConnection()
-        restConnection.commonRequestHeaders.put("Common", "Header")
-        HttpUrl httpUrl = restConnection.createHttpUrl()
-        Request request = restConnection.createDeleteRequest(httpUrl)
-        assert "DELETE".equals(request.method)
-        assert httpUrl == request.url
-        assert "Header".equals(request.header("Common"))
-
-        restConnection.commonRequestHeaders.remove("Common")
-        request = restConnection.createDeleteRequest(httpUrl)
-        assert "DELETE".equals(request.method)
-        assert httpUrl == request.url
-        assert null == request.header("Common")
-    }
 
     @Test
     public void testHandleExecuteClientCallSuccessful(){
         RestConnection restConnection = getRestConnection()
-        HttpUrl httpUrl = restConnection.createHttpUrl()
-        Request request = restConnection.createGetRequest(httpUrl)
-        restConnection.handleExecuteClientCall(request).withCloseable{  assert 200 == it.code }
+        restConnection.commonRequestHeaders.put("Common", "Header")
+        RequestBuilder requestBuilder = restConnection.createRequestBuilder(HttpMethod.DELETE);
+        assert null != requestBuilder.getHeaders("Common")
+
+        restConnection.executeRequest(requestBuilder.build()).withCloseable{  assert 200 == it.getStatusCode() }
     }
 
     @Test
     public void testHandleExecuteClientCallFail(){
         RestConnection restConnection = getRestConnection()
-        HttpUrl httpUrl = restConnection.createHttpUrl()
-        Request request = restConnection.createGetRequest(httpUrl)
+        RequestBuilder requestBuilder = restConnection.createRequestBuilder(HttpMethod.GET);
+        HttpUriRequest request = requestBuilder.build();
         restConnection.connect()
 
         restConnection = getRestConnection(new MockResponse().setResponseCode(404))
         try{
-            restConnection.handleExecuteClientCall(request)
+            restConnection.executeRequest(request)
             fail('Should have thrown exception')
         } catch (IntegrationRestException e) {
             assert 404 == e.httpStatusCode
@@ -304,7 +202,7 @@ class RestConnectionTest {
 
         restConnection = getRestConnection(new MockResponse().setResponseCode(401))
         try{
-            restConnection.handleExecuteClientCall(request)
+            restConnection.executeRequest(request)
             fail('Should have thrown exception')
         } catch (IntegrationRestException e) {
             assert 401 == e.httpStatusCode
@@ -316,5 +214,112 @@ class RestConnectionTest {
         String dateString = '2017-03-02T03:35:23.456Z'
         Date date = RestConnection.parseDateString(dateString)
         assert dateString.equals(RestConnection.formatDate(date))
+    }
+
+    @Test
+    public void testCreateHttpRequestNoRequest() {
+        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), null, 300, ProxyInfo.NO_PROXY_INFO)
+        try {
+            restConnection.createHttpRequest(null)
+            fail('Should have thrown exception')
+        } catch (IntegrationException e) {
+            assert "Missing the Request" == e.getMessage()
+        }
+    }
+
+    @Test
+    public void testCreateHttpRequestNoURI() {
+        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), null, 300, ProxyInfo.NO_PROXY_INFO)
+        PagedRequest pagedRequest = new PagedRequest(null)
+        try {
+            restConnection.createHttpRequest(pagedRequest)
+            fail('Should have thrown exception')
+        } catch (IntegrationException e) {
+            assert "Missing the URI" == e.getMessage()
+        }
+    }
+
+    @Test
+    public void testCreateHttpRequestNoMethod() {
+        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), null, 300, ProxyInfo.NO_PROXY_INFO)
+        PagedRequest pagedRequest = new PagedRequest(null, null, null, null, null, null, null)
+        try {
+            restConnection.createHttpRequest(pagedRequest)
+            fail('Should have thrown exception')
+        } catch (IntegrationException e) {
+            assert "Missing the HttpMethod" == e.getMessage()
+        }
+    }
+
+    @Test
+    public void testCreateHttpRequest() {
+        RestConnection restConnection = getRestConnection()
+
+        String uri = restConnection.baseUrl.toURI().toString()
+        Map<String, String> queryParametes = [test:"one",query:"two"]
+        String q = 'q'
+        HttpMethod method = HttpMethod.DELETE
+        String mimeType = 'mime'
+        Charset  bodyEncoding = Charsets.UTF_8
+        Map<String, String> additionalHeaders = [header:"one",thing:"two"]
+
+        PagedRequest pagedRequest = new PagedRequest(null)
+        HttpRequestBase request = restConnection.createHttpRequest(pagedRequest)
+        assert HttpMethod.GET.name() == request.method
+        assert ContentType.APPLICATION_JSON.getMimeType() == request.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert null != request.getURI()
+        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert request.getURI().toString().contains('offset=0')
+        assert request.getURI().toString().contains('limit=100')
+
+
+        pagedRequest = new PagedRequest(uri)
+        request = restConnection.createHttpRequest(pagedRequest)
+        assert HttpMethod.GET.name() == request.method
+        assert ContentType.APPLICATION_JSON.getMimeType() == request.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert null != request.getURI()
+        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert request.getURI().toString().contains('offset=0')
+        assert request.getURI().toString().contains('limit=100')
+
+
+        pagedRequest = new PagedRequest(null, null, null, method, null, null, null)
+        request = restConnection.createHttpRequest(pagedRequest)
+        assert method.name() == request.method
+        assert 0 == request.getAllHeaders().size()
+        assert null != request.getURI()
+        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert request.getURI().toString().contains('offset=0')
+        assert request.getURI().toString().contains('limit=100')
+
+        pagedRequest = new PagedRequest(uri, queryParametes, q, method, mimeType, bodyEncoding, additionalHeaders)
+        request = restConnection.createHttpRequest(pagedRequest)
+        assert method.name() == request.method
+        assert 'one' == request.getFirstHeader('header').getValue()
+        assert 'two' == request.getFirstHeader('thing').getValue()
+        assert null != request.getURI()
+        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert request.getURI().toString().contains('offset=0')
+        assert request.getURI().toString().contains('limit=100')
+
+        pagedRequest = new PagedRequest(uri, queryParametes, q, method, mimeType, bodyEncoding, additionalHeaders, 5, 20)
+        request = restConnection.createHttpRequest(pagedRequest)
+        assert method.name() == request.method
+        assert 'one' == request.getFirstHeader('header').getValue()
+        assert 'two' == request.getFirstHeader('thing').getValue()
+        assert null != request.getURI()
+        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert request.getURI().toString().contains('offset=20')
+        assert request.getURI().toString().contains('limit=5')
+
+        additionalHeaders.put(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.getMimeType())
+        pagedRequest = new PagedRequest(uri, queryParametes, q, HttpMethod.GET, mimeType, bodyEncoding, additionalHeaders)
+        request = restConnection.createHttpRequest(pagedRequest)
+        assert HttpMethod.GET.name() == request.method
+        assert ContentType.APPLICATION_XML.getMimeType() == request.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert null != request.getURI()
+        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert request.getURI().toString().contains('offset=0')
+        assert request.getURI().toString().contains('limit=100')
     }
 }

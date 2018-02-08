@@ -117,6 +117,7 @@ class CertificateHandlerTestIT {
         assertTrue(tmpTrustStore.length() == 0)
         try {
             System.setProperty("javax.net.ssl.trustStore", tmpTrustStore.getAbsolutePath())
+
             final CertificateHandler certificateHandler = new CertificateHandler(logger, null)
             certificateHandler.retrieveAndImportHttpsCertificate(url)
             assertTrue(certificateHandler.isCertificateInTrustStore(url))

@@ -25,18 +25,18 @@ package com.blackducksoftware.integration.hub
 
 import org.junit.Test
 
-import com.blackducksoftware.integration.hub.proxy.ProxyInfoFieldEnum
-import com.blackducksoftware.integration.hub.rest.RestConnectionFieldEnum
-import com.blackducksoftware.integration.hub.rest.oauth.OauthRestConnectionFieldEnum
+import com.blackducksoftware.integration.hub.proxy.ProxyInfoField
+import com.blackducksoftware.integration.hub.rest.RestConnectionField
+import com.blackducksoftware.integration.hub.rest.oauth.OauthRestConnectionField
 
 class BuilderFieldEnumTest {
 
     @Test
     public void testRestConnectionFieldEnum() {
-        assert "restConnectionUrl" == RestConnectionFieldEnum.URL.getKey()
-        assert "restConnectionTimeout" == RestConnectionFieldEnum.TIMEOUT.getKey()
-        assert "restConnectionLogger" == RestConnectionFieldEnum.LOGGER.getKey()
-        assert "restConnectionHeaders" == RestConnectionFieldEnum.COMMON_HEADERS.getKey()
+        assert "restConnectionUrl" == RestConnectionField.URL.getKey()
+        assert "restConnectionTimeout" == RestConnectionField.TIMEOUT.getKey()
+        assert "restConnectionLogger" == RestConnectionField.LOGGER.getKey()
+        assert "restConnectionHeaders" == RestConnectionField.COMMON_HEADERS.getKey()
     }
 
     @Test
@@ -47,18 +47,16 @@ class BuilderFieldEnumTest {
 
     @Test
     public void testProxyInfoFieldEnum() {
-        ProxyInfoFieldEnum
-
-        assert "proxyHost" == ProxyInfoFieldEnum.PROXYHOST.getKey();
-        assert "proxyPort" == ProxyInfoFieldEnum.PROXYPORT.getKey();
-        assert "proxyUsername" == ProxyInfoFieldEnum.PROXYUSERNAME.getKey();
-        assert "proxyPassword" == ProxyInfoFieldEnum.PROXYPASSWORD.getKey();
-        assert "noProxyHosts" == ProxyInfoFieldEnum.NOPROXYHOSTS.getKey();
+        assert "proxyHost" == ProxyInfoField.PROXYHOST.getKey();
+        assert "proxyPort" == ProxyInfoField.PROXYPORT.getKey();
+        assert "proxyUsername" == ProxyInfoField.PROXYUSERNAME.getKey();
+        assert "proxyPassword" == ProxyInfoField.PROXYPASSWORD.getKey();
+        assert "noProxyHosts" == ProxyInfoField.NOPROXYHOSTS.getKey();
     }
 
     @Test
     public void testOAuthRestConnectionFieldEnum() {
-        assert "oauthAccessType" == OauthRestConnectionFieldEnum.ACCESSTYPE.getKey()
-        assert "oauthTokenManager" == OauthRestConnectionFieldEnum.TOKENMANAGER.getKey()
+        assert "oauthAccessType" == OauthRestConnectionField.ACCESSTYPE.getKey()
+        assert "oauthTokenManager" == OauthRestConnectionField.TOKENMANAGER.getKey()
     }
 }

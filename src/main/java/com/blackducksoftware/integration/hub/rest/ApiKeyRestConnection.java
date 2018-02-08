@@ -24,15 +24,22 @@
 package com.blackducksoftware.integration.hub.rest;
 
 import java.io.IOException;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.codec.Charsets;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.BasicCookieStore;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
@@ -40,11 +47,6 @@ import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestExcep
 import com.blackducksoftware.integration.log.IntLogger;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import okhttp3.HttpUrl;
-import okhttp3.JavaNetCookieJar;
-import okhttp3.Request;
-import okhttp3.Response;
 
 /**
  * Connection to the Hub application which authenticates using the API key feature (added in Hub 4.4.0)
@@ -63,9 +65,8 @@ public class ApiKeyRestConnection extends RestConnection {
     public void addBuilderAuthentication() throws IntegrationRestException {
         // TODO romeara: This is a workaround because of HUB-13740, CSRF requires a session to work properly
         if (StringUtils.isNotBlank(hubApiKey)) {
-            final CookieManager cookieManager = new CookieManager();
-            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-            builder.cookieJar(new JavaNetCookieJar(cookieManager));
+            getClientBuilder().setDefaultCookieStore(new BasicCookieStore());
+            getDefaultRequestConfigBuilder().setCookieSpec(CookieSpecs.DEFAULT);
         }
     }
 
@@ -74,37 +75,41 @@ public class ApiKeyRestConnection extends RestConnection {
      */
     @Override
     public void clientAuthenticate() throws IntegrationException {
-        final List<String> segments = new ArrayList<>();
-        segments.add("api");
-        segments.add("tokens");
-        segments.add("authenticate");
-        final HttpUrl httpUrl = createHttpUrl(segments, null);
+        try {
+            final URIBuilder uriBuilder = new URIBuilder(baseUrl.toURI());
+            uriBuilder.setPath("api/tokens/authenticate");
 
-        final Map<String, String> content = new HashMap<>();
-        if (StringUtils.isNotBlank(hubApiKey)) {
-            final Request request = createPostRequest(httpUrl, getRequestHeaders(), createEncodedFormBody(content));
+            if (StringUtils.isNotBlank(hubApiKey)) {
+                final RequestBuilder requestBuilder = createRequestBuilder(HttpMethod.POST, getRequestHeaders());
+                requestBuilder.setCharset(Charsets.UTF_8);
+                requestBuilder.setUri(uriBuilder.build());
+                final HttpUriRequest request = requestBuilder.build();
+                logRequestHeaders(request);
+                try (final CloseableHttpResponse response = getClient().execute(request)) {
+                    logResponseHeaders(response);
+                    final int statusCode = response.getStatusLine().getStatusCode();
+                    final String statusMessage = response.getStatusLine().getReasonPhrase();
+                    if (statusCode < 200 || statusCode > 299) {
+                        throw new IntegrationRestException(statusCode, statusMessage, String.format("Connection Error: %s %s", statusCode, statusMessage));
+                    } else {
+                        commonRequestHeaders.put(AUTHORIZATION_HEADER, "Bearer " + readBearerToken(response));
 
-            try (Response response = getClient().newCall(request).execute()) {
-                // We don't log the headers here, as they contain a secret (the API key)
-                logResponseHeaders(response);
-
-                if (!response.isSuccessful()) {
-                    throw new IntegrationRestException(response.code(), response.message(),
-                            String.format("Connection Error: %s %s", response.code(), response.message()));
-                } else {
-                    // Extract the bearer token and apply to headers
-                    commonRequestHeaders.put(AUTHORIZATION_HEADER, "Bearer " + readBearerToken(response));
-
-                    // get the CSRF token
-                    final String csrfToken = response.header(X_CSRF_TOKEN);
-                    if (StringUtils.isNotBlank(csrfToken)) {
-                        commonRequestHeaders.put(X_CSRF_TOKEN, csrfToken);
+                        // get the CSRF token
+                        final Header csrfToken = response.getFirstHeader(X_CSRF_TOKEN);
+                        if (csrfToken != null) {
+                            commonRequestHeaders.put(X_CSRF_TOKEN, csrfToken.getValue());
+                        } else {
+                            logger.error("No CSRF token found when authenticating");
+                        }
                     }
+                } catch (final IOException e) {
+                    throw new IntegrationException(e.getMessage(), e);
                 }
-            } catch (final IOException e) {
-                throw new IntegrationException(e.getMessage(), e);
             }
+        } catch (final URISyntaxException e) {
+            throw new IntegrationException(e.getMessage(), e);
         }
+
     }
 
     private Map<String, String> getRequestHeaders() {
@@ -114,10 +119,13 @@ public class ApiKeyRestConnection extends RestConnection {
         return headers;
     }
 
-    private String readBearerToken(final Response response) throws IOException {
+    private String readBearerToken(final CloseableHttpResponse response) throws IOException {
         final JsonParser jsonParser = new JsonParser();
-
-        final JsonObject bearerResponse = jsonParser.parse(response.body().string()).getAsJsonObject();
+        String bodyToken = "";
+        try (final InputStream inputStream = response.getEntity().getContent()) {
+            bodyToken = IOUtils.toString(inputStream, Charsets.UTF_8);
+        }
+        final JsonObject bearerResponse = jsonParser.parse(bodyToken).getAsJsonObject();
         return bearerResponse.get("bearerToken").getAsString();
     }
 

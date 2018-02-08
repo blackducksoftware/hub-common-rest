@@ -21,17 +21,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.rest.oauth;
+package com.blackducksoftware.integration.hub.proxy;
 
 import com.blackducksoftware.integration.validator.FieldEnum;
 
-public enum OauthRestConnectionFieldEnum implements FieldEnum {
-    ACCESSTYPE("oauthAccessType"),
-    TOKENMANAGER("oauthTokenManager");
+public enum ProxyInfoField implements FieldEnum {
+    PROXYHOST("proxyHost"),
+    PROXYPORT("proxyPort"),
+    PROXYUSERNAME("proxyUsername"),
+    PROXYPASSWORD("proxyPassword"),
+    NOPROXYHOSTS("noProxyHosts"),
+    PROXYNTLMDOMAIN("ntlmDomain"),
+    PROXYNTLMWORKSTATION("ntlmWorkstation");
 
     private String key;
 
-    private OauthRestConnectionFieldEnum(final String key) {
+    private ProxyInfoField(final String key) {
         this.key = key;
     }
 

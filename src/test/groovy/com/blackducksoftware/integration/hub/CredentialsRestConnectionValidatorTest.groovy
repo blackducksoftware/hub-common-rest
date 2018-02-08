@@ -26,7 +26,7 @@ package com.blackducksoftware.integration.hub
 import org.apache.commons.lang3.StringUtils
 import org.junit.Test
 
-import com.blackducksoftware.integration.hub.rest.RestConnectionFieldEnum
+import com.blackducksoftware.integration.hub.rest.RestConnectionField
 import com.blackducksoftware.integration.hub.validator.CredentialsRestConnectionValidator
 import com.blackducksoftware.integration.log.IntLogger
 import com.blackducksoftware.integration.log.LogLevel
@@ -117,7 +117,7 @@ class CredentialsRestConnectionValidatorTest {
         validator.setBaseUrl(baseUrl)
         ValidationResults result = new ValidationResults()
         validator.validateBaseUrl(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.URL)
+        final String resultString = result.getResultString(RestConnectionField.URL)
         assert baseUrl == validator.getBaseUrl()
         assert result.success
         assert StringUtils.isBlank(resultString)
@@ -130,7 +130,7 @@ class CredentialsRestConnectionValidatorTest {
         validator.setBaseUrl(baseUrl)
         ValidationResults result = new ValidationResults()
         validator.validateBaseUrl(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.URL)
+        final String resultString = result.getResultString(RestConnectionField.URL)
         assert null == validator.getBaseUrl()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)
@@ -140,7 +140,7 @@ class CredentialsRestConnectionValidatorTest {
         validator.setBaseUrl(baseUrl)
         result = new ValidationResults()
         validator.validateBaseUrl(result)
-        resultString = result.getResultString(RestConnectionFieldEnum.URL)
+        resultString = result.getResultString(RestConnectionField.URL)
         assert baseUrl == validator.getBaseUrl()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)
@@ -154,7 +154,7 @@ class CredentialsRestConnectionValidatorTest {
         validator.setLogger(logger)
         ValidationResults result = new ValidationResults()
         validator.validateLogger(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.LOGGER)
+        final String resultString = result.getResultString(RestConnectionField.LOGGER)
         assert logger == validator.getLogger()
         assert result.success
         assert StringUtils.isBlank(resultString)
@@ -166,7 +166,7 @@ class CredentialsRestConnectionValidatorTest {
         validator.setLogger(null)
         ValidationResults result = new ValidationResults()
         validator.validateLogger(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.LOGGER)
+        final String resultString = result.getResultString(RestConnectionField.LOGGER)
         assert null == validator.getLogger()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)
@@ -180,7 +180,7 @@ class CredentialsRestConnectionValidatorTest {
         validator.setTimeout(timeout)
         ValidationResults result = new ValidationResults()
         validator.validateTimeout(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.TIMEOUT)
+        final String resultString = result.getResultString(RestConnectionField.TIMEOUT)
         assert timeout == validator.getTimeout()
         assert result.success
         assert StringUtils.isBlank(resultString)
@@ -192,7 +192,7 @@ class CredentialsRestConnectionValidatorTest {
         validator.setTimeout(-1)
         ValidationResults result = new ValidationResults()
         validator.validateTimeout(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.TIMEOUT)
+        final String resultString = result.getResultString(RestConnectionField.TIMEOUT)
         assert -1 == validator.getTimeout()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)
@@ -206,7 +206,7 @@ class CredentialsRestConnectionValidatorTest {
         validator.setCommonRequestHeaders(headers)
         ValidationResults result = new ValidationResults()
         validator.validateCommonRequestHeaders(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.COMMON_HEADERS)
+        final String resultString = result.getResultString(RestConnectionField.COMMON_HEADERS)
         assert headers == validator.getCommonRequestHeaders()
         assert result.success
         assert StringUtils.isBlank(resultString)
@@ -218,7 +218,7 @@ class CredentialsRestConnectionValidatorTest {
         validator.setCommonRequestHeaders(null)
         ValidationResults result = new ValidationResults()
         validator.validateCommonRequestHeaders(result)
-        final String resultString = result.getResultString(RestConnectionFieldEnum.COMMON_HEADERS)
+        final String resultString = result.getResultString(RestConnectionField.COMMON_HEADERS)
         assert null == validator.getCommonRequestHeaders()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)
