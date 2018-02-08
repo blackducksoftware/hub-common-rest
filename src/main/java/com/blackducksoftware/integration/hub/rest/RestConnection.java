@@ -47,7 +47,6 @@ import javax.net.ssl.SSLContext;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
-import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
@@ -395,13 +394,7 @@ public abstract class RestConnection {
         if (headers != null && headers.length > 0) {
             logMessage(LogLevel.TRACE, requestOrResponseName + " headers : ");
             for (final Header header : headers) {
-                if (header.getElements() != null && header.getElements().length > 0) {
-                    for (final HeaderElement headerElement : header.getElements()) {
-                        logMessage(LogLevel.TRACE, String.format("Header %s : %s", headerElement.getName(), headerElement.getValue()));
-                    }
-                } else {
-                    logMessage(LogLevel.TRACE, String.format("Header %s : %s", header.getName(), header.getValue()));
-                }
+                logMessage(LogLevel.TRACE, String.format("Header %s : %s", header.getName(), header.getValue()));
             }
         } else {
             logMessage(LogLevel.TRACE, requestOrResponseName + " does not have any headers.");
