@@ -161,10 +161,6 @@ class RestConnectionTestIT {
     @Test
     public void testNtlmProxyFailsWithoutCredentialsWithHttp() {
         try {
-            println "Starting ntlm proxy test"
-            println restConnectionTestHelper.getProperty("TEST_PROXY_HOST_NTLM")
-            println restConnectionTestHelper.getProperty("TEST_PROXY_PORT_NTLM")
-
             ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
             proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_NTLM")
             proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_NTLM"))
