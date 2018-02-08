@@ -292,6 +292,16 @@ public abstract class RestConnection {
         }
     }
 
+    public HttpUriRequest copyHttpRequest(final HttpUriRequest request) throws IntegrationException {
+        final RequestBuilder requestBuilder = RequestBuilder.copy(request);
+        if (commonRequestHeaders != null && !commonRequestHeaders.isEmpty()) {
+            for (final Entry<String, String> header : commonRequestHeaders.entrySet()) {
+                requestBuilder.addHeader(header.getKey(), header.getValue());
+            }
+        }
+        return requestBuilder.build();
+    }
+
     public Response executeRequest(final Request request) throws IntegrationException {
         return executeRequest(createHttpRequest(request));
     }
@@ -323,7 +333,7 @@ public abstract class RestConnection {
                     try {
                         if (statusCode == 401 && retryCount < 2) {
                             connect();
-                            final HttpUriRequest newRequest = RequestBuilder.copy(request).build();
+                            final HttpUriRequest newRequest = copyHttpRequest(request);
                             return handleClientExecution(newRequest, retryCount + 1);
                         } else {
                             throw new IntegrationRestException(statusCode, statusMessage,
@@ -340,7 +350,7 @@ public abstract class RestConnection {
             }
         } else {
             connect();
-            final HttpUriRequest newRequest = RequestBuilder.copy(request).build();
+            final HttpUriRequest newRequest = copyHttpRequest(request);
             return handleClientExecution(newRequest, retryCount);
         }
     }
