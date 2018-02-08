@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.hub.it
 import java.util.logging.Level
 import java.util.logging.Logger
 
+import org.apache.commons.lang3.math.NumberUtils
 import org.junit.Assert;
 
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
@@ -115,6 +116,11 @@ public class RestConnectionTestHelper {
         return getProperty(TestingPropertyKey.TEST_PASSWORD)
     }
 
+    public int getTimeout() {
+        int timeout = NumberUtils.toInt(getProperty(TestingPropertyKey.TEST_HUB_TIMEOUT), 300)
+        return timeout
+    }
+
     public CredentialsRestConnection getRestConnection() {
         return getRestConnection(LogLevel.TRACE);
     }
@@ -123,7 +129,7 @@ public class RestConnectionTestHelper {
         CredentialsRestConnectionBuilder builder = new CredentialsRestConnectionBuilder();
         builder.logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE);
         builder.baseUrl = getIntegrationHubServerUrl()
-        builder.timeout = 120
+        builder.timeout = getTimeout()
         builder.username = getTestUsername()
         builder.password = getTestPassword()
         builder.applyProxyInfo(ProxyInfo.NO_PROXY_INFO)
@@ -135,7 +141,7 @@ public class RestConnectionTestHelper {
         CredentialsRestConnectionBuilder builder = new CredentialsRestConnectionBuilder();
         builder.logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE);
         builder.baseUrl = getIntegrationHubServerUrl()
-        builder.timeout = 120
+        builder.timeout = getTimeout()
         builder.username = getTestUsername()
         builder.password = getTestPassword()
         builder.applyProxyInfo(proxyInfo)
