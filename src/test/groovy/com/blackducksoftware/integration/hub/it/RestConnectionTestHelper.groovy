@@ -74,6 +74,10 @@ public class RestConnectionTestHelper {
                 System.err.println("reading properties from the environment failed")
             }
         }
+
+        testProperties.each {k,v ->
+            println "Property ${k}:${v}"
+        }
     }
 
     private void loadOverrideProperties(final TestingPropertyKey[] keys) {
