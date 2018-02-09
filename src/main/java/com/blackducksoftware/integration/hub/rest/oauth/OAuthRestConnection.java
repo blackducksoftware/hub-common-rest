@@ -52,7 +52,6 @@ public class OAuthRestConnection extends RestConnection {
             } catch (final IntegrationException e) {
                 throw new IOException("Cannot refresh token", e);
             }
-            commonRequestHeaders.put(TokenManager.WWW_AUTH_RESP, credential);
             httpRequest.addHeader(TokenManager.WWW_AUTH_RESP, credential);
         };
         getClientBuilder().addInterceptorLast(requestInterceptor);
