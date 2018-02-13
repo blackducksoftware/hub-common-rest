@@ -21,10 +21,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.rest.oauth;
+package com.blackducksoftware.integration.hub;
 
-public enum AccessType {
-    USER,
-    CLIENT;
+import com.blackducksoftware.integration.validator.FieldEnum;
 
+public enum CredentialsField implements FieldEnum {
+    USERNAME("username"),
+    PASSWORD("password");
+
+    private String key;
+
+    private CredentialsField(final String key) {
+        this.key = key;
+    }
+
+    @Override
+    public String getKey() {
+        return key;
+    }
 }

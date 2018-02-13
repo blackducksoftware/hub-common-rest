@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils
 import org.junit.Test
 
 import com.blackducksoftware.integration.hub.rest.RestConnectionField
-import com.blackducksoftware.integration.hub.rest.oauth.AccessType
+import com.blackducksoftware.integration.hub.rest.oauth.OAuthAccess
 import com.blackducksoftware.integration.hub.rest.oauth.OauthRestConnectionField
 import com.blackducksoftware.integration.hub.rest.oauth.TokenManager
 import com.blackducksoftware.integration.hub.validator.OauthRestConnectionValidator
@@ -68,7 +68,7 @@ class OauthRestConnectionValidatorTest {
     @Test
     public void testAccessTypeValid() {
         OauthRestConnectionValidator validator = new OauthRestConnectionValidator()
-        AccessType accessType = AccessType.CLIENT
+        OAuthAccess accessType = OAuthAccess.CLIENT
         validator.setAccessType(accessType)
         ValidationResults result = new ValidationResults()
         validator.validateAccessType(result)
@@ -96,7 +96,7 @@ class OauthRestConnectionValidatorTest {
         OauthRestConnectionValidator validator = new OauthRestConnectionValidator()
         validator.baseUrl = "http://www.google.com"
         validator.setTokenManager(new TokenManager(null,120))
-        validator.setAccessType(AccessType.CLIENT)
+        validator.setAccessType(OAuthAccess.CLIENT)
         validator.setTimeout(120)
         validator.setLogger(new PrintStreamIntLogger(System.out, LogLevel.INFO))
         validator.setCommonRequestHeaders(new HashMap<>())

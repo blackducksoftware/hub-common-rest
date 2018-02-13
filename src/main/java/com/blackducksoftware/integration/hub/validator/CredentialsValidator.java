@@ -25,7 +25,7 @@ package com.blackducksoftware.integration.hub.validator;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.blackducksoftware.integration.hub.CredentialsFieldEnum;
+import com.blackducksoftware.integration.hub.CredentialsField;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 import com.blackducksoftware.integration.validator.ValidationResult;
 import com.blackducksoftware.integration.validator.ValidationResultEnum;
@@ -51,13 +51,13 @@ public class CredentialsValidator extends AbstractValidator {
 
     public void validateUsername(final ValidationResults result) {
         if (StringUtils.isBlank(username)) {
-            result.addResult(CredentialsFieldEnum.USERNAME, new ValidationResult(ValidationResultEnum.ERROR, "No Hub Username was found."));
+            result.addResult(CredentialsField.USERNAME, new ValidationResult(ValidationResultEnum.ERROR, "No Hub Username was found."));
         }
     }
 
     public void validatePassword(final ValidationResults result) {
         if (StringUtils.isBlank(password)) {
-            result.addResult(CredentialsFieldEnum.PASSWORD, new ValidationResult(ValidationResultEnum.ERROR, "No Hub Password was found."));
+            result.addResult(CredentialsField.PASSWORD, new ValidationResult(ValidationResultEnum.ERROR, "No Hub Password was found."));
         }
     }
 

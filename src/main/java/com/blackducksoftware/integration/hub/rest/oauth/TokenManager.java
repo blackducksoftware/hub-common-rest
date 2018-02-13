@@ -107,22 +107,22 @@ public class TokenManager {
         return result;
     }
 
-    public Token refreshToken(final AccessType accessType) throws IntegrationException {
+    public Token refreshToken(final OAuthAccess accessType) throws IntegrationException {
         Token result = null;
-        if (AccessType.USER.equals(accessType)) {
+        if (OAuthAccess.USER.equals(accessType)) {
             result = refreshUserAccessToken();
-        } else if (AccessType.CLIENT.equals(accessType)) {
+        } else if (OAuthAccess.CLIENT.equals(accessType)) {
             result = refreshClientAccessToken();
         }
 
         return result;
     }
 
-    public Token getToken(final AccessType accessType) throws IntegrationException {
+    public Token getToken(final OAuthAccess accessType) throws IntegrationException {
         Token result = null;
-        if (AccessType.USER.equals(accessType)) {
+        if (OAuthAccess.USER.equals(accessType)) {
             result = refreshUserAccessToken();
-        } else if (AccessType.CLIENT.equals(accessType)) {
+        } else if (OAuthAccess.CLIENT.equals(accessType)) {
             if (clientToken == null) {
                 refreshClientAccessToken();
             }

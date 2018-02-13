@@ -281,6 +281,8 @@ public abstract class RestConnection {
                 entity = new UrlEncodedFormEntity(parameters, bodyEncoding);
             } else if (StringUtils.isNotBlank(request.getBodyContent())) {
                 entity = new StringEntity(request.getBodyContent(), ContentType.create(mimeType, bodyEncoding));
+            } else if (null != request.getBodyContentObject()) {
+                entity = new StringEntity(gson.toJson(request.getBodyContentObject()), ContentType.create(mimeType, bodyEncoding));
             }
             if (entity != null) {
                 requestBuilder.setEntity(entity);

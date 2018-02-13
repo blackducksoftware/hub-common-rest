@@ -41,8 +41,8 @@ class BuilderFieldEnumTest {
 
     @Test
     public void testCredentialsFieldEnum() {
-        assert "username" == CredentialsFieldEnum.USERNAME.getKey()
-        assert "password" == CredentialsFieldEnum.PASSWORD.getKey()
+        assert "username" == CredentialsField.USERNAME.getKey()
+        assert "password" == CredentialsField.PASSWORD.getKey()
     }
 
     @Test

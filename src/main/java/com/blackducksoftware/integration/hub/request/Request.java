@@ -46,9 +46,10 @@ public class Request extends Stringable {
     private final Charset bodyEncoding;
     private final Map<String, String> additionalHeaders;
 
-    private File bodyContentFile;
-    private Map<String, String> bodyContentMap;
-    private String bodyContent;
+    private final File bodyContentFile;
+    private final Map<String, String> bodyContentMap;
+    private final String bodyContent;
+    private final Object bodyContentObject;
 
     public Request(final String uri) {
         this.uri = uri;
@@ -58,10 +59,13 @@ public class Request extends Stringable {
         this.mimeType = ContentType.APPLICATION_JSON.getMimeType();
         this.bodyEncoding = Charsets.UTF_8;
         this.additionalHeaders = null;
+        this.bodyContentFile = null;
+        this.bodyContentMap = null;
+        this.bodyContent = null;
+        this.bodyContentObject = null;
     }
 
-    public Request(final String uri, final Map<String, String> queryParameters, final String q, final HttpMethod method, final String mimeType, final Charset bodyEncoding,
-            final Map<String, String> additionalHeaders) {
+    public Request(final String uri, final Map<String, String> queryParameters, final String q, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders) {
         this.uri = uri;
         this.queryParameters = queryParameters;
         this.q = q;
@@ -69,29 +73,40 @@ public class Request extends Stringable {
         this.mimeType = mimeType;
         this.bodyEncoding = bodyEncoding;
         this.additionalHeaders = additionalHeaders;
+        this.bodyContentFile = null;
+        this.bodyContentMap = null;
+        this.bodyContent = null;
+        this.bodyContentObject = null;
+    }
+
+    public Request(final String uri, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders, final File bodyContentFile, final Map<String, String> bodyContentMap,
+            final String bodyContent, final Object bodyContentObject) {
+        this.uri = uri;
+        this.queryParameters = null;
+        this.q = null;
+        this.method = method;
+        this.mimeType = mimeType;
+        this.bodyEncoding = bodyEncoding;
+        this.additionalHeaders = additionalHeaders;
+        this.bodyContentFile = bodyContentFile;
+        this.bodyContentMap = bodyContentMap;
+        this.bodyContent = bodyContent;
+        this.bodyContentObject = bodyContentObject;
     }
 
     public String getUri() {
         return uri;
     }
 
-    public Map<String, String> getQueryParameters() {
-        return queryParameters;
-    }
-
     public Map<String, String> getPopulatedQueryParameters() {
         final Map<String, String> populatedQueryParameters = new HashMap<>();
-        if (StringUtils.isNotBlank(q)) {
-            populatedQueryParameters.put(QUERY_Q, q);
+        if (StringUtils.isNotBlank(getQ())) {
+            populatedQueryParameters.put(QUERY_Q, getQ());
         }
-        if (this.queryParameters != null && !this.queryParameters.isEmpty()) {
-            populatedQueryParameters.putAll(this.queryParameters);
+        if (getQueryParameters() != null && !getQueryParameters().isEmpty()) {
+            populatedQueryParameters.putAll(getQueryParameters());
         }
         return populatedQueryParameters;
-    }
-
-    public String getQ() {
-        return q;
     }
 
     public HttpMethod getMethod() {
@@ -110,6 +125,14 @@ public class Request extends Stringable {
         return additionalHeaders;
     }
 
+    public Map<String, String> getQueryParameters() {
+        return queryParameters;
+    }
+
+    public String getQ() {
+        return q;
+    }
+
     public File getBodyContentFile() {
         return bodyContentFile;
     }
@@ -122,16 +145,8 @@ public class Request extends Stringable {
         return bodyContent;
     }
 
-    public void setBodyContentFile(final File bodyContentFile) {
-        this.bodyContentFile = bodyContentFile;
-    }
-
-    public void setBodyContentMap(final Map<String, String> bodyContentMap) {
-        this.bodyContentMap = bodyContentMap;
-    }
-
-    public void setBodyContent(final String bodyContent) {
-        this.bodyContent = bodyContent;
+    public Object getBodyContentObject() {
+        return bodyContentObject;
     }
 
 }

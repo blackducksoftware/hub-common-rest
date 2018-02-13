@@ -31,6 +31,7 @@ import org.junit.Test
 
 import com.blackducksoftware.integration.hub.request.PagedRequest
 import com.blackducksoftware.integration.hub.request.Request
+import com.blackducksoftware.integration.hub.request.RequestWrapper
 import com.blackducksoftware.integration.hub.rest.HttpMethod
 
 class RequestTest {
@@ -50,8 +51,6 @@ class RequestTest {
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert null == request.uri
-        assert null == request.q
-        assert null == request.queryParameters
         assert null == request.additionalHeaders
         assert request.getPopulatedQueryParameters().isEmpty()
 
@@ -60,28 +59,31 @@ class RequestTest {
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
         assert uri == request.uri
-        assert null == request.q
-        assert null == request.queryParameters
         assert null == request.additionalHeaders
         assert request.getPopulatedQueryParameters().isEmpty()
 
-        request = new Request(null, null, null, null, null, null, null)
+        request = new Request(null, null, null, null, null, null, null,
+                null, null)
         assert null == request.method
         assert null == request.bodyEncoding
         assert null == request.mimeType
         assert null == request.uri
-        assert null == request.q
-        assert null == request.queryParameters
         assert null == request.additionalHeaders
         assert request.getPopulatedQueryParameters().isEmpty()
 
-        request = new Request(uri, queryParametes, q, method, mimeType, bodyEncoding, additionalHeaders)
+        request = new RequestWrapper(method).addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createUpdateRequest(uri)
         assert method == request.method
         assert bodyEncoding == request.bodyEncoding
         assert mimeType == request.mimeType
         assert uri == request.uri
-        assert q == request.q
-        assert queryParametes == request.queryParameters
+        assert additionalHeaders == request.additionalHeaders
+        assert request.getPopulatedQueryParameters().size() == 0
+
+        request = new RequestWrapper().addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createGetRequest(uri)
+        assert HttpMethod.GET == request.method
+        assert bodyEncoding == request.bodyEncoding
+        assert mimeType == request.mimeType
+        assert uri == request.uri
         assert additionalHeaders == request.additionalHeaders
         assert request.getPopulatedQueryParameters().size() == 3
     }
@@ -101,8 +103,6 @@ class RequestTest {
         assert Charsets.UTF_8 == pagedRequest.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == pagedRequest.mimeType
         assert null == pagedRequest.uri
-        assert null == pagedRequest.q
-        assert null == pagedRequest.queryParameters
         assert null == pagedRequest.additionalHeaders
         assert 100 == pagedRequest.limit
         assert 0 == pagedRequest.offset
@@ -113,45 +113,38 @@ class RequestTest {
         assert Charsets.UTF_8 == pagedRequest.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == pagedRequest.mimeType
         assert uri == pagedRequest.uri
-        assert null == pagedRequest.q
-        assert null == pagedRequest.queryParameters
         assert null == pagedRequest.additionalHeaders
         assert 100 == pagedRequest.limit
         assert 0 == pagedRequest.offset
         assert pagedRequest.getPopulatedQueryParameters().size() == 2
 
 
-        pagedRequest = new PagedRequest(null, null, null, null, null, null, null)
+        pagedRequest = new PagedRequest(null, null, null, null, null, null, null, 0 ,100)
         assert null == pagedRequest.method
         assert null == pagedRequest.bodyEncoding
         assert null == pagedRequest.mimeType
         assert null == pagedRequest.uri
-        assert null == pagedRequest.q
-        assert null == pagedRequest.queryParameters
         assert null == pagedRequest.additionalHeaders
         assert 100 == pagedRequest.limit
         assert 0 == pagedRequest.offset
         assert pagedRequest.getPopulatedQueryParameters().size() == 2
 
-        pagedRequest = new PagedRequest(uri, queryParametes, q, method, mimeType, bodyEncoding, additionalHeaders)
+
+        pagedRequest = new RequestWrapper(method).addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createPagedRequest(uri)
         assert method == pagedRequest.method
         assert bodyEncoding == pagedRequest.bodyEncoding
         assert mimeType == pagedRequest.mimeType
         assert uri == pagedRequest.uri
-        assert q == pagedRequest.q
-        assert queryParametes == pagedRequest.queryParameters
         assert additionalHeaders == pagedRequest.additionalHeaders
         assert 100 == pagedRequest.limit
         assert 0 == pagedRequest.offset
         assert pagedRequest.getPopulatedQueryParameters().size() == 5
 
-        pagedRequest = new PagedRequest(uri, queryParametes, q, method, mimeType, bodyEncoding, additionalHeaders, 5, 20)
+        pagedRequest = new RequestWrapper(method).addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).setLimit(5).setOffset(20).createPagedRequest(uri)
         assert method == pagedRequest.method
         assert bodyEncoding == pagedRequest.bodyEncoding
         assert mimeType == pagedRequest.mimeType
         assert uri == pagedRequest.uri
-        assert q == pagedRequest.q
-        assert queryParametes == pagedRequest.queryParameters
         assert additionalHeaders == pagedRequest.additionalHeaders
         assert 5 == pagedRequest.limit
         assert 20 == pagedRequest.offset

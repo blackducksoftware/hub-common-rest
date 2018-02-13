@@ -32,34 +32,27 @@ import java.util.Map;
 import com.blackducksoftware.integration.hub.rest.HttpMethod;
 
 public class PagedRequest extends Request {
-
-    private final int limit;
     private final int offset;
+    private final int limit;
 
     public PagedRequest(final String uri) {
         super(uri);
-        limit = 100;
-        offset = 0;
+        this.offset = 0;
+        this.limit = 100;
     }
 
-    public PagedRequest(final String uri, final Map<String, String> queryParameters, final String q, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders) {
+    public PagedRequest(final String uri, final Map<String, String> queryParameters, final String q, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders,
+            final int offset, final int limit) {
         super(uri, queryParameters, q, method, mimeType, bodyEncoding, additionalHeaders);
-        limit = 100;
-        offset = 0;
-    }
-
-    public PagedRequest(final String uri, final Map<String, String> queryParameters, final String q, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders, final int limit,
-            final int offset) {
-        super(uri, queryParameters, q, method, mimeType, bodyEncoding, additionalHeaders);
-        this.limit = limit;
         this.offset = offset;
+        this.limit = limit;
     }
 
     @Override
     public Map<String, String> getPopulatedQueryParameters() {
         final Map<String, String> populatedQueryParameters = super.getPopulatedQueryParameters();
-        populatedQueryParameters.put(QUERY_LIMIT, String.valueOf(limit));
-        populatedQueryParameters.put(QUERY_OFFSET, String.valueOf(offset));
+        populatedQueryParameters.put(QUERY_LIMIT, String.valueOf(getLimit()));
+        populatedQueryParameters.put(QUERY_OFFSET, String.valueOf(getOffset()));
         return populatedQueryParameters;
     }
 

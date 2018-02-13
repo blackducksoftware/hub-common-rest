@@ -31,7 +31,7 @@ import com.blackducksoftware.integration.hub.api.oauth.OAuthConfiguration
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 import com.blackducksoftware.integration.hub.request.Request
 import com.blackducksoftware.integration.hub.rest.RestConnection
-import com.blackducksoftware.integration.hub.rest.oauth.AccessType
+import com.blackducksoftware.integration.hub.rest.oauth.OAuthAccess
 import com.blackducksoftware.integration.hub.rest.oauth.OAuthRestConnectionBuilder
 import com.blackducksoftware.integration.hub.rest.oauth.TokenManager
 import com.blackducksoftware.integration.log.LogLevel
@@ -114,7 +114,7 @@ class OAuthRestConnectionTest {
         tokenManager
     }
 
-    private RestConnection getRestConnection(TokenManager tokenManager, AccessType accessType){
+    private RestConnection getRestConnection(TokenManager tokenManager, OAuthAccess accessType){
         tokenManager.proxyInfo = ProxyInfo.NO_PROXY_INFO
         OAuthRestConnectionBuilder builder = new OAuthRestConnectionBuilder()
         builder.logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE)
@@ -129,7 +129,7 @@ class OAuthRestConnectionTest {
 
     @Test
     public void testHandleExecuteClientCallSuccessful(){
-        RestConnection restConnection = getRestConnection(getTokenManager(), AccessType.CLIENT)
+        RestConnection restConnection = getRestConnection(getTokenManager(), OAuthAccess.CLIENT)
         Request request = new Request(null)
         restConnection.executeRequest(request).withCloseable{ assert 200 == it.getStatusCode() }
         def client =  restConnection.getClient()

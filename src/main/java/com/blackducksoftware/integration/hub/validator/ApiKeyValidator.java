@@ -25,7 +25,7 @@ package com.blackducksoftware.integration.hub.validator;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.blackducksoftware.integration.hub.ApiKeyFieldEnum;
+import com.blackducksoftware.integration.hub.ApiKeyField;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 import com.blackducksoftware.integration.validator.ValidationResult;
 import com.blackducksoftware.integration.validator.ValidationResultEnum;
@@ -49,7 +49,7 @@ public class ApiKeyValidator extends AbstractValidator {
 
     public void validateApiKey(final ValidationResults result) {
         if (StringUtils.isBlank(apiKey)) {
-            result.addResult(ApiKeyFieldEnum.API_KEY, new ValidationResult(ValidationResultEnum.ERROR, "No Hub API key was found."));
+            result.addResult(ApiKeyField.API_KEY, new ValidationResult(ValidationResultEnum.ERROR, "No Hub API key was found."));
         }
     }
 

@@ -30,13 +30,13 @@ import com.blackducksoftware.integration.validator.AbstractValidator;
 
 public class OAuthRestConnectionBuilder extends AbstractRestConnectionBuilder<OAuthRestConnection> {
     private TokenManager tokenManager;
-    private AccessType accessType;
+    private OAuthAccess accessType;
 
     public TokenManager getTokenManager() {
         return tokenManager;
     }
 
-    public AccessType getAccessType() {
+    public OAuthAccess getAccessType() {
         return accessType;
     }
 
@@ -44,7 +44,7 @@ public class OAuthRestConnectionBuilder extends AbstractRestConnectionBuilder<OA
         this.tokenManager = tokenManager;
     }
 
-    public void setAccessType(final AccessType accessType) {
+    public void setAccessType(final OAuthAccess accessType) {
         this.accessType = accessType;
     }
 

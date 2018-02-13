@@ -23,7 +23,7 @@
  */
 package com.blackducksoftware.integration.hub.validator;
 
-import com.blackducksoftware.integration.hub.rest.oauth.AccessType;
+import com.blackducksoftware.integration.hub.rest.oauth.OAuthAccess;
 import com.blackducksoftware.integration.hub.rest.oauth.OauthRestConnectionField;
 import com.blackducksoftware.integration.hub.rest.oauth.TokenManager;
 import com.blackducksoftware.integration.validator.ValidationResult;
@@ -35,13 +35,13 @@ public class OauthRestConnectionValidator extends AbstractRestConnectionValidato
     public static final String ERROR_MSG_TOKEN_MANAGER_NULL = "The Token Manager cannot be null";
 
     private TokenManager tokenManager;
-    private AccessType accessType;
+    private OAuthAccess accessType;
 
     public TokenManager getTokenManager() {
         return tokenManager;
     }
 
-    public AccessType getAccessType() {
+    public OAuthAccess getAccessType() {
         return accessType;
     }
 
@@ -49,7 +49,7 @@ public class OauthRestConnectionValidator extends AbstractRestConnectionValidato
         this.tokenManager = tokenManager;
     }
 
-    public void setAccessType(final AccessType accessType) {
+    public void setAccessType(final OAuthAccess accessType) {
         this.accessType = accessType;
     }
 

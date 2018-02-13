@@ -35,9 +35,9 @@ import com.blackducksoftware.integration.log.IntLogger;
 
 public class OAuthRestConnection extends RestConnection {
     private final TokenManager tokenManager;
-    private final AccessType accessType;
+    private final OAuthAccess accessType;
 
-    public OAuthRestConnection(final IntLogger logger, final URL hubBaseUrl, final int timeout, final TokenManager tokenManager, final AccessType accessType, final ProxyInfo proxyInfo) {
+    public OAuthRestConnection(final IntLogger logger, final URL hubBaseUrl, final int timeout, final TokenManager tokenManager, final OAuthAccess accessType, final ProxyInfo proxyInfo) {
         super(logger, hubBaseUrl, timeout, proxyInfo);
         this.tokenManager = tokenManager;
         this.accessType = accessType;

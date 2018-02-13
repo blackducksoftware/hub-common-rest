@@ -33,7 +33,7 @@ import com.blackducksoftware.integration.hub.api.oauth.Token
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder
 import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException
-import com.blackducksoftware.integration.hub.rest.oauth.AccessType
+import com.blackducksoftware.integration.hub.rest.oauth.OAuthAccess
 import com.blackducksoftware.integration.hub.rest.oauth.TokenManager
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
@@ -173,14 +173,14 @@ class TokenManagerTest {
     public void testRefreshToken(){
         TokenManager tokenManager = getTokenManager()
         try{
-            tokenManager.refreshToken(AccessType.USER)
+            tokenManager.refreshToken(OAuthAccess.USER)
             fail('Should have thrown exception')
         } catch (IntegrationException e){
             assert "No token present to refresh".equals(e.getMessage())
         }
         String refreshToken = 'RefreshToken'
         tokenManager = getTokenManager(refreshToken)
-        Token token = tokenManager.refreshToken(AccessType.USER)
+        Token token = tokenManager.refreshToken(OAuthAccess.USER)
         assert null != token
         assert null != token
         assert null != token.accessToken
@@ -192,7 +192,7 @@ class TokenManagerTest {
 
         assert null ==  tokenManager.clientToken
 
-        token = tokenManager.refreshToken(AccessType.CLIENT)
+        token = tokenManager.refreshToken(OAuthAccess.CLIENT)
         Token storedClientToken = token
         assert null != token
         assert null != token
@@ -205,13 +205,13 @@ class TokenManagerTest {
 
         assert null !=  tokenManager.clientToken
 
-        token = tokenManager.refreshToken(AccessType.CLIENT)
+        token = tokenManager.refreshToken(OAuthAccess.CLIENT)
         assert null != token
         assert storedClientToken != token
 
         tokenManager = getTokenManager(new MockResponse().setResponseCode(404))
         try{
-            tokenManager.refreshToken(AccessType.CLIENT)
+            tokenManager.refreshToken(OAuthAccess.CLIENT)
             fail('Should have thrown exception')
         } catch (IntegrationException e){
             assert 'Error refreshing client token'.equals(e.getMessage())
@@ -220,7 +220,7 @@ class TokenManagerTest {
         }
         tokenManager = getTokenManager(new MockResponse().setResponseCode(404), refreshToken)
         try{
-            tokenManager.refreshToken(AccessType.USER)
+            tokenManager.refreshToken(OAuthAccess.USER)
             fail('Should have thrown exception')
         } catch (IntegrationException e){
             assert 'Error refreshing user token'.equals(e.getMessage())
@@ -233,14 +233,14 @@ class TokenManagerTest {
     public void testGetToken(){
         TokenManager tokenManager = getTokenManager()
         try{
-            tokenManager.getToken(AccessType.USER)
+            tokenManager.getToken(OAuthAccess.USER)
             fail('Should have thrown exception')
         } catch (IntegrationException e){
             assert "No token present to refresh".equals(e.getMessage())
         }
         String refreshToken = 'RefreshToken'
         tokenManager = getTokenManager(refreshToken)
-        Token token = tokenManager.getToken(AccessType.USER)
+        Token token = tokenManager.getToken(OAuthAccess.USER)
         assert null != token
         assert null != token
         assert null != token.accessToken
@@ -252,7 +252,7 @@ class TokenManagerTest {
 
         assert null ==  tokenManager.clientToken
 
-        token = tokenManager.getToken(AccessType.CLIENT)
+        token = tokenManager.getToken(OAuthAccess.CLIENT)
         Token storedClientToken = token
         assert null != token
         assert null != token
@@ -265,13 +265,13 @@ class TokenManagerTest {
 
         assert null !=  tokenManager.clientToken
 
-        token = tokenManager.getToken(AccessType.CLIENT)
+        token = tokenManager.getToken(OAuthAccess.CLIENT)
         assert null != token
         assert storedClientToken == token
 
         tokenManager = getTokenManager(new MockResponse().setResponseCode(404))
         try{
-            tokenManager.getToken(AccessType.CLIENT)
+            tokenManager.getToken(OAuthAccess.CLIENT)
             fail('Should have thrown exception')
         } catch (IntegrationException e){
             assert 'Error refreshing client token'.equals(e.getMessage())

@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.oauth.Token;
 import com.blackducksoftware.integration.hub.request.Request;
+import com.blackducksoftware.integration.hub.request.RequestWrapper;
 import com.blackducksoftware.integration.hub.request.Response;
 import com.blackducksoftware.integration.hub.rest.HttpMethod;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
@@ -97,8 +98,7 @@ public class HubOAuthTokenService {
     }
 
     private Token getTokenFromEncodedPost(final Map<String, String> formDataMap) throws IntegrationException {
-        final Request request = new Request(null, null, null, HttpMethod.POST, null, null, null);
-        request.setBodyContentMap(formDataMap);
+        final Request request = new RequestWrapper(HttpMethod.POST).setBodyContentMap(formDataMap).createUpdateRequest(null);
         try (Response response = restConnection.executeRequest(request)) {
             final String jsonToken = response.getContentString();
             return gson.fromJson(jsonToken, Token.class);

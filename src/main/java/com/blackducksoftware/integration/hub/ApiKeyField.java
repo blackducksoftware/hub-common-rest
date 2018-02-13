@@ -25,13 +25,12 @@ package com.blackducksoftware.integration.hub;
 
 import com.blackducksoftware.integration.validator.FieldEnum;
 
-public enum CredentialsFieldEnum implements FieldEnum {
-    USERNAME("username"),
-    PASSWORD("password");
+public enum ApiKeyField implements FieldEnum {
+    API_KEY("apiKey");
 
     private String key;
 
-    private CredentialsFieldEnum(final String key) {
+    private ApiKeyField(final String key) {
         this.key = key;
     }
 

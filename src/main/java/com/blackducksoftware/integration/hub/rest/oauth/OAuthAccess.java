@@ -21,21 +21,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub;
+package com.blackducksoftware.integration.hub.rest.oauth;
 
-import com.blackducksoftware.integration.validator.FieldEnum;
+public enum OAuthAccess {
+    USER,
+    CLIENT;
 
-public enum ApiKeyFieldEnum implements FieldEnum {
-    API_KEY("apiKey");
-
-    private String key;
-
-    private ApiKeyFieldEnum(final String key) {
-        this.key = key;
-    }
-
-    @Override
-    public String getKey() {
-        return key;
-    }
 }
