@@ -14,7 +14,7 @@ version = '6.1.1-SNAPSHOT'
 apply plugin: 'com.blackducksoftware.integration.library'
 
 dependencies {
-	compile 'com.blackducksoftware.integration:integration-common:9.0.0'
+	compile 'com.blackducksoftware.integration:integration-common:9.1.1'
     compile 'org.apache.httpcomponents:httpclient:4.5.5'
 
 	testCompile 'org.codehaus.groovy:groovy-all:2.4.12'
