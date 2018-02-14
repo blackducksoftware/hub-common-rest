@@ -25,7 +25,7 @@ package com.blackducksoftware.integration.hub.request;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.codec.Charsets;
@@ -92,10 +92,11 @@ public class Request extends Stringable {
     }
 
     public Map<String, String> getPopulatedQueryParameters() {
-        if (getQueryParameters() == null) {
-            return Collections.emptyMap();
+        final Map<String, String> populatedQueryParameters = new HashMap<>();
+        if (getQueryParameters() != null && !getQueryParameters().isEmpty()) {
+            populatedQueryParameters.putAll(getQueryParameters());
         }
-        return getQueryParameters();
+        return populatedQueryParameters;
     }
 
     public HttpMethod getMethod() {
