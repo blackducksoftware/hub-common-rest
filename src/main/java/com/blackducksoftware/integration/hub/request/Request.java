@@ -39,9 +39,9 @@ import com.blackducksoftware.integration.hub.rest.HttpMethod;
 import com.blackducksoftware.integration.util.Stringable;
 
 public class Request extends Stringable {
-    private String uri;
+    private final String uri;
     private Map<String, String> queryParameters;
-    private HttpMethod method;
+    private final HttpMethod method;
     private String mimeType = ContentType.APPLICATION_JSON.getMimeType();
     private Charset bodyEncoding = Charsets.UTF_8;
     private Map<String, String> additionalHeaders;
@@ -97,8 +97,10 @@ public class Request extends Stringable {
         return request;
     }
 
-    private Request(final String uri, final HttpMethod httpMethod) {
+    private Request(final String uri, final HttpMethod method) {
         // only used by static factory methods
+        this.uri = uri;
+        this.method = method;
     }
 
     public Request(final String uri, final Map<String, String> queryParameters, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders, final File bodyContentFile,
