@@ -23,15 +23,12 @@
  */
 package com.blackducksoftware.integration.hub.request;
 
-import static com.blackducksoftware.integration.hub.RestConstants.QUERY_Q;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.codec.Charsets;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 
 import com.blackducksoftware.integration.hub.rest.HttpMethod;
@@ -40,7 +37,6 @@ import com.blackducksoftware.integration.util.Stringable;
 public class Request extends Stringable {
     private final String uri;
     private final Map<String, String> queryParameters;
-    private final String q;
     private final HttpMethod method;
     private final String mimeType;
     private final Charset bodyEncoding;
@@ -54,7 +50,6 @@ public class Request extends Stringable {
     public Request(final String uri) {
         this.uri = uri;
         this.queryParameters = null;
-        this.q = null;
         this.method = HttpMethod.GET;
         this.mimeType = ContentType.APPLICATION_JSON.getMimeType();
         this.bodyEncoding = Charsets.UTF_8;
@@ -65,10 +60,9 @@ public class Request extends Stringable {
         this.bodyContentObject = null;
     }
 
-    public Request(final String uri, final Map<String, String> queryParameters, final String q, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders) {
+    public Request(final String uri, final Map<String, String> queryParameters, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders) {
         this.uri = uri;
         this.queryParameters = queryParameters;
-        this.q = q;
         this.method = method;
         this.mimeType = mimeType;
         this.bodyEncoding = bodyEncoding;
@@ -83,7 +77,6 @@ public class Request extends Stringable {
             final String bodyContent, final Object bodyContentObject) {
         this.uri = uri;
         this.queryParameters = null;
-        this.q = null;
         this.method = method;
         this.mimeType = mimeType;
         this.bodyEncoding = bodyEncoding;
@@ -100,9 +93,6 @@ public class Request extends Stringable {
 
     public Map<String, String> getPopulatedQueryParameters() {
         final Map<String, String> populatedQueryParameters = new HashMap<>();
-        if (StringUtils.isNotBlank(getQ())) {
-            populatedQueryParameters.put(QUERY_Q, getQ());
-        }
         if (getQueryParameters() != null && !getQueryParameters().isEmpty()) {
             populatedQueryParameters.putAll(getQueryParameters());
         }
@@ -127,10 +117,6 @@ public class Request extends Stringable {
 
     public Map<String, String> getQueryParameters() {
         return queryParameters;
-    }
-
-    public String getQ() {
-        return q;
     }
 
     public File getBodyContentFile() {

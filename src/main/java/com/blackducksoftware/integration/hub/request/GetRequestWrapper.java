@@ -23,7 +23,8 @@
  */
 package com.blackducksoftware.integration.hub.request;
 
-import java.io.File;
+import static com.blackducksoftware.integration.hub.RestConstants.QUERY_Q;
+
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,42 +32,41 @@ import java.util.Map;
 import org.apache.commons.codec.Charsets;
 import org.apache.http.entity.ContentType;
 
-import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.rest.HttpMethod;
 import com.blackducksoftware.integration.util.Stringable;
 
-public class RequestWrapper extends Stringable {
-    private final HttpMethod method;
+public class GetRequestWrapper extends Stringable {
+    private final Map<String, String> queryParameters = new HashMap<>();
     private String mimeType = ContentType.APPLICATION_JSON.getMimeType();
     private Charset bodyEncoding = Charsets.UTF_8;
     private final Map<String, String> additionalHeaders = new HashMap<>();
     private int limit = 100;
     private int offset = 0;
 
-    private File bodyContentFile;
-    private Map<String, String> bodyContentMap;
-    private String bodyContent;
-    private Object bodyContentObject;
-
-    public RequestWrapper(final HttpMethod method) throws IntegrationException {
-        if (null == method) {
-            throw new IntegrationException("Can not create a Request without a HttpMethod.");
-        }
-        if (HttpMethod.GET == method) {
-            throw new IntegrationException("Can not create a GET request. Please use the GetRequestWrapper.");
-        }
-        this.method = method;
+    public GetRequestWrapper setQ(final String q) {
+        queryParameters.put(QUERY_Q, q);
+        return this;
     }
 
-    public HttpMethod getMethod() {
-        return method;
+    public Map<String, String> getQueryParameters() {
+        return queryParameters;
+    }
+
+    public GetRequestWrapper addQueryParameter(final String key, final String value) {
+        queryParameters.put(key, value);
+        return this;
+    }
+
+    public GetRequestWrapper addQueryParameters(final Map<String, String> parameters) {
+        queryParameters.putAll(parameters);
+        return this;
     }
 
     public int getOffset() {
         return offset;
     }
 
-    public RequestWrapper setOffset(final int offset) {
+    public GetRequestWrapper setOffset(final int offset) {
         this.offset = offset;
         return this;
     }
@@ -75,7 +75,7 @@ public class RequestWrapper extends Stringable {
         return limit;
     }
 
-    public RequestWrapper setLimit(final int limit) {
+    public GetRequestWrapper setLimit(final int limit) {
         this.limit = limit;
         return this;
     }
@@ -84,7 +84,7 @@ public class RequestWrapper extends Stringable {
         return mimeType;
     }
 
-    public RequestWrapper setMimeType(final String mimeType) {
+    public GetRequestWrapper setMimeType(final String mimeType) {
         this.mimeType = mimeType;
         return this;
     }
@@ -93,7 +93,7 @@ public class RequestWrapper extends Stringable {
         return bodyEncoding;
     }
 
-    public RequestWrapper setBodyEncoding(final Charset bodyEncoding) {
+    public GetRequestWrapper setBodyEncoding(final Charset bodyEncoding) {
         this.bodyEncoding = bodyEncoding;
         return this;
     }
@@ -102,37 +102,21 @@ public class RequestWrapper extends Stringable {
         return additionalHeaders;
     }
 
-    public RequestWrapper addAdditionalHeader(final String key, final String value) {
+    public GetRequestWrapper addAdditionalHeader(final String key, final String value) {
         additionalHeaders.put(key, value);
         return this;
     }
 
-    public RequestWrapper addAdditionalHeaders(final Map<String, String> parameters) {
+    public GetRequestWrapper addAdditionalHeaders(final Map<String, String> parameters) {
         additionalHeaders.putAll(parameters);
         return this;
     }
 
-    public RequestWrapper setBodyContentFile(final File bodyContentFile) {
-        this.bodyContentFile = bodyContentFile;
-        return this;
+    public Request createGetRequest(final String uri) {
+        return new Request(uri, queryParameters, HttpMethod.GET, mimeType, bodyEncoding, additionalHeaders);
     }
 
-    public RequestWrapper setBodyContentMap(final Map<String, String> bodyContentMap) {
-        this.bodyContentMap = bodyContentMap;
-        return this;
-    }
-
-    public RequestWrapper setBodyContent(final String bodyContent) {
-        this.bodyContent = bodyContent;
-        return this;
-    }
-
-    public RequestWrapper setBodyContentObject(final Object bodyContentObject) {
-        this.bodyContentObject = bodyContentObject;
-        return this;
-    }
-
-    public Request createRequest(final String uri) {
-        return new Request(uri, method, mimeType, bodyEncoding, additionalHeaders, bodyContentFile, bodyContentMap, bodyContent, bodyContentObject);
+    public PagedRequest createPagedRequest(final String uri) {
+        return new PagedRequest(uri, queryParameters, HttpMethod.GET, mimeType, bodyEncoding, additionalHeaders, offset, limit);
     }
 }

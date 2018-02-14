@@ -98,7 +98,7 @@ public class HubOAuthTokenService {
     }
 
     private Token getTokenFromEncodedPost(final Map<String, String> formDataMap) throws IntegrationException {
-        final Request request = new RequestWrapper(HttpMethod.POST).setBodyContentMap(formDataMap).createUpdateRequest(null);
+        final Request request = new RequestWrapper(HttpMethod.POST).setBodyContentMap(formDataMap).createRequest(null);
         try (Response response = restConnection.executeRequest(request)) {
             final String jsonToken = response.getContentString();
             return gson.fromJson(jsonToken, Token.class);

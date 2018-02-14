@@ -29,6 +29,7 @@ import org.apache.commons.codec.Charsets;
 import org.apache.http.entity.ContentType;
 import org.junit.Test
 
+import com.blackducksoftware.integration.hub.request.GetRequestWrapper
 import com.blackducksoftware.integration.hub.request.PagedRequest
 import com.blackducksoftware.integration.hub.request.Request
 import com.blackducksoftware.integration.hub.request.RequestWrapper
@@ -62,8 +63,7 @@ class RequestTest {
         assert null == request.additionalHeaders
         assert request.getPopulatedQueryParameters().isEmpty()
 
-        request = new Request(null, null, null, null, null, null, null,
-                null, null)
+        request = new Request(null,  null,  null, null, null, null)
         assert null == request.method
         assert null == request.bodyEncoding
         assert null == request.mimeType
@@ -71,21 +71,20 @@ class RequestTest {
         assert null == request.additionalHeaders
         assert request.getPopulatedQueryParameters().isEmpty()
 
-        request = new RequestWrapper(method).addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createUpdateRequest(uri)
-        assert method == request.method
-        assert bodyEncoding == request.bodyEncoding
-        assert mimeType == request.mimeType
-        assert uri == request.uri
-        assert additionalHeaders == request.additionalHeaders
-        assert request.getPopulatedQueryParameters().size() == 0
-
-        request = new RequestWrapper().addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createGetRequest(uri)
+        request = new GetRequestWrapper().addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createGetRequest(uri)
         assert HttpMethod.GET == request.method
         assert bodyEncoding == request.bodyEncoding
         assert mimeType == request.mimeType
         assert uri == request.uri
         assert additionalHeaders == request.additionalHeaders
         assert request.getPopulatedQueryParameters().size() == 3
+
+        request = new RequestWrapper(HttpMethod.PATCH).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createRequest(uri)
+        assert HttpMethod.PATCH == request.method
+        assert bodyEncoding == request.bodyEncoding
+        assert mimeType == request.mimeType
+        assert uri == request.uri
+        assert additionalHeaders == request.additionalHeaders
     }
 
     @Test
@@ -93,7 +92,6 @@ class RequestTest {
         String uri = 'URI'
         Map<String, String> queryParametes = [test:"one",query:"two"]
         String q = 'q'
-        HttpMethod method = HttpMethod.DELETE
         String mimeType = 'mime'
         Charset  bodyEncoding = Charsets.UTF_8
         Map<String, String> additionalHeaders = [header:"one",thing:"two"]
@@ -119,7 +117,7 @@ class RequestTest {
         assert pagedRequest.getPopulatedQueryParameters().size() == 2
 
 
-        pagedRequest = new PagedRequest(null, null, null, null, null, null, null, 0 ,100)
+        pagedRequest = new PagedRequest(null, null,  null, null, null, null, 0 ,100)
         assert null == pagedRequest.method
         assert null == pagedRequest.bodyEncoding
         assert null == pagedRequest.mimeType
@@ -130,8 +128,8 @@ class RequestTest {
         assert pagedRequest.getPopulatedQueryParameters().size() == 2
 
 
-        pagedRequest = new RequestWrapper(method).addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createPagedRequest(uri)
-        assert method == pagedRequest.method
+        pagedRequest = new GetRequestWrapper().addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createPagedRequest(uri)
+        assert HttpMethod.GET == pagedRequest.method
         assert bodyEncoding == pagedRequest.bodyEncoding
         assert mimeType == pagedRequest.mimeType
         assert uri == pagedRequest.uri
@@ -140,8 +138,8 @@ class RequestTest {
         assert 0 == pagedRequest.offset
         assert pagedRequest.getPopulatedQueryParameters().size() == 5
 
-        pagedRequest = new RequestWrapper(method).addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).setLimit(5).setOffset(20).createPagedRequest(uri)
-        assert method == pagedRequest.method
+        pagedRequest = new GetRequestWrapper().addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).setLimit(5).setOffset(20).createPagedRequest(uri)
+        assert HttpMethod.GET == pagedRequest.method
         assert bodyEncoding == pagedRequest.bodyEncoding
         assert mimeType == pagedRequest.mimeType
         assert uri == pagedRequest.uri

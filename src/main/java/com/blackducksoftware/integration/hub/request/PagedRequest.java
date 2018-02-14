@@ -41,9 +41,9 @@ public class PagedRequest extends Request {
         this.limit = 100;
     }
 
-    public PagedRequest(final String uri, final Map<String, String> queryParameters, final String q, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders,
+    public PagedRequest(final String uri, final Map<String, String> queryParameters, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders,
             final int offset, final int limit) {
-        super(uri, queryParameters, q, method, mimeType, bodyEncoding, additionalHeaders);
+        super(uri, queryParameters, method, mimeType, bodyEncoding, additionalHeaders);
         this.offset = offset;
         this.limit = limit;
     }

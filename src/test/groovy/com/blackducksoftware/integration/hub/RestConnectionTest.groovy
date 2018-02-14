@@ -38,7 +38,9 @@ import org.junit.Test
 import com.blackducksoftware.integration.exception.IntegrationException
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder
+import com.blackducksoftware.integration.hub.request.GetRequestWrapper
 import com.blackducksoftware.integration.hub.request.PagedRequest
+import com.blackducksoftware.integration.hub.request.Request
 import com.blackducksoftware.integration.hub.request.RequestWrapper
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnectionBuilder
 import com.blackducksoftware.integration.hub.rest.HttpMethod
@@ -241,14 +243,22 @@ class RestConnectionTest {
     }
 
     @Test
-    public void testCreateHttpRequestNoMethod() {
-        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), null, 300, ProxyInfo.NO_PROXY_INFO)
-        PagedRequest pagedRequest = new RequestWrapper(null).createPagedRequest(null)
+    public void testCreateRequestWrapperNoMethod() {
         try {
-            restConnection.createHttpRequest(pagedRequest)
+            new RequestWrapper(null)
             fail('Should have thrown exception')
         } catch (IntegrationException e) {
-            assert "Missing the HttpMethod" == e.getMessage()
+            assert "Can not create a Request without a HttpMethod." == e.getMessage()
+        }
+    }
+
+    @Test
+    public void testCreateRequestWrapperGetMethod() {
+        try {
+            new RequestWrapper(HttpMethod.GET)
+            fail('Should have thrown exception')
+        } catch (IntegrationException e) {
+            assert "Can not create a GET request. Please use the GetRequestWrapper." == e.getMessage()
         }
     }
 
@@ -259,7 +269,6 @@ class RestConnectionTest {
         String uri = restConnection.baseUrl.toURI().toString()
         Map<String, String> queryParametes = [test:"one",query:"two"]
         String q = 'q'
-        HttpMethod method = HttpMethod.DELETE
         String mimeType = 'mime'
         Charset  bodyEncoding = Charsets.UTF_8
         Map<String, String> additionalHeaders = [header:"one",thing:"two"]
@@ -284,37 +293,27 @@ class RestConnectionTest {
         assert request.getURI().toString().contains('limit=100')
 
 
-        pagedRequest = new RequestWrapper(method).createPagedRequest(uri)
+        pagedRequest = new GetRequestWrapper().createPagedRequest(uri)
         request = restConnection.createHttpRequest(pagedRequest)
-        assert method.name() == request.method
-        assert 0 == request.getAllHeaders().size()
+        assert HttpMethod.GET.name() == request.method
+        assert ContentType.APPLICATION_JSON.getMimeType() == request.getFirstHeader(HttpHeaders.ACCEPT).getValue()
         assert null != request.getURI()
         assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
         assert request.getURI().toString().contains('offset=0')
         assert request.getURI().toString().contains('limit=100')
 
-        pagedRequest = new RequestWrapper(method).addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createPagedRequest(uri)
+        pagedRequest = new GetRequestWrapper().addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createPagedRequest(uri)
         request = restConnection.createHttpRequest(pagedRequest)
-        assert method.name() == request.method
+        assert HttpMethod.GET.name() == request.method
         assert 'one' == request.getFirstHeader('header').getValue()
         assert 'two' == request.getFirstHeader('thing').getValue()
         assert null != request.getURI()
         assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
         assert request.getURI().toString().contains('offset=0')
         assert request.getURI().toString().contains('limit=100')
-
-        pagedRequest = new RequestWrapper(method).addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).setOffset(20).setLimit(5).createPagedRequest(uri)
-        request = restConnection.createHttpRequest(pagedRequest)
-        assert method.name() == request.method
-        assert 'one' == request.getFirstHeader('header').getValue()
-        assert 'two' == request.getFirstHeader('thing').getValue()
-        assert null != request.getURI()
-        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
-        assert request.getURI().toString().contains('offset=20')
-        assert request.getURI().toString().contains('limit=5')
 
         additionalHeaders.put(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.getMimeType())
-        pagedRequest = new RequestWrapper(HttpMethod.GET).addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createPagedRequest(uri)
+        pagedRequest = new GetRequestWrapper().addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createPagedRequest(uri)
         request = restConnection.createHttpRequest(pagedRequest)
         assert HttpMethod.GET.name() == request.method
         assert ContentType.APPLICATION_XML.getMimeType() == request.getFirstHeader(HttpHeaders.ACCEPT).getValue()
@@ -322,5 +321,15 @@ class RestConnectionTest {
         assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
         assert request.getURI().toString().contains('offset=0')
         assert request.getURI().toString().contains('limit=100')
+
+        additionalHeaders.remove(HttpHeaders.ACCEPT)
+        Request deleteRequest = new RequestWrapper(HttpMethod.DELETE).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createRequest(uri)
+        request = restConnection.createHttpRequest(deleteRequest)
+        assert HttpMethod.DELETE.name() == request.method
+        assert 'one' == request.getFirstHeader('header').getValue()
+        assert 'two' == request.getFirstHeader('thing').getValue()
+        assert 2 == request.getAllHeaders().size()
+        assert null != request.getURI()
+        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
     }
 }
