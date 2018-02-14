@@ -42,8 +42,8 @@ public class Request extends Stringable {
     private String uri;
     private Map<String, String> queryParameters;
     private HttpMethod method;
-    private String mimeType;
-    private Charset bodyEncoding;
+    private String mimeType = ContentType.APPLICATION_JSON.getMimeType();
+    private Charset bodyEncoding = Charsets.UTF_8;
     private Map<String, String> additionalHeaders;
     private File bodyContentFile;
     private Map<String, String> bodyContentMap;
@@ -51,11 +51,7 @@ public class Request extends Stringable {
     private Object bodyContentObject;
 
     public static Request createCommonGetRequest(final String uri) {
-        final Request request = new Request();
-        request.uri = uri;
-        request.method = HttpMethod.GET;
-        request.mimeType = ContentType.APPLICATION_JSON.getMimeType();
-        request.bodyEncoding = Charsets.UTF_8;
+        final Request request = new Request(uri, HttpMethod.GET);
         request.queryParameters = new HashMap<>();
         request.queryParameters.put(QUERY_OFFSET, String.valueOf(0));
         request.queryParameters.put(QUERY_LIMIT, String.valueOf(100));
@@ -77,7 +73,31 @@ public class Request extends Stringable {
         return request;
     }
 
-    private Request() {
+    public static Request createCommonPostRequest(final String uri, final File bodyContentFile) {
+        final Request request = new Request(uri, HttpMethod.POST);
+        request.bodyContentFile = bodyContentFile;
+        return request;
+    }
+
+    public static Request createCommonPostRequest(final String uri, final Map<String, String> bodyContentMap) {
+        final Request request = new Request(uri, HttpMethod.POST);
+        request.bodyContentMap = bodyContentMap;
+        return request;
+    }
+
+    public static Request createCommonPostRequest(final String uri, final String bodyContent) {
+        final Request request = new Request(uri, HttpMethod.POST);
+        request.bodyContent = bodyContent;
+        return request;
+    }
+
+    public static Request createCommonPostRequest(final String uri, final Object bodyContentObject) {
+        final Request request = new Request(uri, HttpMethod.POST);
+        request.bodyContentObject = bodyContentObject;
+        return request;
+    }
+
+    private Request(final String uri, final HttpMethod httpMethod) {
         // only used by static factory methods
     }
 
