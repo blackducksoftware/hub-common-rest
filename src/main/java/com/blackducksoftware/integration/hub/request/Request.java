@@ -45,7 +45,7 @@ public class Request extends Stringable {
     private final BodyContent bodyContent;
 
     public static class Builder {
-        private final String uri;
+        private String uri;
         private HttpMethod method;
         private String mimeType;
         private Charset bodyEncoding;
@@ -58,6 +58,15 @@ public class Request extends Stringable {
             this.method = HttpMethod.GET;
             this.mimeType = ContentType.APPLICATION_JSON.getMimeType();
             this.bodyEncoding = StandardCharsets.UTF_8;
+        }
+
+        public Builder() {
+            this(null);
+        }
+
+        public Builder uri(final String uri) {
+            this.uri = uri;
+            return this;
         }
 
         public Builder method(final HttpMethod method) {
