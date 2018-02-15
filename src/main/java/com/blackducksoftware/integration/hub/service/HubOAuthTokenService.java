@@ -31,8 +31,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.oauth.Token;
+import com.blackducksoftware.integration.hub.request.BodyContent;
 import com.blackducksoftware.integration.hub.request.Request;
 import com.blackducksoftware.integration.hub.request.Response;
+import com.blackducksoftware.integration.hub.rest.HttpMethod;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.google.gson.Gson;
 
@@ -96,7 +98,7 @@ public class HubOAuthTokenService {
     }
 
     private Token getTokenFromEncodedPost(final Map<String, String> formDataMap) throws IntegrationException {
-        final Request request = Request.createCommonPostRequest(null, formDataMap);
+        final Request request = new Request.Builder(null).method(HttpMethod.POST).bodyContent(new BodyContent(formDataMap)).build();
         try (Response response = restConnection.executeRequest(request)) {
             final String jsonToken = response.getContentString();
             return gson.fromJson(jsonToken, Token.class);

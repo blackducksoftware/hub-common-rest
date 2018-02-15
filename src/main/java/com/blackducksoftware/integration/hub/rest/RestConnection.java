@@ -33,10 +33,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
@@ -51,12 +49,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
@@ -65,12 +61,9 @@ import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 
@@ -269,21 +262,7 @@ public abstract class RestConnection {
                 }
             }
             requestBuilder.setUri(uriBuilder.build());
-            HttpEntity entity = null;
-            if (request.getBodyContentFile() != null) {
-                entity = new FileEntity(request.getBodyContentFile(), ContentType.create(mimeType, bodyEncoding));
-            } else if (request.getBodyContentMap() != null && !request.getBodyContentMap().isEmpty()) {
-                final List<NameValuePair> parameters = new ArrayList<>();
-                for (final Entry<String, String> entry : request.getBodyContentMap().entrySet()) {
-                    final NameValuePair nameValuePair = new BasicNameValuePair(entry.getKey(), entry.getValue());
-                    parameters.add(nameValuePair);
-                }
-                entity = new UrlEncodedFormEntity(parameters, bodyEncoding);
-            } else if (StringUtils.isNotBlank(request.getBodyContent())) {
-                entity = new StringEntity(request.getBodyContent(), ContentType.create(mimeType, bodyEncoding));
-            } else if (null != request.getBodyContentObject()) {
-                entity = new StringEntity(gson.toJson(request.getBodyContentObject()), ContentType.create(mimeType, bodyEncoding));
-            }
+            final HttpEntity entity = request.createHttpEntity(gson);
             if (entity != null) {
                 requestBuilder.setEntity(entity);
             }

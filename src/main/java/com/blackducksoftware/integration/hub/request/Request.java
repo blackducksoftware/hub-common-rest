@@ -23,99 +23,104 @@
  */
 package com.blackducksoftware.integration.hub.request;
 
-import static com.blackducksoftware.integration.hub.RestConstants.QUERY_LIMIT;
-import static com.blackducksoftware.integration.hub.RestConstants.QUERY_OFFSET;
-import static com.blackducksoftware.integration.hub.RestConstants.QUERY_Q;
-
-import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.codec.Charsets;
+import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 
 import com.blackducksoftware.integration.hub.rest.HttpMethod;
 import com.blackducksoftware.integration.util.Stringable;
+import com.google.gson.Gson;
 
 public class Request extends Stringable {
     private final String uri;
-    private Map<String, String> queryParameters;
     private final HttpMethod method;
-    private String mimeType = ContentType.APPLICATION_JSON.getMimeType();
-    private Charset bodyEncoding = Charsets.UTF_8;
-    private Map<String, String> additionalHeaders;
-    private File bodyContentFile;
-    private Map<String, String> bodyContentMap;
-    private String bodyContent;
-    private Object bodyContentObject;
+    private final String mimeType;
+    private final Charset bodyEncoding;
+    private final Map<String, String> queryParameters;
+    private final Map<String, String> additionalHeaders;
+    private final BodyContent bodyContent;
 
-    public static Request createCommonGetRequest(final String uri) {
-        final Request request = new Request(uri, HttpMethod.GET);
-        request.queryParameters = new HashMap<>();
-        request.queryParameters.put(QUERY_OFFSET, String.valueOf(0));
-        request.queryParameters.put(QUERY_LIMIT, String.valueOf(100));
-        return request;
+    public static class Builder {
+        private final String uri;
+        private HttpMethod method;
+        private String mimeType;
+        private Charset bodyEncoding;
+        private Map<String, String> queryParameters;
+        private Map<String, String> additionalHeaders;
+        private BodyContent bodyContent;
+
+        public Builder(final String uri) {
+            this.uri = uri;
+            this.method = HttpMethod.GET;
+            this.mimeType = ContentType.APPLICATION_JSON.getMimeType();
+            this.bodyEncoding = StandardCharsets.UTF_8;
+        }
+
+        public Builder method(final HttpMethod method) {
+            this.method = method;
+            return this;
+        }
+
+        public Builder mimeType(final String mimeType) {
+            this.mimeType = mimeType;
+            return this;
+        }
+
+        public Builder bodyEncoding(final Charset bodyEncoding) {
+            this.bodyEncoding = bodyEncoding;
+            return this;
+        }
+
+        public Builder queryParameters(final Map<String, String> queryParameters) {
+            this.queryParameters = queryParameters;
+            return this;
+        }
+
+        public Builder additionalHeaders(final Map<String, String> additionalHeaders) {
+            this.additionalHeaders = additionalHeaders;
+            return this;
+        }
+
+        public Builder bodyContent(final BodyContent bodyContent) {
+            this.bodyContent = bodyContent;
+            return this;
+        }
+
+        public Request build() {
+            return new Request(this);
+        }
     }
 
-    public static Request createCommonGetRequest(final String uri, final String q) {
-        final Request request = createCommonGetRequest(uri);
-        request.queryParameters = new HashMap<>();
-        request.queryParameters.put(QUERY_Q, q);
-        return request;
+    private Request(final Builder builder) {
+        this.uri = builder.uri;
+        this.method = builder.method;
+        this.mimeType = builder.mimeType;
+        this.bodyEncoding = builder.bodyEncoding;
+        this.queryParameters = builder.queryParameters;
+        this.additionalHeaders = builder.additionalHeaders;
+        this.bodyContent = builder.bodyContent;
     }
 
-    public static Request createCommonGetPagedRequest(final String uri, final String q, final int offset, final int limit) {
-        final Request request = createCommonGetRequest(uri, q);
-        request.queryParameters = new HashMap<>();
-        request.queryParameters.put(QUERY_OFFSET, String.valueOf(offset));
-        request.queryParameters.put(QUERY_LIMIT, String.valueOf(limit));
-        return request;
-    }
-
-    public static Request createCommonPostRequest(final String uri, final File bodyContentFile) {
-        final Request request = new Request(uri, HttpMethod.POST);
-        request.bodyContentFile = bodyContentFile;
-        return request;
-    }
-
-    public static Request createCommonPostRequest(final String uri, final Map<String, String> bodyContentMap) {
-        final Request request = new Request(uri, HttpMethod.POST);
-        request.bodyContentMap = bodyContentMap;
-        return request;
-    }
-
-    public static Request createCommonPostRequest(final String uri, final String bodyContent) {
-        final Request request = new Request(uri, HttpMethod.POST);
-        request.bodyContent = bodyContent;
-        return request;
-    }
-
-    public static Request createCommonPostRequest(final String uri, final Object bodyContentObject) {
-        final Request request = new Request(uri, HttpMethod.POST);
-        request.bodyContentObject = bodyContentObject;
-        return request;
-    }
-
-    private Request(final String uri, final HttpMethod method) {
-        // only used by static factory methods
+    public Request(final String uri, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> queryParameters, final Map<String, String> additionalHeaders, final BodyContent bodyContent) {
+        super();
         this.uri = uri;
-        this.method = method;
-    }
-
-    public Request(final String uri, final Map<String, String> queryParameters, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders, final File bodyContentFile,
-            final Map<String, String> bodyContentMap,
-            final String bodyContent, final Object bodyContentObject) {
-        this.uri = uri;
-        this.queryParameters = queryParameters;
         this.method = method;
         this.mimeType = mimeType;
         this.bodyEncoding = bodyEncoding;
+        this.queryParameters = queryParameters;
         this.additionalHeaders = additionalHeaders;
-        this.bodyContentFile = bodyContentFile;
-        this.bodyContentMap = bodyContentMap;
         this.bodyContent = bodyContent;
-        this.bodyContentObject = bodyContentObject;
+    }
+
+    public HttpEntity createHttpEntity(final Gson gson) {
+        if (bodyContent == null) {
+            return null;
+        }
+        return bodyContent.createEntity(this, gson);
     }
 
     public String getUri() {
@@ -142,28 +147,16 @@ public class Request extends Stringable {
         return bodyEncoding;
     }
 
-    public Map<String, String> getAdditionalHeaders() {
-        return additionalHeaders;
-    }
-
     public Map<String, String> getQueryParameters() {
         return queryParameters;
     }
 
-    public File getBodyContentFile() {
-        return bodyContentFile;
+    public Map<String, String> getAdditionalHeaders() {
+        return additionalHeaders;
     }
 
-    public Map<String, String> getBodyContentMap() {
-        return bodyContentMap;
-    }
-
-    public String getBodyContent() {
+    public BodyContent getBodyContent() {
         return bodyContent;
-    }
-
-    public Object getBodyContentObject() {
-        return bodyContentObject;
     }
 
 }
