@@ -89,8 +89,24 @@ public class Request extends Stringable {
             return this;
         }
 
+        public Builder addQueryParameter(final String key, final String value) {
+            if (this.queryParameters == null) {
+                this.queryParameters = new HashMap<>();
+            }
+            this.queryParameters.put(key, value);
+            return this;
+        }
+
         public Builder additionalHeaders(final Map<String, String> additionalHeaders) {
             this.additionalHeaders = additionalHeaders;
+            return this;
+        }
+
+        public Builder addAdditionalHeader(final String key, final String value) {
+            if (this.additionalHeaders == null) {
+                this.additionalHeaders = new HashMap<>();
+            }
+            this.additionalHeaders.put(key, value);
             return this;
         }
 
