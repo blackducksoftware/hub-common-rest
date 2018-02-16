@@ -130,7 +130,7 @@ class OAuthRestConnectionTest {
     @Test
     public void testHandleExecuteClientCallSuccessful(){
         RestConnection restConnection = getRestConnection(getTokenManager(), OAuthAccess.CLIENT)
-        Request request = new Request(null)
+        Request request = new Request(new Request.Builder())
         restConnection.executeRequest(request).withCloseable{ assert 200 == it.getStatusCode() }
         def client =  restConnection.getClient()
         def requestInterceptors = client.execChain.requestExecutor.requestExecutor.httpProcessor.requestInterceptors

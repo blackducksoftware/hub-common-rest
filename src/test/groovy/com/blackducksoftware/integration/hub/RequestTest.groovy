@@ -33,7 +33,6 @@ import com.blackducksoftware.integration.hub.request.Request
 import com.blackducksoftware.integration.hub.rest.HttpMethod
 
 class RequestTest {
-
     @Test
     public void testRequest(){
         String uri = 'URI'
@@ -44,7 +43,7 @@ class RequestTest {
         Charset  bodyEncoding = Charsets.UTF_8
         Map<String, String> additionalHeaders = [header:"one",thing:"two"]
 
-        Request request = new Request(null)
+        Request request = new Request(new Request.Builder())
         assert HttpMethod.GET == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
@@ -52,7 +51,7 @@ class RequestTest {
         assert null == request.additionalHeaders
         assert request.getPopulatedQueryParameters().isEmpty()
 
-        request = new Request(uri)
+        request = new Request(new Request.Builder(uri))
         assert HttpMethod.GET == request.method
         assert Charsets.UTF_8 == request.bodyEncoding
         assert ContentType.APPLICATION_JSON.getMimeType() == request.mimeType
@@ -60,7 +59,7 @@ class RequestTest {
         assert null == request.additionalHeaders
         assert request.getPopulatedQueryParameters().isEmpty()
 
-        request = new Request(null,  null,  null, null, null, null)
+        request = new Request(new Request.Builder())
         assert null == request.method
         assert null == request.bodyEncoding
         assert null == request.mimeType
