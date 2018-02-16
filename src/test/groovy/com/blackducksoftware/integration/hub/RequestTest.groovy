@@ -59,7 +59,7 @@ class RequestTest {
         assert null == request.additionalHeaders
         assert request.getPopulatedQueryParameters().isEmpty()
 
-        request = new Request(new Request.Builder())
+        request = new Request(null, null, null, null, null, null, null)
         assert null == request.method
         assert null == request.bodyEncoding
         assert null == request.mimeType
