@@ -47,7 +47,6 @@ import com.blackducksoftware.integration.log.PrintStreamIntLogger
 
 @Category(IntegrationTest.class)
 class RestConnectionTestIT {
-
     private final Logger logger = LoggerFactory.getLogger(RestConnectionTestIT.class)
 
     private static RestConnectionTestHelper restConnectionTestHelper = new RestConnectionTestHelper()
@@ -185,7 +184,7 @@ class RestConnectionTestIT {
         builder.timeout = 120;
         final RestConnection restConnection = builder.build()
 
-        final Request hubRequest = new Request(url.toString() + "/api/notifications?offset=0&endDate=2017-01-25T18:43:46.685Z&limit=100&startDate=2017-01-17T21:19:33.311Z")
+        final Request hubRequest = new Request.Builder(url.toString() + "/api/notifications?offset=0&endDate=2017-01-25T18:43:46.685Z&limit=100&startDate=2017-01-17T21:19:33.311Z").build()
         System.out.println("Executing: " + hubRequest.toString())
         try {
             restConnection.executeRequest(hubRequest)

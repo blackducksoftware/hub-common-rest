@@ -23,68 +23,129 @@
  */
 package com.blackducksoftware.integration.hub.request;
 
-import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.codec.Charsets;
+import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 
 import com.blackducksoftware.integration.hub.rest.HttpMethod;
 import com.blackducksoftware.integration.util.Stringable;
+import com.google.gson.Gson;
 
 public class Request extends Stringable {
     private final String uri;
-    private final Map<String, String> queryParameters;
     private final HttpMethod method;
     private final String mimeType;
     private final Charset bodyEncoding;
+    private final Map<String, String> queryParameters;
     private final Map<String, String> additionalHeaders;
+    private final BodyContent bodyContent;
 
-    private final File bodyContentFile;
-    private final Map<String, String> bodyContentMap;
-    private final String bodyContent;
-    private final Object bodyContentObject;
+    public static class Builder {
+        private String uri;
+        private HttpMethod method;
+        private String mimeType;
+        private Charset bodyEncoding;
+        private Map<String, String> queryParameters;
+        private Map<String, String> additionalHeaders;
+        private BodyContent bodyContent;
 
-    public Request(final String uri) {
-        this.uri = uri;
-        this.queryParameters = null;
-        this.method = HttpMethod.GET;
-        this.mimeType = ContentType.APPLICATION_JSON.getMimeType();
-        this.bodyEncoding = Charsets.UTF_8;
-        this.additionalHeaders = null;
-        this.bodyContentFile = null;
-        this.bodyContentMap = null;
-        this.bodyContent = null;
-        this.bodyContentObject = null;
+        public Builder(final String uri) {
+            this.uri = uri;
+            this.method = HttpMethod.GET;
+            this.mimeType = ContentType.APPLICATION_JSON.getMimeType();
+            this.bodyEncoding = StandardCharsets.UTF_8;
+        }
+
+        public Builder() {
+            this(null);
+        }
+
+        public Builder uri(final String uri) {
+            this.uri = uri;
+            return this;
+        }
+
+        public Builder method(final HttpMethod method) {
+            this.method = method;
+            return this;
+        }
+
+        public Builder mimeType(final String mimeType) {
+            this.mimeType = mimeType;
+            return this;
+        }
+
+        public Builder bodyEncoding(final Charset bodyEncoding) {
+            this.bodyEncoding = bodyEncoding;
+            return this;
+        }
+
+        public Builder queryParameters(final Map<String, String> queryParameters) {
+            this.queryParameters = queryParameters;
+            return this;
+        }
+
+        public Builder addQueryParameter(final String key, final String value) {
+            if (this.queryParameters == null) {
+                this.queryParameters = new HashMap<>();
+            }
+            this.queryParameters.put(key, value);
+            return this;
+        }
+
+        public Builder additionalHeaders(final Map<String, String> additionalHeaders) {
+            this.additionalHeaders = additionalHeaders;
+            return this;
+        }
+
+        public Builder addAdditionalHeader(final String key, final String value) {
+            if (this.additionalHeaders == null) {
+                this.additionalHeaders = new HashMap<>();
+            }
+            this.additionalHeaders.put(key, value);
+            return this;
+        }
+
+        public Builder bodyContent(final BodyContent bodyContent) {
+            this.bodyContent = bodyContent;
+            return this;
+        }
+
+        public Request build() {
+            return new Request(this);
+        }
     }
 
-    public Request(final String uri, final Map<String, String> queryParameters, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders) {
+    private Request(final Builder builder) {
+        this.uri = builder.uri;
+        this.method = builder.method;
+        this.mimeType = builder.mimeType;
+        this.bodyEncoding = builder.bodyEncoding;
+        this.queryParameters = builder.queryParameters;
+        this.additionalHeaders = builder.additionalHeaders;
+        this.bodyContent = builder.bodyContent;
+    }
+
+    public Request(final String uri, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> queryParameters, final Map<String, String> additionalHeaders, final BodyContent bodyContent) {
+        super();
         this.uri = uri;
+        this.method = method;
+        this.mimeType = mimeType;
+        this.bodyEncoding = bodyEncoding;
         this.queryParameters = queryParameters;
-        this.method = method;
-        this.mimeType = mimeType;
-        this.bodyEncoding = bodyEncoding;
         this.additionalHeaders = additionalHeaders;
-        this.bodyContentFile = null;
-        this.bodyContentMap = null;
-        this.bodyContent = null;
-        this.bodyContentObject = null;
+        this.bodyContent = bodyContent;
     }
 
-    public Request(final String uri, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> additionalHeaders, final File bodyContentFile, final Map<String, String> bodyContentMap,
-            final String bodyContent, final Object bodyContentObject) {
-        this.uri = uri;
-        this.queryParameters = null;
-        this.method = method;
-        this.mimeType = mimeType;
-        this.bodyEncoding = bodyEncoding;
-        this.additionalHeaders = additionalHeaders;
-        this.bodyContentFile = bodyContentFile;
-        this.bodyContentMap = bodyContentMap;
-        this.bodyContent = bodyContent;
-        this.bodyContentObject = bodyContentObject;
+    public HttpEntity createHttpEntity(final Gson gson) {
+        if (bodyContent == null) {
+            return null;
+        }
+        return bodyContent.createEntity(this, gson);
     }
 
     public String getUri() {
@@ -111,28 +172,16 @@ public class Request extends Stringable {
         return bodyEncoding;
     }
 
-    public Map<String, String> getAdditionalHeaders() {
-        return additionalHeaders;
-    }
-
     public Map<String, String> getQueryParameters() {
         return queryParameters;
     }
 
-    public File getBodyContentFile() {
-        return bodyContentFile;
+    public Map<String, String> getAdditionalHeaders() {
+        return additionalHeaders;
     }
 
-    public Map<String, String> getBodyContentMap() {
-        return bodyContentMap;
-    }
-
-    public String getBodyContent() {
+    public BodyContent getBodyContent() {
         return bodyContent;
-    }
-
-    public Object getBodyContentObject() {
-        return bodyContentObject;
     }
 
 }

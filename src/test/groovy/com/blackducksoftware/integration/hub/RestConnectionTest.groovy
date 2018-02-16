@@ -38,10 +38,7 @@ import org.junit.Test
 import com.blackducksoftware.integration.exception.IntegrationException
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder
-import com.blackducksoftware.integration.hub.request.GetRequestWrapper
-import com.blackducksoftware.integration.hub.request.PagedRequest
 import com.blackducksoftware.integration.hub.request.Request
-import com.blackducksoftware.integration.hub.request.RequestWrapper
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnectionBuilder
 import com.blackducksoftware.integration.hub.rest.HttpMethod
 import com.blackducksoftware.integration.hub.rest.RestConnection
@@ -233,32 +230,12 @@ class RestConnectionTest {
     @Test
     public void testCreateHttpRequestNoURI() {
         RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), null, 300, ProxyInfo.NO_PROXY_INFO)
-        PagedRequest pagedRequest = new PagedRequest(null)
+        Request request = new Request.Builder(null).build();
         try {
-            restConnection.createHttpRequest(pagedRequest)
+            restConnection.createHttpRequest(request)
             fail('Should have thrown exception')
         } catch (IntegrationException e) {
             assert "Missing the URI" == e.getMessage()
-        }
-    }
-
-    @Test
-    public void testCreateRequestWrapperNoMethod() {
-        try {
-            new RequestWrapper(null)
-            fail('Should have thrown exception')
-        } catch (IntegrationException e) {
-            assert "Can not create a Request without a HttpMethod." == e.getMessage()
-        }
-    }
-
-    @Test
-    public void testCreateRequestWrapperGetMethod() {
-        try {
-            new RequestWrapper(HttpMethod.GET)
-            fail('Should have thrown exception')
-        } catch (IntegrationException e) {
-            assert "Can not create a GET request. Please use the GetRequestWrapper." == e.getMessage()
         }
     }
 
@@ -271,65 +248,58 @@ class RestConnectionTest {
         String q = 'q'
         String mimeType = 'mime'
         Charset  bodyEncoding = Charsets.UTF_8
-        Map<String, String> additionalHeaders = [header:"one",thing:"two"]
 
-        PagedRequest pagedRequest = new PagedRequest(null)
-        HttpRequestBase request = restConnection.createHttpRequest(pagedRequest)
-        assert HttpMethod.GET.name() == request.method
-        assert ContentType.APPLICATION_JSON.getMimeType() == request.getFirstHeader(HttpHeaders.ACCEPT).getValue()
-        assert null != request.getURI()
-        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
-        assert request.getURI().toString().contains('offset=0')
-        assert request.getURI().toString().contains('limit=100')
+        Request request = new Request.Builder(null).build()
+        HttpRequestBase requestBase = restConnection.createHttpRequest(request)
+        assert HttpMethod.GET.name() == requestBase.method
+        assert ContentType.APPLICATION_JSON.getMimeType() == requestBase.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert null != requestBase.getURI()
+        assert requestBase.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
 
+        request = new Request.Builder(uri).build()
+        requestBase = restConnection.createHttpRequest(request)
+        assert HttpMethod.GET.name() == requestBase.method
+        assert ContentType.APPLICATION_JSON.getMimeType() == requestBase.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert null != requestBase.getURI()
+        assert requestBase.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
 
-        pagedRequest = new PagedRequest(uri)
-        request = restConnection.createHttpRequest(pagedRequest)
-        assert HttpMethod.GET.name() == request.method
-        assert ContentType.APPLICATION_JSON.getMimeType() == request.getFirstHeader(HttpHeaders.ACCEPT).getValue()
-        assert null != request.getURI()
-        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
-        assert request.getURI().toString().contains('offset=0')
-        assert request.getURI().toString().contains('limit=100')
+        request = new Request.Builder(uri).queryParameters([offset: '0', limit: '100']).build()
+        requestBase = restConnection.createHttpRequest(request)
+        assert HttpMethod.GET.name() == requestBase.method
+        assert ContentType.APPLICATION_JSON.getMimeType() == requestBase.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert null != requestBase.getURI()
+        assert requestBase.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert requestBase.getURI().toString().contains('offset=0')
+        assert requestBase.getURI().toString().contains('limit=100')
 
+        request = new Request.Builder(uri).queryParameters([q: 'q', test: 'one', query:'two', offset: '0', limit: '100']).mimeType('mime').additionalHeaders([header: 'one', thing: 'two']).build()
+        requestBase = restConnection.createHttpRequest(request)
+        assert HttpMethod.GET.name() == requestBase.method
+        assert 'one' == requestBase.getFirstHeader('header').getValue()
+        assert 'two' == requestBase.getFirstHeader('thing').getValue()
+        assert null != requestBase.getURI()
+        assert requestBase.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert requestBase.getURI().toString().contains('offset=0')
+        assert requestBase.getURI().toString().contains('limit=100')
 
-        pagedRequest = new GetRequestWrapper().createPagedRequest(uri)
-        request = restConnection.createHttpRequest(pagedRequest)
-        assert HttpMethod.GET.name() == request.method
-        assert ContentType.APPLICATION_JSON.getMimeType() == request.getFirstHeader(HttpHeaders.ACCEPT).getValue()
-        assert null != request.getURI()
-        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
-        assert request.getURI().toString().contains('offset=0')
-        assert request.getURI().toString().contains('limit=100')
+        Map headersMap = [header: 'one', thing: 'two']
+        headersMap.put(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.getMimeType())
+        request = new Request.Builder(uri).queryParameters([q: 'q', test: 'one', query:'two', offset: '0', limit: '100']).mimeType('mime').bodyEncoding(bodyEncoding).additionalHeaders(headersMap).build()
+        requestBase = restConnection.createHttpRequest(request)
+        assert HttpMethod.GET.name() == requestBase.method
+        assert ContentType.APPLICATION_XML.getMimeType() == requestBase.getFirstHeader(HttpHeaders.ACCEPT).getValue()
+        assert null != requestBase.getURI()
+        assert requestBase.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        assert requestBase.getURI().toString().contains('offset=0')
+        assert requestBase.getURI().toString().contains('limit=100')
 
-        pagedRequest = new GetRequestWrapper().addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createPagedRequest(uri)
-        request = restConnection.createHttpRequest(pagedRequest)
-        assert HttpMethod.GET.name() == request.method
-        assert 'one' == request.getFirstHeader('header').getValue()
-        assert 'two' == request.getFirstHeader('thing').getValue()
-        assert null != request.getURI()
-        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
-        assert request.getURI().toString().contains('offset=0')
-        assert request.getURI().toString().contains('limit=100')
-
-        additionalHeaders.put(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.getMimeType())
-        pagedRequest = new GetRequestWrapper().addQueryParameters(queryParametes).setQ(q).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createPagedRequest(uri)
-        request = restConnection.createHttpRequest(pagedRequest)
-        assert HttpMethod.GET.name() == request.method
-        assert ContentType.APPLICATION_XML.getMimeType() == request.getFirstHeader(HttpHeaders.ACCEPT).getValue()
-        assert null != request.getURI()
-        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
-        assert request.getURI().toString().contains('offset=0')
-        assert request.getURI().toString().contains('limit=100')
-
-        additionalHeaders.remove(HttpHeaders.ACCEPT)
-        Request deleteRequest = new RequestWrapper(HttpMethod.DELETE).setMimeType(mimeType).setBodyEncoding(bodyEncoding).addAdditionalHeaders(additionalHeaders).createRequest(uri)
-        request = restConnection.createHttpRequest(deleteRequest)
-        assert HttpMethod.DELETE.name() == request.method
-        assert 'one' == request.getFirstHeader('header').getValue()
-        assert 'two' == request.getFirstHeader('thing').getValue()
-        assert 2 == request.getAllHeaders().size()
-        assert null != request.getURI()
-        assert request.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
+        Request deleteRequest = new Request.Builder(uri).method(HttpMethod.DELETE).mimeType('mime').bodyEncoding(bodyEncoding).additionalHeaders([header: 'one', thing: 'two']).build()
+        requestBase = restConnection.createHttpRequest(deleteRequest)
+        assert HttpMethod.DELETE.name() == requestBase.method
+        assert 'one' == requestBase.getFirstHeader('header').getValue()
+        assert 'two' == requestBase.getFirstHeader('thing').getValue()
+        assert 2 == requestBase.getAllHeaders().size()
+        assert null != requestBase.getURI()
+        assert requestBase.getURI().toString().contains(restConnection.baseUrl.toURI().toString())
     }
 }
