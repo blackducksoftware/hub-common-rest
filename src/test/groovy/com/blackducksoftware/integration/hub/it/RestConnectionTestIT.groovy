@@ -108,6 +108,23 @@ class RestConnectionTestIT {
     }
 
     @Test
+    public void testBasicProxyFailsWithoutCredentialsWithHttps() {
+        RestConnectionTestHelper restConnectionTestHelper = new RestConnectionTestHelper(TestingPropertyKey.TEST_HTTPS_HUB_SERVER_URL.name())
+        try {
+            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
+            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_BASIC")
+            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_BASIC"))
+            ProxyInfo proxyInfo = proxyBuilder.build()
+            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
+            restConnection.connect()
+            fail("An exception should be thrown")
+        } catch (final Exception e) {
+            assertFalse(e.getMessage(), e.getMessage().contains("Can not reach this server"))
+            assertTrue(e.getMessage(), e.getMessage().contains("Proxy Authentication Required"))
+        }
+    }
+
+    @Test
     public void testDigestProxyWithHttp() {
         try {
             ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
