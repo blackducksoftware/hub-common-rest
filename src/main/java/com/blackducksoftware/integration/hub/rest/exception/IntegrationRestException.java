@@ -23,6 +23,8 @@
  */
 package com.blackducksoftware.integration.hub.rest.exception;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.blackducksoftware.integration.exception.IntegrationException;
 
 public class IntegrationRestException extends IntegrationException {
@@ -59,6 +61,22 @@ public class IntegrationRestException extends IntegrationException {
 
     public String getHttpStatusMessage() {
         return httpStatusMessage;
+    }
+
+    @Override
+    public String getMessage() {
+        String message = "";
+        if (StringUtils.isNotBlank(super.getMessage())) {
+            message = super.getMessage();
+        }
+        if (httpStatusCode > 0) {
+            message = message + ":" + httpStatusCode;
+        }
+        if (StringUtils.isNotBlank(httpStatusMessage)) {
+            message = message + ":" + httpStatusMessage;
+        }
+
+        return message;
     }
 
 }

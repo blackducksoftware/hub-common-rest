@@ -34,30 +34,33 @@ class IntegrationRestExceptionTest {
         int errorStatusCode = 404
         String errorStatusMessage = 'Four Oh Four'
         String errorMessage = 'Could not find the site'
+
+        String expectedGetMessage = 'Could not find the site:404:Four Oh Four'
+
         Exception error = new Exception(errorMessage)
 
         IntegrationRestException restException = new IntegrationRestException(errorStatusCode, errorStatusMessage, errorMessage)
         assert errorStatusCode == restException.httpStatusCode
         assert errorStatusMessage.equals(restException.httpStatusMessage)
-        assert errorMessage.equals(restException.message)
+        assert expectedGetMessage.equals(restException.message)
         assert error != restException.cause
 
         restException = new IntegrationRestException(errorStatusCode, errorStatusMessage, error)
         assert errorStatusCode == restException.httpStatusCode
         assert errorStatusMessage.equals(restException.httpStatusMessage)
-        assert !errorMessage.equals(restException.message)
+        assert !expectedGetMessage.equals(restException.message)
         assert error == restException.cause
 
         restException = new IntegrationRestException(errorStatusCode, errorStatusMessage, errorMessage, error)
         assert errorStatusCode == restException.httpStatusCode
         assert errorStatusMessage.equals(restException.httpStatusMessage)
-        assert errorMessage.equals(restException.message)
+        assert expectedGetMessage.equals(restException.message)
         assert error == restException.cause
 
         restException = new IntegrationRestException(errorStatusCode, errorStatusMessage, errorMessage, error, true, true)
         assert errorStatusCode == restException.httpStatusCode
         assert errorStatusMessage.equals(restException.httpStatusMessage)
-        assert errorMessage.equals(restException.message)
+        assert expectedGetMessage.equals(restException.message)
         assert error == restException.cause
     }
 }
