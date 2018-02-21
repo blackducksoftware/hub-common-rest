@@ -6,7 +6,7 @@ import org.junit.Before
 import org.junit.Test
 
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
-import com.blackducksoftware.integration.hub.rest.ApiKeyRestConnectionBuilder
+import com.blackducksoftware.integration.hub.rest.ApiTokenRestConnectionBuilder
 import com.blackducksoftware.integration.hub.rest.HttpMethod
 import com.blackducksoftware.integration.hub.rest.RestConnection
 import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException
@@ -18,8 +18,7 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 
-class ApiKeyRestConnectionTest {
-
+class ApiTokenRestConnectionTest {
     public static final int CONNECTION_TIMEOUT = 213
 
     private final MockWebServer server = new MockWebServer();
@@ -44,11 +43,11 @@ class ApiKeyRestConnectionTest {
                     }
                 };
         server.setDispatcher(dispatcher);
-        ApiKeyRestConnectionBuilder builder = new ApiKeyRestConnectionBuilder();
+        ApiTokenRestConnectionBuilder builder = new ApiTokenRestConnectionBuilder();
         builder.logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE);
         builder.baseUrl = server.url("/")
         builder.timeout = CONNECTION_TIMEOUT
-        builder.apiKey = "ApiKey"
+        builder.apiToken = "ApiToken"
         builder.applyProxyInfo(ProxyInfo.NO_PROXY_INFO);
         builder.build()
     }

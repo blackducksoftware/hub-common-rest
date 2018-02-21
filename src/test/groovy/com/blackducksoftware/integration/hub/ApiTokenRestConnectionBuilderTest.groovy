@@ -2,19 +2,18 @@ package com.blackducksoftware.integration.hub
 
 import org.junit.Test
 
-import com.blackducksoftware.integration.hub.rest.ApiKeyRestConnection
-import com.blackducksoftware.integration.hub.rest.ApiKeyRestConnectionBuilder
+import com.blackducksoftware.integration.hub.rest.ApiTokenRestConnection
+import com.blackducksoftware.integration.hub.rest.ApiTokenRestConnectionBuilder
 import com.blackducksoftware.integration.log.IntLogger
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
 
-class ApiKeyRestConnectionBuilderTest {
-
+class ApiTokenRestConnectionBuilderTest {
     @Test
-    public void testApiKeyRestConnectionBuilderEmpty() {
+    public void testApiTokenRestConnectionBuilderEmpty() {
         String url = "https://github.com"
         IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
-        ApiKeyRestConnectionBuilder builder = new ApiKeyRestConnectionBuilder()
+        ApiTokenRestConnectionBuilder builder = new ApiTokenRestConnectionBuilder()
         builder.baseUrl = url
         builder.logger = logger
 
@@ -22,37 +21,37 @@ class ApiKeyRestConnectionBuilderTest {
             builder.build()
             fail("Should have thrown exception")
         } catch (IllegalStateException e) {
-            assert e.getMessage().contains("API_KEY = ERROR")
+            assert e.getMessage().contains("API_TOKEN = ERROR")
         }
     }
 
     @Test
-    public void testApiKeyRestConnectionBuilder() {
+    public void testApiTokenRestConnectionBuilder() {
         String url = "https://github.com"
         IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
-        String apiKey = "key"
-        ApiKeyRestConnectionBuilder builder = new ApiKeyRestConnectionBuilder()
+        String apiToken = "key"
+        ApiTokenRestConnectionBuilder builder = new ApiTokenRestConnectionBuilder()
         builder.baseUrl = url
         builder.logger = logger
-        builder.apiKey = apiKey
+        builder.apiToken = apiToken
 
-        ApiKeyRestConnection restConnection = builder.build()
+        ApiTokenRestConnection restConnection = builder.build()
         assert null != restConnection
-        assert apiKey == restConnection.hubApiKey
+        assert apiToken == restConnection.hubApiToken
     }
 
     @Test
     public void testCreateConnection() {
         String url = "https://github.com"
         IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
-        String apiKey = "key"
-        ApiKeyRestConnectionBuilder builder = new ApiKeyRestConnectionBuilder()
+        String apiToken = "key"
+        ApiTokenRestConnectionBuilder builder = new ApiTokenRestConnectionBuilder()
         builder.baseUrl = url
         builder.logger = logger
-        builder.apiKey = apiKey
+        builder.apiToken = apiToken
 
-        ApiKeyRestConnection restConnection = builder.createConnection(null)
+        ApiTokenRestConnection restConnection = builder.createConnection(null)
         assert null != restConnection
-        assert apiKey == restConnection.hubApiKey
+        assert apiToken == restConnection.hubApiToken
     }
 }

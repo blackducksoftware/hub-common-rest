@@ -39,4 +39,5 @@ public enum CredentialsField implements FieldEnum {
     public String getKey() {
         return key;
     }
+
 }

@@ -2,19 +2,18 @@ package com.blackducksoftware.integration.hub
 
 import org.junit.Test
 
-import com.blackducksoftware.integration.hub.validator.ApiKeyRestConnectionValidator
+import com.blackducksoftware.integration.hub.validator.ApiTokenRestConnectionValidator
 import com.blackducksoftware.integration.log.IntLogger
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
 import com.blackducksoftware.integration.validator.ValidationResults
 
-class ApiKeyRestConnectionValidatorTest {
-
+class ApiTokenRestConnectionValidatorTest {
     @Test
-    public void testApiKeyRestConnectionValidatorEmpty() {
+    public void testApiTokenRestConnectionValidatorEmpty() {
         String url = "https://github.com"
         IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
-        ApiKeyRestConnectionValidator validator = new ApiKeyRestConnectionValidator()
+        ApiTokenRestConnectionValidator validator = new ApiTokenRestConnectionValidator()
         validator.baseUrl = url
         validator.logger = logger
 
@@ -26,14 +25,14 @@ class ApiKeyRestConnectionValidatorTest {
     }
 
     @Test
-    public void testApiKeyRestConnectionValidator() {
+    public void testApiTokenRestConnectionValidator() {
         String url = "https://github.com"
         IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
-        String apiKey = "key"
-        ApiKeyRestConnectionValidator validator = new ApiKeyRestConnectionValidator()
+        String apiToken = "key"
+        ApiTokenRestConnectionValidator validator = new ApiTokenRestConnectionValidator()
         validator.baseUrl = url
         validator.logger = logger
-        validator.apiKey = apiKey
+        validator.apiToken = apiToken
 
         ValidationResults results = validator.assertValid()
         assert null != results
@@ -41,6 +40,6 @@ class ApiKeyRestConnectionValidatorTest {
         assert !results.hasWarnings()
         assert results.isSuccess()
 
-        assert apiKey == validator.apiKey
+        assert apiToken == validator.apiToken
     }
 }

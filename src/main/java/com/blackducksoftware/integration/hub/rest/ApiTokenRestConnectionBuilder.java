@@ -24,26 +24,26 @@
 package com.blackducksoftware.integration.hub.rest;
 
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
-import com.blackducksoftware.integration.hub.validator.ApiKeyRestConnectionValidator;
+import com.blackducksoftware.integration.hub.validator.ApiTokenRestConnectionValidator;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 
-public class ApiKeyRestConnectionBuilder extends AbstractRestConnectionBuilder<ApiKeyRestConnection> {
-    private String apiKey;
+public class ApiTokenRestConnectionBuilder extends AbstractRestConnectionBuilder<ApiTokenRestConnection> {
+    private String apiToken;
 
-    public String getApiKey() {
-        return apiKey;
+    public String getApiToken() {
+        return apiToken;
     }
 
-    public void setApiKey(final String apiKey) {
-        this.apiKey = apiKey;
+    public void setApiToken(final String apiToken) {
+        this.apiToken = apiToken;
     }
 
     @Override
     public AbstractValidator createValidator() {
-        final ApiKeyRestConnectionValidator validator = new ApiKeyRestConnectionValidator();
+        final ApiTokenRestConnectionValidator validator = new ApiTokenRestConnectionValidator();
         validator.setBaseUrl(getBaseUrl());
         validator.setTimeout(getTimeout());
-        validator.setApiKey(getApiKey());
+        validator.setApiToken(getApiToken());
         validator.setProxyHost(getProxyHost());
         validator.setProxyPort(getProxyPort());
         validator.setProxyUsername(getProxyUsername());
@@ -55,8 +55,8 @@ public class ApiKeyRestConnectionBuilder extends AbstractRestConnectionBuilder<A
     }
 
     @Override
-    public ApiKeyRestConnection createConnection(final ProxyInfo proxyInfo) {
-        final ApiKeyRestConnection connection = new ApiKeyRestConnection(getLogger(), getBaseConnectionUrl(), getApiKey(), getTimeout(), proxyInfo);
+    public ApiTokenRestConnection createConnection(final ProxyInfo proxyInfo) {
+        final ApiTokenRestConnection connection = new ApiTokenRestConnection(getLogger(), getBaseConnectionUrl(), getApiToken(), getTimeout(), proxyInfo);
         return connection;
     }
 }

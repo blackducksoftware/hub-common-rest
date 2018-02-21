@@ -38,12 +38,12 @@ import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.rules.TemporaryFolder
 
-import com.blackducksoftware.integration.IntegrationTest
 import com.blackducksoftware.integration.exception.IntegrationException
 import com.blackducksoftware.integration.hub.certificate.CertificateHandler
 import com.blackducksoftware.integration.log.IntLogger
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
+import com.blackducksoftware.integration.test.annotation.IntegrationTest
 
 /*
  * Copyright (C) 2017 Black Duck Software Inc.

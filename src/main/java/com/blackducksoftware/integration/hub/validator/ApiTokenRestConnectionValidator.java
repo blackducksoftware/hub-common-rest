@@ -25,22 +25,22 @@ package com.blackducksoftware.integration.hub.validator;
 
 import com.blackducksoftware.integration.validator.ValidationResults;
 
-public class ApiKeyRestConnectionValidator extends AbstractRestConnectionValidator {
-    private String apiKey;
+public class ApiTokenRestConnectionValidator extends AbstractRestConnectionValidator {
+    private String apiToken;
 
-    public String getApiKey() {
-        return apiKey;
+    public String getApiToken() {
+        return apiToken;
     }
 
-    public void setApiKey(final String apiKey) {
-        this.apiKey = apiKey;
+    public void setApiToken(final String apiToken) {
+        this.apiToken = apiToken;
     }
 
     @Override
     public void validateAdditionalFields(final ValidationResults currentResults) {
-        final ApiKeyValidator apiKeyValidator = new ApiKeyValidator();
-        apiKeyValidator.setApiKey(apiKey);
-        currentResults.addAllResults(apiKeyValidator.assertValid().getResultMap());
+        final ApiTokenValidator apiTokenValidator = new ApiTokenValidator();
+        apiTokenValidator.setApiToken(apiToken);
+        currentResults.addAllResults(apiTokenValidator.assertValid().getResultMap());
     }
 
 }

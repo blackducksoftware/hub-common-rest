@@ -36,7 +36,6 @@ import org.junit.rules.ExpectedException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import com.blackducksoftware.integration.IntegrationTest
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder
 import com.blackducksoftware.integration.hub.request.Request
@@ -44,6 +43,7 @@ import com.blackducksoftware.integration.hub.rest.CredentialsRestConnectionBuild
 import com.blackducksoftware.integration.hub.rest.RestConnection
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
+import com.blackducksoftware.integration.test.annotation.IntegrationTest
 
 @Category(IntegrationTest.class)
 class RestConnectionTestIT {

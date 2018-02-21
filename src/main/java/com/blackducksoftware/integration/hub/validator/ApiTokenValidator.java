@@ -25,14 +25,14 @@ package com.blackducksoftware.integration.hub.validator;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.blackducksoftware.integration.hub.ApiKeyField;
+import com.blackducksoftware.integration.hub.ApiTokenField;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 import com.blackducksoftware.integration.validator.ValidationResult;
 import com.blackducksoftware.integration.validator.ValidationResultEnum;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
-public class ApiKeyValidator extends AbstractValidator {
-    private String apiKey;
+public class ApiTokenValidator extends AbstractValidator {
+    private String apiToken;
 
     @Override
     public ValidationResults assertValid() {
@@ -44,21 +44,21 @@ public class ApiKeyValidator extends AbstractValidator {
     }
 
     public void validateCredentials(final ValidationResults result) {
-        validateApiKey(result);
+        validateApiToken(result);
     }
 
-    public void validateApiKey(final ValidationResults result) {
-        if (StringUtils.isBlank(apiKey)) {
-            result.addResult(ApiKeyField.API_KEY, new ValidationResult(ValidationResultEnum.ERROR, "No Hub API key was found."));
+    public void validateApiToken(final ValidationResults result) {
+        if (StringUtils.isBlank(apiToken)) {
+            result.addResult(ApiTokenField.API_TOKEN, new ValidationResult(ValidationResultEnum.ERROR, "No Hub API token was found."));
         }
     }
 
-    public String getApiKey() {
-        return apiKey;
+    public String getApiToken() {
+        return apiToken;
     }
 
-    public void setApiKey(final String apiKey) {
-        this.apiKey = apiKey;
+    public void setApiToken(final String apiToken) {
+        this.apiToken = apiToken;
     }
 
 }

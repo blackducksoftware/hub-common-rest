@@ -2,14 +2,13 @@ package com.blackducksoftware.integration.hub
 
 import org.junit.Test
 
-import com.blackducksoftware.integration.hub.validator.ApiKeyValidator
+import com.blackducksoftware.integration.hub.validator.ApiTokenValidator
 import com.blackducksoftware.integration.validator.ValidationResults
 
-class ApiKeyValidatorTest {
-
+class ApiTokenValidatorTest {
     @Test
-    public void testApiKeyValidatorEmpty() {
-        ApiKeyValidator validator = new ApiKeyValidator()
+    public void testApiTokenValidatorEmpty() {
+        ApiTokenValidator validator = new ApiTokenValidator()
         ValidationResults results = validator.assertValid()
         assert null != results
         assert results.hasErrors()
@@ -18,16 +17,16 @@ class ApiKeyValidatorTest {
     }
 
     @Test
-    public void testApiKeyValidator() {
-        String apiKey = "key"
-        ApiKeyValidator validator = new ApiKeyValidator()
-        validator.apiKey = apiKey
+    public void testApiTokenValidator() {
+        String apiToken = "key"
+        ApiTokenValidator validator = new ApiTokenValidator()
+        validator.apiToken = apiToken
         ValidationResults results = validator.assertValid()
         assert null != results
         assert !results.hasErrors()
         assert !results.hasWarnings()
         assert results.isSuccess()
 
-        assert apiKey == validator.apiKey
+        assert apiToken == validator.apiToken
     }
 }

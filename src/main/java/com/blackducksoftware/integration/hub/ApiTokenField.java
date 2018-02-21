@@ -25,12 +25,12 @@ package com.blackducksoftware.integration.hub;
 
 import com.blackducksoftware.integration.validator.FieldEnum;
 
-public enum ApiKeyField implements FieldEnum {
-    API_KEY("apiKey");
+public enum ApiTokenField implements FieldEnum {
+    API_TOKEN("apiToken");
 
     private String key;
 
-    private ApiKeyField(final String key) {
+    private ApiTokenField(final String key) {
         this.key = key;
     }
 
@@ -38,4 +38,5 @@ public enum ApiKeyField implements FieldEnum {
     public String getKey() {
         return key;
     }
+
 }

@@ -49,22 +49,22 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 /**
- * Connection to the Hub application which authenticates using the API key feature (added in Hub 4.4.0)
+ * Connection to the Hub application which authenticates using the API token feature (added in Hub 4.4.0)
  */
-public class ApiKeyRestConnection extends RestConnection {
+public class ApiTokenRestConnection extends RestConnection {
     private static final String AUTHORIZATION_HEADER = "Authorization";
 
-    private final String hubApiKey;
+    private final String hubApiToken;
 
-    public ApiKeyRestConnection(final IntLogger logger, final URL hubBaseUrl, final String hubApiKey, final int timeout, final ProxyInfo proxyInfo) {
+    public ApiTokenRestConnection(final IntLogger logger, final URL hubBaseUrl, final String hubApiToken, final int timeout, final ProxyInfo proxyInfo) {
         super(logger, hubBaseUrl, timeout, proxyInfo);
-        this.hubApiKey = hubApiKey;
+        this.hubApiToken = hubApiToken;
     }
 
     @Override
     public void addBuilderAuthentication() throws IntegrationRestException {
         // TODO romeara: This is a workaround because of HUB-13740, CSRF requires a session to work properly
-        if (StringUtils.isNotBlank(hubApiKey)) {
+        if (StringUtils.isNotBlank(hubApiToken)) {
             getClientBuilder().setDefaultCookieStore(new BasicCookieStore());
             getDefaultRequestConfigBuilder().setCookieSpec(CookieSpecs.DEFAULT);
         }
@@ -79,7 +79,7 @@ public class ApiKeyRestConnection extends RestConnection {
             final URIBuilder uriBuilder = new URIBuilder(baseUrl.toURI());
             uriBuilder.setPath("api/tokens/authenticate");
 
-            if (StringUtils.isNotBlank(hubApiKey)) {
+            if (StringUtils.isNotBlank(hubApiToken)) {
                 final RequestBuilder requestBuilder = createRequestBuilder(HttpMethod.POST, getRequestHeaders());
                 requestBuilder.setCharset(Charsets.UTF_8);
                 requestBuilder.setUri(uriBuilder.build());
@@ -114,7 +114,7 @@ public class ApiKeyRestConnection extends RestConnection {
 
     private Map<String, String> getRequestHeaders() {
         final Map<String, String> headers = new HashMap<>();
-        headers.put(AUTHORIZATION_HEADER, "token " + hubApiKey);
+        headers.put(AUTHORIZATION_HEADER, "token " + hubApiToken);
 
         return headers;
     }
