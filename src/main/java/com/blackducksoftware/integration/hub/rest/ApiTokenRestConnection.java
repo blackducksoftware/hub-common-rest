@@ -23,6 +23,8 @@
  */
 package com.blackducksoftware.integration.hub.rest;
 
+import static com.blackducksoftware.integration.hub.RestConstants.X_CSRF_TOKEN;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -42,6 +44,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.RestConstants;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException;
 import com.blackducksoftware.integration.log.IntLogger;
@@ -89,7 +92,7 @@ public class ApiTokenRestConnection extends RestConnection {
                     logResponseHeaders(response);
                     final int statusCode = response.getStatusLine().getStatusCode();
                     final String statusMessage = response.getStatusLine().getReasonPhrase();
-                    if (statusCode < 200 || statusCode > 299) {
+                    if (statusCode < RestConstants.OK_200 || statusCode >= RestConstants.MULT_CHOICE_300) {
                         throw new IntegrationRestException(statusCode, statusMessage, String.format("Connection Error: %s %s", statusCode, statusMessage));
                     } else {
                         commonRequestHeaders.put(AUTHORIZATION_HEADER, "Bearer " + readBearerToken(response));

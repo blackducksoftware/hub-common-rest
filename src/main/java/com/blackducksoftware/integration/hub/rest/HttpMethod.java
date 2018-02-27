@@ -32,4 +32,5 @@ public enum HttpMethod {
     HEAD,
     OPTIONS,
     TRACE;
+
 }

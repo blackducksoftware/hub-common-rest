@@ -26,7 +26,6 @@ package com.blackducksoftware.integration.hub
 import org.junit.Test
 
 class RestConstantsTest {
-
     @Test
     public void coverage(){
         RestConstants constants = new RestConstants()

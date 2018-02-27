@@ -41,4 +41,5 @@ public enum RestConnectionField implements FieldEnum {
     public String getKey() {
         return key;
     }
+
 }

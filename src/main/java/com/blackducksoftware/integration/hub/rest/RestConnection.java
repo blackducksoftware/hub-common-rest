@@ -23,6 +23,8 @@
  */
 package com.blackducksoftware.integration.hub.rest;
 
+import static com.blackducksoftware.integration.hub.RestConstants.JSON_DATE_FORMAT;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -69,6 +71,7 @@ import org.apache.http.ssl.SSLContexts;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.RestConstants;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.request.Request;
 import com.blackducksoftware.integration.hub.request.Response;
@@ -84,9 +87,6 @@ import com.google.gson.JsonParser;
  */
 public abstract class RestConnection {
     public static final String ERROR_MSG_PROXY_INFO_NULL = "A RestConnection's proxy information cannot be null";
-
-    public static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
-    public static final String X_CSRF_TOKEN = "X-CSRF-TOKEN";
 
     public final Gson gson = new GsonBuilder().setDateFormat(JSON_DATE_FORMAT).create();
     public final JsonParser jsonParser = new JsonParser();
@@ -309,9 +309,9 @@ public abstract class RestConnection {
                 final CloseableHttpResponse response = client.execute(request);
                 final int statusCode = response.getStatusLine().getStatusCode();
                 final String statusMessage = response.getStatusLine().getReasonPhrase();
-                if (statusCode < 200 || statusCode > 299) {
+                if (statusCode < RestConstants.OK_200 || statusCode >= RestConstants.MULT_CHOICE_300) {
                     try {
-                        if (statusCode == 401 && retryCount < 2) {
+                        if (statusCode == RestConstants.UNAUTHORIZED_401 && retryCount < 2) {
                             connect();
                             final HttpUriRequest newRequest = copyHttpRequest(request);
                             return handleClientExecution(newRequest, retryCount + 1);
