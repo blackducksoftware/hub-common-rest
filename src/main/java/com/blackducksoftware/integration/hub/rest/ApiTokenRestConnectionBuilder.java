@@ -59,4 +59,5 @@ public class ApiTokenRestConnectionBuilder extends AbstractRestConnectionBuilder
         final ApiTokenRestConnection connection = new ApiTokenRestConnection(getLogger(), getBaseConnectionUrl(), getApiToken(), getTimeout(), proxyInfo);
         return connection;
     }
+
 }

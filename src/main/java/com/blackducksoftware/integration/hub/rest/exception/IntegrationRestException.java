@@ -28,6 +28,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.blackducksoftware.integration.exception.IntegrationException;
 
 public class IntegrationRestException extends IntegrationException {
+    private static final long serialVersionUID = 1L;
+
     private final int httpStatusCode;
     private final String httpStatusMessage;
 
@@ -70,10 +72,10 @@ public class IntegrationRestException extends IntegrationException {
             message = super.getMessage();
         }
         if (httpStatusCode > 0) {
-            message = message + ":" + httpStatusCode;
+            message = message + ": " + httpStatusCode;
         }
         if (StringUtils.isNotBlank(httpStatusMessage)) {
-            message = message + ":" + httpStatusMessage;
+            message = message + ": " + httpStatusMessage;
         }
 
         return message;

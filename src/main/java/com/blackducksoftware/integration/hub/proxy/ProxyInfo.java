@@ -33,16 +33,13 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.RecursiveToStringStyle;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.Credentials;
+import com.blackducksoftware.integration.util.Stringable;
 import com.blackducksoftware.integration.util.proxy.ProxyUtil;
 
-public class ProxyInfo implements Serializable {
+public class ProxyInfo extends Stringable implements Serializable {
     private static final long serialVersionUID = -7476704373593358472L;
 
     public final static ProxyInfo NO_PROXY_INFO = new NoProxyInfo();
@@ -85,21 +82,6 @@ public class ProxyInfo implements Serializable {
         }
         final List<Pattern> ignoredProxyHostPatterns = ProxyUtil.getIgnoredProxyHostPatterns(ignoredProxyHosts);
         return !ProxyUtil.shouldIgnoreHost(url.getHost(), ignoredProxyHostPatterns);
-    }
-
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.JSON_STYLE);
-    }
-
-    @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
     }
 
     public String getHost() {

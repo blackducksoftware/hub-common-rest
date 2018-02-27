@@ -26,16 +26,12 @@ package com.blackducksoftware.integration.hub;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.RecursiveToStringStyle;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-
 import com.blackducksoftware.integration.encryption.PasswordDecrypter;
 import com.blackducksoftware.integration.encryption.PasswordEncrypter;
 import com.blackducksoftware.integration.exception.EncryptionException;
+import com.blackducksoftware.integration.util.Stringable;
 
-public class Credentials implements Serializable {
+public class Credentials extends Stringable implements Serializable {
     private static final long serialVersionUID = 4601465049752304687L;
     private final String username;
     private final String encryptedPassword;
@@ -81,18 +77,4 @@ public class Credentials implements Serializable {
         return actualPasswordLength;
     }
 
-    @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
-    }
-
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this, RecursiveToStringStyle.JSON_STYLE);
-    }
 }
