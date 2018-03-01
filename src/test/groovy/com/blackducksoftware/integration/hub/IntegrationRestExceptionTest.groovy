@@ -35,7 +35,7 @@ class IntegrationRestExceptionTest {
         String errorStatusMessage = 'Four Oh Four'
         String errorMessage = 'Could not find the site'
 
-        String expectedGetMessage = 'Could not find the site:404:Four Oh Four'
+        String expectedGetMessage = 'Could not find the site: 404: Four Oh Four'
 
         Exception error = new Exception(errorMessage)
 
