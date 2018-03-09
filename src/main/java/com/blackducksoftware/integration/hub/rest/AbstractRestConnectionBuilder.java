@@ -42,6 +42,8 @@ public abstract class AbstractRestConnectionBuilder<C extends RestConnection> ex
     private String proxyUsername;
     private String proxyPassword;
     private String proxyIgnoreHosts;
+    private String proxyNtlmDomain;
+    private String proxyNtlmWorkstation;
     private IntLogger logger;
     private boolean alwaysTrustServerCertificate;
     private Map<String, String> commonRequestHeaders = new HashMap<>();
@@ -66,6 +68,8 @@ public abstract class AbstractRestConnectionBuilder<C extends RestConnection> ex
         builder.setUsername(proxyUsername);
         builder.setPassword(proxyPassword);
         builder.setIgnoredProxyHosts(proxyIgnoreHosts);
+        builder.setNtlmDomain(proxyNtlmDomain);
+        builder.setNtlmWorkstation(proxyNtlmWorkstation);
         return builder.buildObject();
     }
 
@@ -80,6 +84,8 @@ public abstract class AbstractRestConnectionBuilder<C extends RestConnection> ex
             setProxyUsername(proxyInfo.getUsername());
             setProxyPassword(proxyInfo.getDecryptedPassword());
             setProxyIgnoreHosts(proxyInfo.getIgnoredProxyHosts());
+            setProxyNtlmDomain(proxyInfo.getNtlmDomain());
+            setProxyNtlmWorkstation(proxyInfo.getNtlmWorkstation());
         } catch (IllegalArgumentException | EncryptionException ex) {
             throw new IllegalArgumentException(ex);
         }
@@ -147,6 +153,22 @@ public abstract class AbstractRestConnectionBuilder<C extends RestConnection> ex
 
     public void setProxyIgnoreHosts(final String proxyIgnoreHosts) {
         this.proxyIgnoreHosts = proxyIgnoreHosts;
+    }
+
+    public String getProxyNtlmDomain() {
+        return proxyNtlmDomain;
+    }
+
+    public void setProxyNtlmDomain(final String proxyNtlmDomain) {
+        this.proxyNtlmDomain = proxyNtlmDomain;
+    }
+
+    public String getProxyNtlmWorkstation() {
+        return proxyNtlmWorkstation;
+    }
+
+    public void setProxyNtlmWorkstation(final String proxyNtlmWorkstation) {
+        this.proxyNtlmWorkstation = proxyNtlmWorkstation;
     }
 
     public IntLogger getLogger() {

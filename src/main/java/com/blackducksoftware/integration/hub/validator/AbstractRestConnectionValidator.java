@@ -51,6 +51,8 @@ public abstract class AbstractRestConnectionValidator extends AbstractValidator 
     private String proxyUsername;
     private String proxyPassword;
     private String proxyIgnoreHosts;
+    private String proxyNtlmDomain;
+    private String proxyNtlmWorkstation;
     private IntLogger logger;
     private Map<String, String> commonRequestHeaders = new HashMap<>();
 
@@ -106,6 +108,8 @@ public abstract class AbstractRestConnectionValidator extends AbstractValidator 
         validator.setUsername(proxyUsername);
         validator.setPassword(proxyPassword);
         validator.setIgnoredProxyHosts(proxyIgnoreHosts);
+        validator.setNtlmDomain(proxyNtlmDomain);
+        validator.setNtlmWorkstation(proxyNtlmWorkstation);
         result.addAllResults(validator.assertValid().getResultMap());
     }
 
@@ -165,6 +169,22 @@ public abstract class AbstractRestConnectionValidator extends AbstractValidator 
 
     public void setProxyIgnoreHosts(final String proxyIgnoreHosts) {
         this.proxyIgnoreHosts = proxyIgnoreHosts;
+    }
+
+    public String getProxyNtlmDomain() {
+        return proxyNtlmDomain;
+    }
+
+    public void setProxyNtlmDomain(final String proxyNtlmDomain) {
+        this.proxyNtlmDomain = proxyNtlmDomain;
+    }
+
+    public String getProxyNtlmWorkstation() {
+        return proxyNtlmWorkstation;
+    }
+
+    public void setProxyNtlmWorkstation(final String proxyNtlmWorkstation) {
+        this.proxyNtlmWorkstation = proxyNtlmWorkstation;
     }
 
     public IntLogger getLogger() {

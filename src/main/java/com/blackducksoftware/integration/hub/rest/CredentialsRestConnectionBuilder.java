@@ -70,6 +70,8 @@ public class CredentialsRestConnectionBuilder extends AbstractRestConnectionBuil
         validator.setProxyUsername(getProxyUsername());
         validator.setProxyPassword(getProxyPassword());
         validator.setProxyIgnoreHosts(getProxyIgnoreHosts());
+        validator.setProxyNtlmDomain(getProxyNtlmDomain());
+        validator.setProxyNtlmWorkstation(getProxyNtlmWorkstation());
         validator.setLogger(getLogger());
         validator.setCommonRequestHeaders(getCommonRequestHeaders());
         return validator;
