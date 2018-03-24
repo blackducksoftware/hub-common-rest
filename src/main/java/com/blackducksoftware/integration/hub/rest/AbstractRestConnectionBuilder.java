@@ -44,6 +44,7 @@ public abstract class AbstractRestConnectionBuilder<C extends RestConnection> ex
     private String proxyIgnoreHosts;
     private String proxyNtlmDomain;
     private String proxyNtlmWorkstation;
+    private UriCombiner uriCombiner;
     private IntLogger logger;
     private boolean alwaysTrustServerCertificate;
     private Map<String, String> commonRequestHeaders = new HashMap<>();
@@ -51,6 +52,13 @@ public abstract class AbstractRestConnectionBuilder<C extends RestConnection> ex
     @Override
     public C buildObject() {
         final ProxyInfo proxyInfo = getProxyInfo();
+        if (uriCombiner == null) {
+            // ekerwin - 2018-03-23
+            // if no specific UriCombiner implementation is set, use a default implementation
+            // this is needed to support the different versions of UriBuilder where some prepend a slash
+            // and some do not
+            uriCombiner = new UriCombiner();
+        }
         final C connection = createConnection(proxyInfo);
         connection.alwaysTrustServerCertificate = alwaysTrustServerCertificate;
         if (!this.commonRequestHeaders.isEmpty()) {
@@ -169,6 +177,14 @@ public abstract class AbstractRestConnectionBuilder<C extends RestConnection> ex
 
     public void setProxyNtlmWorkstation(final String proxyNtlmWorkstation) {
         this.proxyNtlmWorkstation = proxyNtlmWorkstation;
+    }
+
+    public UriCombiner getUriCombiner() {
+        return uriCombiner;
+    }
+
+    public void setUriCombiner(final UriCombiner uriCombiner) {
+        this.uriCombiner = uriCombiner;
     }
 
     public IntLogger getLogger() {

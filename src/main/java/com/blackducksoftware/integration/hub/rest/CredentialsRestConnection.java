@@ -26,7 +26,6 @@ package com.blackducksoftware.integration.hub.rest;
 import static com.blackducksoftware.integration.hub.RestConstants.X_CSRF_TOKEN;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +39,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -54,8 +52,8 @@ public class CredentialsRestConnection extends RestConnection {
     private final String hubUsername;
     private final String hubPassword;
 
-    public CredentialsRestConnection(final IntLogger logger, final URL baseUrl, final String hubUsername, final String hubPassword, final int timeout, final ProxyInfo proxyInfo) {
-        super(logger, baseUrl, timeout, proxyInfo);
+    public CredentialsRestConnection(final IntLogger logger, final URL baseUrl, final String hubUsername, final String hubPassword, final int timeout, final ProxyInfo proxyInfo, final UriCombiner uriCombiner) {
+        super(logger, baseUrl, timeout, proxyInfo, uriCombiner);
         this.hubUsername = hubUsername;
         this.hubPassword = hubPassword;
     }
@@ -73,42 +71,38 @@ public class CredentialsRestConnection extends RestConnection {
      */
     @Override
     public void clientAuthenticate() throws IntegrationException {
-        try {
-            final URIBuilder uriBuilder = new URIBuilder(baseUrl.toURI());
-            uriBuilder.setPath("j_spring_security_check");
-            if (StringUtils.isNotBlank(hubUsername) && StringUtils.isNotBlank(hubPassword)) {
-                final List<NameValuePair> bodyValues = new ArrayList<>();
-                bodyValues.add(new BasicNameValuePair("j_username", hubUsername));
-                bodyValues.add(new BasicNameValuePair("j_password", hubPassword));
-                final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(bodyValues, Charsets.UTF_8);
+        final String uri = getUriCombiner().pieceTogetherUri(baseUrl, "j_spring_security_check");
 
-                final RequestBuilder requestBuilder = createRequestBuilder(HttpMethod.POST, null);
-                requestBuilder.setCharset(Charsets.UTF_8);
-                requestBuilder.setUri(uriBuilder.build());
-                requestBuilder.setEntity(entity);
-                final HttpUriRequest request = requestBuilder.build();
-                logRequestHeaders(request);
-                try (final CloseableHttpResponse response = getClient().execute(request)) {
-                    logResponseHeaders(response);
-                    final int statusCode = response.getStatusLine().getStatusCode();
-                    final String statusMessage = response.getStatusLine().getReasonPhrase();
-                    if (statusCode < RestConstants.OK_200 || statusCode >= RestConstants.MULT_CHOICE_300) {
-                        throw new IntegrationRestException(statusCode, statusMessage, String.format("Connection Error: %s %s", statusCode, statusMessage));
+        if (StringUtils.isNotBlank(hubUsername) && StringUtils.isNotBlank(hubPassword)) {
+            final List<NameValuePair> bodyValues = new ArrayList<>();
+            bodyValues.add(new BasicNameValuePair("j_username", hubUsername));
+            bodyValues.add(new BasicNameValuePair("j_password", hubPassword));
+            final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(bodyValues, Charsets.UTF_8);
+
+            final RequestBuilder requestBuilder = createRequestBuilder(HttpMethod.POST, null);
+            requestBuilder.setCharset(Charsets.UTF_8);
+            requestBuilder.setUri(uri);
+            requestBuilder.setEntity(entity);
+            final HttpUriRequest request = requestBuilder.build();
+            logRequestHeaders(request);
+            try (final CloseableHttpResponse response = getClient().execute(request)) {
+                logResponseHeaders(response);
+                final int statusCode = response.getStatusLine().getStatusCode();
+                final String statusMessage = response.getStatusLine().getReasonPhrase();
+                if (statusCode < RestConstants.OK_200 || statusCode >= RestConstants.MULT_CHOICE_300) {
+                    throw new IntegrationRestException(statusCode, statusMessage, String.format("Connection Error: %s %s", statusCode, statusMessage));
+                } else {
+                    // get the CSRF token
+                    final Header csrfToken = response.getFirstHeader(X_CSRF_TOKEN);
+                    if (csrfToken != null) {
+                        commonRequestHeaders.put(X_CSRF_TOKEN, csrfToken.getValue());
                     } else {
-                        // get the CSRF token
-                        final Header csrfToken = response.getFirstHeader(X_CSRF_TOKEN);
-                        if (csrfToken != null) {
-                            commonRequestHeaders.put(X_CSRF_TOKEN, csrfToken.getValue());
-                        } else {
-                            logger.error("No CSRF token found when authenticating");
-                        }
+                        logger.error("No CSRF token found when authenticating");
                     }
-                } catch (final IOException e) {
-                    throw new IntegrationException(e.getMessage(), e);
                 }
+            } catch (final IOException e) {
+                throw new IntegrationException(e.getMessage(), e);
             }
-        } catch (final URISyntaxException e) {
-            throw new IntegrationException(e.getMessage(), e);
         }
     }
 

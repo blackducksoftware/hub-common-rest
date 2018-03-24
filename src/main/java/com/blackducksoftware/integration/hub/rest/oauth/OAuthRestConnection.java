@@ -31,14 +31,15 @@ import org.apache.http.HttpRequestInterceptor;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.rest.UriCombiner;
 import com.blackducksoftware.integration.log.IntLogger;
 
 public class OAuthRestConnection extends RestConnection {
     private final TokenManager tokenManager;
     private final OAuthAccess accessType;
 
-    public OAuthRestConnection(final IntLogger logger, final URL hubBaseUrl, final int timeout, final TokenManager tokenManager, final OAuthAccess accessType, final ProxyInfo proxyInfo) {
-        super(logger, hubBaseUrl, timeout, proxyInfo);
+    public OAuthRestConnection(final IntLogger logger, final URL hubBaseUrl, final int timeout, final TokenManager tokenManager, final OAuthAccess accessType, final ProxyInfo proxyInfo, final UriCombiner uriCombiner) {
+        super(logger, hubBaseUrl, timeout, proxyInfo, uriCombiner);
         this.tokenManager = tokenManager;
         this.accessType = accessType;
     }

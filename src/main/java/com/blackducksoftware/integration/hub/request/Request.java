@@ -118,6 +118,35 @@ public class Request extends Stringable {
         public Request build() {
             return new Request(this);
         }
+
+        public String getUri() {
+            return uri;
+        }
+
+        public HttpMethod getMethod() {
+            return method;
+        }
+
+        public String getMimeType() {
+            return mimeType;
+        }
+
+        public Charset getBodyEncoding() {
+            return bodyEncoding;
+        }
+
+        public Map<String, String> getQueryParameters() {
+            return queryParameters;
+        }
+
+        public Map<String, String> getAdditionalHeaders() {
+            return additionalHeaders;
+        }
+
+        public BodyContent getBodyContent() {
+            return bodyContent;
+        }
+
     }
 
     private Request(final Builder builder) {

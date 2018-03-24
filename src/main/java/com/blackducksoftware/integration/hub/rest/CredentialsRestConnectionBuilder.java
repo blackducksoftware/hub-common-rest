@@ -79,7 +79,7 @@ public class CredentialsRestConnectionBuilder extends AbstractRestConnectionBuil
 
     @Override
     public CredentialsRestConnection createConnection(final ProxyInfo proxyInfo) {
-        final CredentialsRestConnection connection = new CredentialsRestConnection(getLogger(), getBaseConnectionUrl(), getUsername(), getPassword(), getTimeout(), proxyInfo);
+        final CredentialsRestConnection connection = new CredentialsRestConnection(getLogger(), getBaseConnectionUrl(), getUsername(), getPassword(), getTimeout(), proxyInfo, getUriCombiner());
         return connection;
     }
 }
