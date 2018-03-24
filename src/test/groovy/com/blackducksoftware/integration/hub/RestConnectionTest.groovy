@@ -44,6 +44,7 @@ import com.blackducksoftware.integration.hub.rest.HttpMethod
 import com.blackducksoftware.integration.hub.rest.RestConnection
 import com.blackducksoftware.integration.hub.rest.UnauthenticatedRestConnection
 import com.blackducksoftware.integration.hub.rest.UnauthenticatedRestConnectionBuilder
+import com.blackducksoftware.integration.hub.rest.UriCombiner
 import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException
 import com.blackducksoftware.integration.log.IntLogger
 import com.blackducksoftware.integration.log.LogLevel
@@ -158,7 +159,7 @@ class RestConnectionTest {
     public void testRestConnectionNoProxy(){
         IntLogger logger = new PrintStreamIntLogger(System.out, LogLevel.INFO)
         int timeoutSeconds = 213
-        UnauthenticatedRestConnection restConnection = new UnauthenticatedRestConnection(logger, server.url("/").url(), timeoutSeconds, null)
+        UnauthenticatedRestConnection restConnection = new UnauthenticatedRestConnection(logger, server.url("/").url(), timeoutSeconds, null, new UriCombiner())
         try {
             restConnection.connect();
             fail('Should have thrown exception')
@@ -218,7 +219,7 @@ class RestConnectionTest {
 
     @Test
     public void testCreateHttpRequestNoRequest() {
-        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), null, 300, ProxyInfo.NO_PROXY_INFO)
+        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), null, 300, ProxyInfo.NO_PROXY_INFO, new UriCombiner())
         try {
             restConnection.createHttpRequest(null)
             fail('Should have thrown exception')
@@ -229,7 +230,7 @@ class RestConnectionTest {
 
     @Test
     public void testCreateHttpRequestNoURI() {
-        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), null, 300, ProxyInfo.NO_PROXY_INFO)
+        RestConnection restConnection = new UnauthenticatedRestConnection(new PrintStreamIntLogger(System.out, LogLevel.TRACE), null, 300, ProxyInfo.NO_PROXY_INFO, new UriCombiner())
         Request request = new Request.Builder(null).build();
         try {
             restConnection.createHttpRequest(request)

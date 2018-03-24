@@ -1,5 +1,5 @@
 /**
- * hub-common
+ * hub-common-rest
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
