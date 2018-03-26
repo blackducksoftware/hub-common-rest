@@ -23,23 +23,24 @@
  */
 package com.blackducksoftware.integration.hub.rest;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.apache.http.client.utils.URIBuilder;
+
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
-import com.blackducksoftware.integration.log.IntLogger;
 
-public class UnauthenticatedRestConnection extends RestConnection {
-    public UnauthenticatedRestConnection(final IntLogger logger, final URL hubBaseUrl, final int timeout, final ProxyInfo proxyInfo, final UriCombiner uriCombiner) {
-        super(logger, hubBaseUrl, timeout, proxyInfo, uriCombiner);
-    }
-
-    @Override
-    public void addBuilderAuthentication() throws IntegrationException {
-    }
-
-    @Override
-    public void clientAuthenticate() throws IntegrationException {
+public class UriCombiner {
+    public String pieceTogetherUri(final URL baseUrl, final String path) throws IntegrationException {
+        String uri;
+        try {
+            final URIBuilder uriBuilder = new URIBuilder(baseUrl.toURI());
+            uriBuilder.setPath(path);
+            uri = uriBuilder.build().toString();
+        } catch (final URISyntaxException e) {
+            throw new IntegrationException(e.getMessage(), e);
+        }
+        return uri;
     }
 
 }

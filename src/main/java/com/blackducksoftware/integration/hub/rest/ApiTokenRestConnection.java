@@ -27,7 +27,6 @@ import static com.blackducksoftware.integration.hub.RestConstants.X_CSRF_TOKEN;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +39,6 @@ import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
@@ -59,8 +57,8 @@ public class ApiTokenRestConnection extends RestConnection {
 
     private final String hubApiToken;
 
-    public ApiTokenRestConnection(final IntLogger logger, final URL hubBaseUrl, final String hubApiToken, final int timeout, final ProxyInfo proxyInfo) {
-        super(logger, hubBaseUrl, timeout, proxyInfo);
+    public ApiTokenRestConnection(final IntLogger logger, final URL hubBaseUrl, final String hubApiToken, final int timeout, final ProxyInfo proxyInfo, final UriCombiner uriCombiner) {
+        super(logger, hubBaseUrl, timeout, proxyInfo, uriCombiner);
         this.hubApiToken = hubApiToken;
     }
 
@@ -78,41 +76,35 @@ public class ApiTokenRestConnection extends RestConnection {
      */
     @Override
     public void clientAuthenticate() throws IntegrationException {
-        try {
-            final URIBuilder uriBuilder = new URIBuilder(baseUrl.toURI());
-            uriBuilder.setPath("api/tokens/authenticate");
+        final String uri = getUriCombiner().pieceTogetherUri(baseUrl, "api/tokens/authenticate");
 
-            if (StringUtils.isNotBlank(hubApiToken)) {
-                final RequestBuilder requestBuilder = createRequestBuilder(HttpMethod.POST, getRequestHeaders());
-                requestBuilder.setCharset(Charsets.UTF_8);
-                requestBuilder.setUri(uriBuilder.build());
-                final HttpUriRequest request = requestBuilder.build();
-                logRequestHeaders(request);
-                try (final CloseableHttpResponse response = getClient().execute(request)) {
-                    logResponseHeaders(response);
-                    final int statusCode = response.getStatusLine().getStatusCode();
-                    final String statusMessage = response.getStatusLine().getReasonPhrase();
-                    if (statusCode < RestConstants.OK_200 || statusCode >= RestConstants.MULT_CHOICE_300) {
-                        throw new IntegrationRestException(statusCode, statusMessage, String.format("Connection Error: %s %s", statusCode, statusMessage));
+        if (StringUtils.isNotBlank(hubApiToken)) {
+            final RequestBuilder requestBuilder = createRequestBuilder(HttpMethod.POST, getRequestHeaders());
+            requestBuilder.setCharset(Charsets.UTF_8);
+            requestBuilder.setUri(uri);
+            final HttpUriRequest request = requestBuilder.build();
+            logRequestHeaders(request);
+            try (final CloseableHttpResponse response = getClient().execute(request)) {
+                logResponseHeaders(response);
+                final int statusCode = response.getStatusLine().getStatusCode();
+                final String statusMessage = response.getStatusLine().getReasonPhrase();
+                if (statusCode < RestConstants.OK_200 || statusCode >= RestConstants.MULT_CHOICE_300) {
+                    throw new IntegrationRestException(statusCode, statusMessage, String.format("Connection Error: %s %s", statusCode, statusMessage));
+                } else {
+                    commonRequestHeaders.put(AUTHORIZATION_HEADER, "Bearer " + readBearerToken(response));
+
+                    // get the CSRF token
+                    final Header csrfToken = response.getFirstHeader(X_CSRF_TOKEN);
+                    if (csrfToken != null) {
+                        commonRequestHeaders.put(X_CSRF_TOKEN, csrfToken.getValue());
                     } else {
-                        commonRequestHeaders.put(AUTHORIZATION_HEADER, "Bearer " + readBearerToken(response));
-
-                        // get the CSRF token
-                        final Header csrfToken = response.getFirstHeader(X_CSRF_TOKEN);
-                        if (csrfToken != null) {
-                            commonRequestHeaders.put(X_CSRF_TOKEN, csrfToken.getValue());
-                        } else {
-                            logger.error("No CSRF token found when authenticating");
-                        }
+                        logger.error("No CSRF token found when authenticating");
                     }
-                } catch (final IOException e) {
-                    throw new IntegrationException(e.getMessage(), e);
                 }
+            } catch (final IOException e) {
+                throw new IntegrationException(e.getMessage(), e);
             }
-        } catch (final URISyntaxException e) {
-            throw new IntegrationException(e.getMessage(), e);
         }
-
     }
 
     private Map<String, String> getRequestHeaders() {

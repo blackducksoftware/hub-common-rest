@@ -76,7 +76,7 @@ public class OAuthRestConnectionBuilder extends AbstractRestConnectionBuilder<OA
 
     @Override
     public OAuthRestConnection createConnection(final ProxyInfo proxyInfo) {
-        return new OAuthRestConnection(getLogger(), getBaseConnectionUrl(), getTimeout(), tokenManager, accessType, proxyInfo);
+        return new OAuthRestConnection(getLogger(), getBaseConnectionUrl(), getTimeout(), tokenManager, accessType, proxyInfo, getUriCombiner());
     }
 
 }

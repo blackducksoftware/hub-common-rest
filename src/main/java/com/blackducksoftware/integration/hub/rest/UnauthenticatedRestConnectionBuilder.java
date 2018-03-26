@@ -47,7 +47,7 @@ public class UnauthenticatedRestConnectionBuilder extends AbstractRestConnection
 
     @Override
     public UnauthenticatedRestConnection createConnection(final ProxyInfo proxyInfo) {
-        return new UnauthenticatedRestConnection(getLogger(), getBaseConnectionUrl(), getTimeout(), proxyInfo);
+        return new UnauthenticatedRestConnection(getLogger(), getBaseConnectionUrl(), getTimeout(), proxyInfo, getUriCombiner());
     }
 
 }

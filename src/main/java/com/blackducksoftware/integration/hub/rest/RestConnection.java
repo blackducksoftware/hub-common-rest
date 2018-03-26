@@ -102,6 +102,7 @@ public abstract class RestConnection {
     private final RequestConfig.Builder defaultRequestConfigBuilder = RequestConfig.custom();
 
     private CloseableHttpClient client;
+    private final UriCombiner uriCombiner;
 
     public static Date parseDateString(final String dateString) throws ParseException {
         final SimpleDateFormat sdf = new SimpleDateFormat(JSON_DATE_FORMAT);
@@ -115,11 +116,12 @@ public abstract class RestConnection {
         return sdf.format(date);
     }
 
-    public RestConnection(final IntLogger logger, final URL baseUrl, final int timeout, final ProxyInfo proxyInfo) {
+    public RestConnection(final IntLogger logger, final URL baseUrl, final int timeout, final ProxyInfo proxyInfo, final UriCombiner uriCombiner) {
         this.logger = logger;
         this.baseUrl = baseUrl;
         this.timeout = timeout;
         this.proxyInfo = proxyInfo;
+        this.uriCombiner = uriCombiner;
     }
 
     public void connect() throws IntegrationException {
@@ -397,6 +399,10 @@ public abstract class RestConnection {
 
     public ProxyInfo getProxyInfo() {
         return proxyInfo;
+    }
+
+    public UriCombiner getUriCombiner() {
+        return uriCombiner;
     }
 
     public CredentialsProvider getCredentialsProvider() {
