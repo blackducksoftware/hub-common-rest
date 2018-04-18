@@ -35,7 +35,7 @@ public class UriCombiner {
     public String pieceTogetherUri(final URL baseUrl, final String path) throws IntegrationException {
         try {
             final URI baseUri = baseUrl.toURI();
-            final URI combinedUri = new URI(baseUri.getScheme(), baseUri.getHost(), getAsAbsolutePath(path), baseUri.getFragment());
+            final URI combinedUri = new URI(baseUri.getScheme(), null, baseUri.getHost(), baseUri.getPort(), getAsAbsolutePath(path), baseUri.getQuery(), baseUri.getFragment());
             return combinedUri.toString();
         } catch (final URISyntaxException e) {
             throw new IntegrationException(e.getMessage(), e);
