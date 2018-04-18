@@ -23,24 +23,30 @@
  */
 package com.blackducksoftware.integration.hub.rest;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.commons.lang3.StringUtils;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 
 public class UriCombiner {
     public String pieceTogetherUri(final URL baseUrl, final String path) throws IntegrationException {
-        String uri;
         try {
-            final URIBuilder uriBuilder = new URIBuilder(baseUrl.toURI());
-            uriBuilder.setPath(path);
-            uri = uriBuilder.build().toString();
+            final URI baseUri = baseUrl.toURI();
+            final URI combinedUri = new URI(baseUri.getScheme(), baseUri.getHost(), getAsAbsolutePath(path), baseUri.getFragment());
+            return combinedUri.toString();
         } catch (final URISyntaxException e) {
             throw new IntegrationException(e.getMessage(), e);
         }
-        return uri;
+    }
+
+    private String getAsAbsolutePath(final String path) {
+        if (StringUtils.isNotBlank(path) && !path.startsWith("/")) {
+            return "/" + path;
+        }
+        return path;
     }
 
 }
