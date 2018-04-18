@@ -55,6 +55,14 @@ public class UriCombinerTest {
         assertPath(url, path, url);
     }
 
+    @Test
+    public void complexUrlTest() {
+        final String url = "http://www.website.com:845?test=thing#stuff";
+        final String path = "/leading/slash/here/and/trailing/slash/in/url";
+
+        assertPath(url, path, "http://www.website.com:845/leading/slash/here/and/trailing/slash/in/url?test=thing#stuff");
+    }
+
     private void assertPath(final String url, final String path, final String expectedResult) {
         final UriCombiner uriCombiner = new UriCombiner();
         String result = "";
