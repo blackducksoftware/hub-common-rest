@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.hub.rest;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -31,7 +32,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 
-public class UriCombiner {
+public class UriCombiner implements Serializable {
+    private static final long serialVersionUID = 5393401177396012061L;
+
     public String pieceTogetherUri(final URL baseUrl, final String path) throws IntegrationException {
         try {
             final URI baseUri = baseUrl.toURI();
