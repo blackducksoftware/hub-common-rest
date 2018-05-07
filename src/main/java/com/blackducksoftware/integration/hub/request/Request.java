@@ -150,17 +150,16 @@ public class Request extends Stringable {
     }
 
     private Request(final Builder builder) {
-        this.uri = builder.uri;
-        this.method = builder.method;
-        this.mimeType = builder.mimeType;
-        this.bodyEncoding = builder.bodyEncoding;
-        this.queryParameters = builder.queryParameters;
-        this.additionalHeaders = builder.additionalHeaders;
-        this.bodyContent = builder.bodyContent;
+        this.uri = builder.getUri();
+        this.method = builder.getMethod();
+        this.mimeType = builder.getMimeType();
+        this.bodyEncoding = builder.getBodyEncoding();
+        this.queryParameters = builder.getQueryParameters();
+        this.additionalHeaders = builder.getAdditionalHeaders();
+        this.bodyContent = builder.getBodyContent();
     }
 
     public Request(final String uri, final HttpMethod method, final String mimeType, final Charset bodyEncoding, final Map<String, String> queryParameters, final Map<String, String> additionalHeaders, final BodyContent bodyContent) {
-        super();
         this.uri = uri;
         this.method = method;
         this.mimeType = mimeType;
