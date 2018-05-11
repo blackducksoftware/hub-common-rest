@@ -23,8 +23,9 @@
  */
 package com.blackducksoftware.integration.hub.rest;
 
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.validator.ApiTokenRestConnectionValidator;
+import com.blackducksoftware.integration.rest.connection.AbstractRestConnectionBuilder;
+import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 
 public class ApiTokenRestConnectionBuilder extends AbstractRestConnectionBuilder<ApiTokenRestConnection> {
@@ -58,7 +59,7 @@ public class ApiTokenRestConnectionBuilder extends AbstractRestConnectionBuilder
 
     @Override
     public ApiTokenRestConnection createConnection(final ProxyInfo proxyInfo) {
-        final ApiTokenRestConnection connection = new ApiTokenRestConnection(getLogger(), getBaseConnectionUrl(), getApiToken(), getTimeout(), proxyInfo, getUriCombiner());
+        final ApiTokenRestConnection connection = new ApiTokenRestConnection(getLogger(), getBaseConnectionUrl(), getApiToken(), getTimeout(), proxyInfo);
         return connection;
     }
 

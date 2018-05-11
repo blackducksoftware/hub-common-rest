@@ -19,23 +19,20 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
- * under the License.
- */
+ * under the License.*/
 package com.blackducksoftware.integration.hub.it
 
-import java.util.logging.Level
-import java.util.logging.Logger
-
-import org.apache.commons.lang3.math.NumberUtils
-import org.junit.Assert;
-
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnectionBuilder
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
-
+import com.blackducksoftware.integration.rest.proxy.ProxyInfo
 import okhttp3.OkHttpClient
+import org.apache.commons.lang3.math.NumberUtils
+import org.junit.Assert
+
+import java.util.logging.Level
+import java.util.logging.Logger
 
 public class RestConnectionTestHelper {
     private Properties testProperties;
@@ -57,13 +54,13 @@ public class RestConnectionTestHelper {
         testProperties = new Properties()
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader()
         InputStream is = null;
-        try  {
+        try {
             is = classLoader.getResourceAsStream("test.properties")
             testProperties.load(is)
         } catch (final Exception e) {
             System.err.println("reading test.properties failed!")
         } finally {
-            if(is != null) {
+            if (is != null) {
                 is.close()
             }
         }
@@ -126,15 +123,7 @@ public class RestConnectionTestHelper {
     }
 
     public CredentialsRestConnection getRestConnection(final LogLevel logLevel) {
-        CredentialsRestConnectionBuilder builder = new CredentialsRestConnectionBuilder();
-        builder.logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE);
-        builder.baseUrl = getIntegrationHubServerUrl()
-        builder.timeout = getTimeout()
-        builder.username = getTestUsername()
-        builder.password = getTestPassword()
-        builder.applyProxyInfo(ProxyInfo.NO_PROXY_INFO)
-        CredentialsRestConnection restConnection = builder.build()
-        return restConnection
+        return getRestConnection(logLevel, ProxyInfo.NO_PROXY_INFO)
     }
 
     public CredentialsRestConnection getRestConnection(final LogLevel logLevel, ProxyInfo proxyInfo) {
@@ -145,6 +134,7 @@ public class RestConnectionTestHelper {
         builder.username = getTestUsername()
         builder.password = getTestPassword()
         builder.applyProxyInfo(proxyInfo)
+        builder.setAlwaysTrustServerCertificate(true)
         CredentialsRestConnection restConnection = builder.build()
         return restConnection
     }

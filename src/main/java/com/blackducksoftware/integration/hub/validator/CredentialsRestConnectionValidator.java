@@ -23,6 +23,8 @@
  */
 package com.blackducksoftware.integration.hub.validator;
 
+import com.blackducksoftware.integration.rest.connection.AbstractRestConnectionValidator;
+import com.blackducksoftware.integration.rest.credentials.CredentialsValidator;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 public class CredentialsRestConnectionValidator extends AbstractRestConnectionValidator {

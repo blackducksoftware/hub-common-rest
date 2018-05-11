@@ -23,9 +23,8 @@
  */
 package com.blackducksoftware.integration.hub.rest;
 
-import static com.blackducksoftware.integration.hub.RestConstants.X_CSRF_TOKEN;
-
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,17 +42,19 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.RestConstants;
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
-import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException;
 import com.blackducksoftware.integration.log.IntLogger;
+import com.blackducksoftware.integration.rest.HttpMethod;
+import com.blackducksoftware.integration.rest.RestConstants;
+import com.blackducksoftware.integration.rest.connection.RestConnection;
+import com.blackducksoftware.integration.rest.exception.IntegrationRestException;
+import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 
 public class CredentialsRestConnection extends RestConnection {
     private final String hubUsername;
     private final String hubPassword;
 
-    public CredentialsRestConnection(final IntLogger logger, final URL baseUrl, final String hubUsername, final String hubPassword, final int timeout, final ProxyInfo proxyInfo, final UriCombiner uriCombiner) {
-        super(logger, baseUrl, timeout, proxyInfo, uriCombiner);
+    public CredentialsRestConnection(final IntLogger logger, final URL baseUrl, final String hubUsername, final String hubPassword, final int timeout, final ProxyInfo proxyInfo) {
+        super(logger, baseUrl, timeout, proxyInfo);
         this.hubUsername = hubUsername;
         this.hubPassword = hubPassword;
     }
@@ -71,7 +72,12 @@ public class CredentialsRestConnection extends RestConnection {
      */
     @Override
     public void clientAuthenticate() throws IntegrationException {
-        final String uri = getUriCombiner().pieceTogetherUri(baseUrl, "j_spring_security_check");
+        final URL securityUrl;
+        try {
+            securityUrl = new URL(baseUrl, "j_spring_security_check");
+        } catch (MalformedURLException e) {
+            throw new IntegrationException("Error constructing the login URL: " + e.getMessage(), e);
+        }
 
         if (StringUtils.isNotBlank(hubUsername) && StringUtils.isNotBlank(hubPassword)) {
             final List<NameValuePair> bodyValues = new ArrayList<>();
@@ -81,7 +87,7 @@ public class CredentialsRestConnection extends RestConnection {
 
             final RequestBuilder requestBuilder = createRequestBuilder(HttpMethod.POST, null);
             requestBuilder.setCharset(Charsets.UTF_8);
-            requestBuilder.setUri(uri);
+            requestBuilder.setUri(securityUrl.toString());
             requestBuilder.setEntity(entity);
             final HttpUriRequest request = requestBuilder.build();
             logRequestHeaders(request);
@@ -93,9 +99,9 @@ public class CredentialsRestConnection extends RestConnection {
                     throw new IntegrationRestException(statusCode, statusMessage, String.format("Connection Error: %s %s", statusCode, statusMessage));
                 } else {
                     // get the CSRF token
-                    final Header csrfToken = response.getFirstHeader(X_CSRF_TOKEN);
+                    final Header csrfToken = response.getFirstHeader(RestConstants.X_CSRF_TOKEN);
                     if (csrfToken != null) {
-                        commonRequestHeaders.put(X_CSRF_TOKEN, csrfToken.getValue());
+                        commonRequestHeaders.put(RestConstants.X_CSRF_TOKEN, csrfToken.getValue());
                     } else {
                         logger.error("No CSRF token found when authenticating");
                     }

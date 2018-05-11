@@ -19,14 +19,9 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
- * under the License.
- */
+ * under the License.*/
 package com.blackducksoftware.integration.hub
 
-import org.apache.commons.lang3.StringUtils
-import org.junit.Test
-
-import com.blackducksoftware.integration.hub.rest.RestConnectionField
 import com.blackducksoftware.integration.hub.rest.oauth.OAuthAccess
 import com.blackducksoftware.integration.hub.rest.oauth.OauthRestConnectionField
 import com.blackducksoftware.integration.hub.rest.oauth.TokenManager
@@ -34,7 +29,10 @@ import com.blackducksoftware.integration.hub.validator.OauthRestConnectionValida
 import com.blackducksoftware.integration.log.IntLogger
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
+import com.blackducksoftware.integration.rest.connection.RestConnectionField
 import com.blackducksoftware.integration.validator.ValidationResults
+import org.apache.commons.lang3.StringUtils
+import org.junit.Test
 
 class OauthRestConnectionValidatorTest {
 
@@ -42,7 +40,7 @@ class OauthRestConnectionValidatorTest {
     @Test
     public void testTokenManagerValid() {
         OauthRestConnectionValidator validator = new OauthRestConnectionValidator()
-        TokenManager tokenManager = new TokenManager(null,120)
+        TokenManager tokenManager = new TokenManager(null, 120)
         validator.setTokenManager(tokenManager)
         ValidationResults result = new ValidationResults()
         validator.validateTokenManager(result)
@@ -95,7 +93,7 @@ class OauthRestConnectionValidatorTest {
     public void testValid() {
         OauthRestConnectionValidator validator = new OauthRestConnectionValidator()
         validator.baseUrl = "http://www.google.com"
-        validator.setTokenManager(new TokenManager(null,120))
+        validator.setTokenManager(new TokenManager(null, 120))
         validator.setAccessType(OAuthAccess.CLIENT)
         validator.setTimeout(120)
         validator.setLogger(new PrintStreamIntLogger(System.out, LogLevel.INFO))
@@ -207,7 +205,7 @@ class OauthRestConnectionValidatorTest {
     @Test
     public void testHeadersValid() {
         OauthRestConnectionValidator validator = new OauthRestConnectionValidator()
-        Map<String,String> headers = new HashMap<>();
+        Map<String, String> headers = new HashMap<>();
         validator.setCommonRequestHeaders(headers)
         ValidationResults result = new ValidationResults()
         validator.validateCommonRequestHeaders(result)

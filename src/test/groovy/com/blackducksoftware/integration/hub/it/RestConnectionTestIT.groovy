@@ -19,15 +19,19 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
- * under the License.
- */
+ * under the License.*/
 package com.blackducksoftware.integration.hub.it
 
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertTrue
-import static org.junit.Assert.fail
-
+import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection
+import com.blackducksoftware.integration.hub.rest.CredentialsRestConnectionBuilder
+import com.blackducksoftware.integration.log.LogLevel
+import com.blackducksoftware.integration.log.PrintStreamIntLogger
+import com.blackducksoftware.integration.rest.connection.RestConnection
+import com.blackducksoftware.integration.rest.proxy.ProxyInfo
+import com.blackducksoftware.integration.rest.proxy.ProxyInfoBuilder
+import com.blackducksoftware.integration.rest.request.Request
+import com.blackducksoftware.integration.rest.request.Response
+import com.blackducksoftware.integration.test.annotation.IntegrationTest
 import org.apache.commons.lang3.math.NumberUtils
 import org.junit.Rule
 import org.junit.Test
@@ -36,14 +40,7 @@ import org.junit.rules.ExpectedException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo
-import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder
-import com.blackducksoftware.integration.hub.request.Request
-import com.blackducksoftware.integration.hub.rest.CredentialsRestConnectionBuilder
-import com.blackducksoftware.integration.hub.rest.RestConnection
-import com.blackducksoftware.integration.log.LogLevel
-import com.blackducksoftware.integration.log.PrintStreamIntLogger
-import com.blackducksoftware.integration.test.annotation.IntegrationTest
+import static org.junit.Assert.*
 
 @Category(IntegrationTest.class)
 class RestConnectionTestIT {
@@ -53,6 +50,7 @@ class RestConnectionTestIT {
 
     @Rule
     public ExpectedException exception = ExpectedException.none()
+
 
     @Test
     public void testTimeoutSet() {
@@ -175,22 +173,6 @@ class RestConnectionTestIT {
     }
 
     @Test
-    public void testNtlmProxyFailsWithoutCredentialsWithHttp() {
-        try {
-            ProxyInfoBuilder proxyBuilder = new ProxyInfoBuilder();
-            proxyBuilder.host = restConnectionTestHelper.getProperty("TEST_PROXY_HOST_NTLM")
-            proxyBuilder.port = NumberUtils.toInt(restConnectionTestHelper.getProperty("TEST_PROXY_PORT_NTLM"))
-            ProxyInfo proxyInfo = proxyBuilder.build()
-            final RestConnection restConnection = restConnectionTestHelper.getRestConnection(LogLevel.TRACE, proxyInfo)
-            restConnection.connect()
-            fail("An exception should be thrown")
-        } catch (final Exception e) {
-            assertFalse(e.getMessage(), e.getMessage().contains("Can not reach this server"))
-            assertTrue(e.getMessage(), e.getMessage().contains("Proxy Authentication Required"))
-        }
-    }
-
-    @Test
     public void testUnauthorizedGet() throws Exception {
         String url = restConnectionTestHelper.getProperty("TEST_HUB_SERVER_URL")
         CredentialsRestConnectionBuilder builder = new CredentialsRestConnectionBuilder();
@@ -199,6 +181,7 @@ class RestConnectionTestIT {
         builder.username = "notavalidusername"
         builder.password = "notavalidpassword"
         builder.timeout = 120;
+        builder.setAlwaysTrustServerCertificate(true)
         final RestConnection restConnection = builder.build()
 
         final Request hubRequest = new Request.Builder(url.toString() + "/api/notifications?offset=0&endDate=2017-01-25T18:43:46.685Z&limit=100&startDate=2017-01-17T21:19:33.311Z").build()
@@ -207,7 +190,24 @@ class RestConnectionTestIT {
             restConnection.executeRequest(hubRequest)
             fail("Expected Unauthorized Exception")
         } catch (final Exception e) {
-            assertTrue(e.getMessage().contains("Unauthorized"))
+            assertTrue(e.getMessage().contains("401"))
         }
+    }
+
+    @Test
+    public void testAuthorizedGet() throws Exception {
+        CredentialsRestConnectionBuilder builder = new CredentialsRestConnectionBuilder();
+        builder.logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE);
+        builder.baseUrl = restConnectionTestHelper.getIntegrationHubServerUrl()
+        builder.timeout = restConnectionTestHelper.getTimeout()
+        builder.username = restConnectionTestHelper.getTestUsername()
+        builder.password = restConnectionTestHelper.getTestPassword()
+        builder.setAlwaysTrustServerCertificate(true)
+        CredentialsRestConnection restConnection = builder.build()
+
+        final Request hubRequest = new Request.Builder(restConnectionTestHelper.getIntegrationHubServerUrlString() + "/api/notifications?offset=0&endDate=2017-01-25T18:43:46.685Z&limit=100&startDate=2017-01-17T21:19:33.311Z").build()
+        System.out.println("Executing: " + hubRequest.toString())
+        Response response = restConnection.executeRequest(hubRequest)
+        assertTrue("Status Code was not 200", 200 == response.getStatusCode());
     }
 }

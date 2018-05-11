@@ -19,89 +19,88 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
- * under the License.
- */
+ * under the License.*/
 package com.blackducksoftware.integration.hub
-
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
 
 import com.blackducksoftware.integration.exception.IntegrationException
 import com.blackducksoftware.integration.hub.api.oauth.OAuthConfiguration
 import com.blackducksoftware.integration.hub.api.oauth.Token
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo
-import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder
-import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException
 import com.blackducksoftware.integration.hub.rest.oauth.OAuthAccess
 import com.blackducksoftware.integration.hub.rest.oauth.TokenManager
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
-
+import com.blackducksoftware.integration.rest.exception.IntegrationRestException
+import com.blackducksoftware.integration.rest.proxy.ProxyInfo
+import com.blackducksoftware.integration.rest.proxy.ProxyInfoBuilder
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
 class TokenManagerTest {
     public static final int CONNECTION_TIMEOUT = 213
 
     private final MockWebServer server = new MockWebServer();
 
-    @Before public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         server.start();
     }
 
-    @After public void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         server.shutdown();
     }
 
-    private String getClientTokenJson(){
+    private String getClientTokenJson() {
         getJsonFileContent('ClientToken.json')
     }
 
-    private String getUserTokenJson(){
+    private String getUserTokenJson() {
         getJsonFileContent('UserToken.json')
     }
 
-    private String getJsonFileContent(String fileName){
+    private String getJsonFileContent(String fileName) {
         getClass().getResource("/$fileName").text
     }
 
-    private TokenManager getTokenManager(){
+    private TokenManager getTokenManager() {
         getTokenManager(null, null)
     }
 
-    private TokenManager getTokenManager(String refreshToken){
+    private TokenManager getTokenManager(String refreshToken) {
         getTokenManager(null, refreshToken)
     }
 
-    private TokenManager getTokenManager(MockResponse mockResponse){
+    private TokenManager getTokenManager(MockResponse mockResponse) {
         getTokenManager(mockResponse, null)
     }
 
-    private TokenManager getTokenManager(MockResponse mockResponse, String refreshToken){
+    private TokenManager getTokenManager(MockResponse mockResponse, String refreshToken) {
         final Dispatcher dispatcher = new Dispatcher() {
-                    @Override
-                    public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                        MockResponse response = null
-                        if(null != mockResponse){
-                            response = mockResponse
-                        } else{
-                            String body = request.getBody().readUtf8()
-                            if(body.contains("grant_type=authorization_code")){
-                                response = new MockResponse().setResponseCode(200).setBody(getUserTokenJson())
-                            } else  if(body.contains("grant_type=client_credentials")){
-                                response = new MockResponse().setResponseCode(200).setBody(getClientTokenJson())
-                            } else  if(body.contains("grant_type=refresh_token")){
-                                response = new MockResponse().setResponseCode(200).setBody(getUserTokenJson())
-                            } else {
-                                response = new MockResponse().setResponseCode(200)
-                            }
-                        }
-                        response
+            @Override
+            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+                MockResponse response = null
+                if (null != mockResponse) {
+                    response = mockResponse
+                } else {
+                    String body = request.getBody().readUtf8()
+                    if (body.contains("grant_type=authorization_code")) {
+                        response = new MockResponse().setResponseCode(200).setBody(getUserTokenJson())
+                    } else if (body.contains("grant_type=client_credentials")) {
+                        response = new MockResponse().setResponseCode(200).setBody(getClientTokenJson())
+                    } else if (body.contains("grant_type=refresh_token")) {
+                        response = new MockResponse().setResponseCode(200).setBody(getUserTokenJson())
+                    } else {
+                        response = new MockResponse().setResponseCode(200)
                     }
-                };
+                }
+                response
+            }
+        };
         server.setDispatcher(dispatcher);
         OAuthConfiguration oAuthConfig = new OAuthConfiguration()
         oAuthConfig.clientId = 'ClientId'
@@ -136,7 +135,7 @@ class TokenManagerTest {
     }
 
     @Test
-    public void testCreateTokenCredential(){
+    public void testCreateTokenCredential() {
         TokenManager tokenManager = getTokenManager()
         String token = 'test'
         String output = tokenManager.createTokenCredential(token)
@@ -146,7 +145,7 @@ class TokenManagerTest {
     }
 
     @Test
-    public void testExchangeForUserToken(){
+    public void testExchangeForUserToken() {
         TokenManager tokenManager = getTokenManager()
         String authCode = 'AuthCode'
         Token token = tokenManager.exchangeForUserToken(authCode)
@@ -159,10 +158,10 @@ class TokenManagerTest {
         assert null != token.jti
 
         tokenManager = getTokenManager(new MockResponse().setResponseCode(404))
-        try{
+        try {
             tokenManager.exchangeForUserToken(authCode)
             fail('Should have thrown exception')
-        } catch (IntegrationException e){
+        } catch (IntegrationException e) {
             assert 'Error refreshing client token'.equals(e.getMessage())
             IntegrationRestException restException = e.getCause()
             assert 404 == restException.httpStatusCode
@@ -170,12 +169,12 @@ class TokenManagerTest {
     }
 
     @Test
-    public void testRefreshToken(){
+    public void testRefreshToken() {
         TokenManager tokenManager = getTokenManager()
-        try{
+        try {
             tokenManager.refreshToken(OAuthAccess.USER)
             fail('Should have thrown exception')
-        } catch (IntegrationException e){
+        } catch (IntegrationException e) {
             assert "No token present to refresh".equals(e.getMessage())
         }
         String refreshToken = 'RefreshToken'
@@ -190,7 +189,7 @@ class TokenManagerTest {
         assert null != token.scope
         assert null != token.jti
 
-        assert null ==  tokenManager.clientToken
+        assert null == tokenManager.clientToken
 
         token = tokenManager.refreshToken(OAuthAccess.CLIENT)
         Token storedClientToken = token
@@ -203,26 +202,26 @@ class TokenManagerTest {
         assert null != token.scope
         assert null != token.jti
 
-        assert null !=  tokenManager.clientToken
+        assert null != tokenManager.clientToken
 
         token = tokenManager.refreshToken(OAuthAccess.CLIENT)
         assert null != token
         assert storedClientToken != token
 
         tokenManager = getTokenManager(new MockResponse().setResponseCode(404))
-        try{
+        try {
             tokenManager.refreshToken(OAuthAccess.CLIENT)
             fail('Should have thrown exception')
-        } catch (IntegrationException e){
+        } catch (IntegrationException e) {
             assert 'Error refreshing client token'.equals(e.getMessage())
             IntegrationRestException restException = e.getCause()
             assert 404 == restException.httpStatusCode
         }
         tokenManager = getTokenManager(new MockResponse().setResponseCode(404), refreshToken)
-        try{
+        try {
             tokenManager.refreshToken(OAuthAccess.USER)
             fail('Should have thrown exception')
-        } catch (IntegrationException e){
+        } catch (IntegrationException e) {
             assert 'Error refreshing user token'.equals(e.getMessage())
             IntegrationRestException restException = e.getCause()
             assert 404 == restException.httpStatusCode
@@ -230,12 +229,12 @@ class TokenManagerTest {
     }
 
     @Test
-    public void testGetToken(){
+    public void testGetToken() {
         TokenManager tokenManager = getTokenManager()
-        try{
+        try {
             tokenManager.getToken(OAuthAccess.USER)
             fail('Should have thrown exception')
-        } catch (IntegrationException e){
+        } catch (IntegrationException e) {
             assert "No token present to refresh".equals(e.getMessage())
         }
         String refreshToken = 'RefreshToken'
@@ -250,7 +249,7 @@ class TokenManagerTest {
         assert null != token.scope
         assert null != token.jti
 
-        assert null ==  tokenManager.clientToken
+        assert null == tokenManager.clientToken
 
         token = tokenManager.getToken(OAuthAccess.CLIENT)
         Token storedClientToken = token
@@ -263,17 +262,17 @@ class TokenManagerTest {
         assert null != token.scope
         assert null != token.jti
 
-        assert null !=  tokenManager.clientToken
+        assert null != tokenManager.clientToken
 
         token = tokenManager.getToken(OAuthAccess.CLIENT)
         assert null != token
         assert storedClientToken == token
 
         tokenManager = getTokenManager(new MockResponse().setResponseCode(404))
-        try{
+        try {
             tokenManager.getToken(OAuthAccess.CLIENT)
             fail('Should have thrown exception')
-        } catch (IntegrationException e){
+        } catch (IntegrationException e) {
             assert 'Error refreshing client token'.equals(e.getMessage())
             IntegrationRestException restException = e.getCause()
             assert 404 == restException.httpStatusCode

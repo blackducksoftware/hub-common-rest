@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.hub.validator;
 
+import com.blackducksoftware.integration.rest.connection.AbstractRestConnectionValidator;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 public class ApiTokenRestConnectionValidator extends AbstractRestConnectionValidator {
