@@ -19,79 +19,80 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
- * under the License.
- */
+ * under the License.*/
 package com.blackducksoftware.integration.hub
 
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-
 import com.blackducksoftware.integration.hub.api.oauth.Token
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo
-import com.blackducksoftware.integration.hub.rest.RestConnection
-import com.blackducksoftware.integration.hub.rest.UnauthenticatedRestConnectionBuilder
-import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException
 import com.blackducksoftware.integration.hub.service.HubOAuthTokenService
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
-
+import com.blackducksoftware.integration.rest.connection.RestConnection
+import com.blackducksoftware.integration.rest.connection.UnauthenticatedRestConnectionBuilder
+import com.blackducksoftware.integration.rest.exception.IntegrationRestException
+import com.blackducksoftware.integration.rest.proxy.ProxyInfo
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+
+import static org.junit.Assert.fail
 
 class HubOAuthTokenServiceTest {
     public static final int CONNECTION_TIMEOUT = 213
 
     private final MockWebServer server = new MockWebServer();
 
-    @Before public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         server.start();
     }
 
-    @After public void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         server.shutdown();
     }
 
-    private String getClientTokenJson(){
+    private String getClientTokenJson() {
         getJsonFileContent('ClientToken.json')
     }
 
-    private String getUserTokenJson(){
+    private String getUserTokenJson() {
         getJsonFileContent('UserToken.json')
     }
 
-    private String getJsonFileContent(String fileName){
+    private String getJsonFileContent(String fileName) {
         getClass().getResource("/$fileName").text
     }
 
-    private RestConnection getRestConnection(){
+    private RestConnection getRestConnection() {
         getRestConnection(null)
     }
 
-    private RestConnection getRestConnection(MockResponse mockResponse){
+    private RestConnection getRestConnection(MockResponse mockResponse) {
         final Dispatcher dispatcher = new Dispatcher() {
-                    @Override
-                    public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                        MockResponse response = null
-                        if(null != mockResponse){
-                            response = mockResponse
-                        } else{
-                            String body = request.getBody().readUtf8()
-                            if(body.contains("grant_type=authorization_code")){
-                                response = new MockResponse().setResponseCode(200).setBody(getUserTokenJson())
-                            } else  if(body.contains("grant_type=client_credentials")){
-                                response = new MockResponse().setResponseCode(200).setBody(getClientTokenJson())
-                            } else  if(body.contains("grant_type=refresh_token")){
-                                response = new MockResponse().setResponseCode(200).setBody(getUserTokenJson())
-                            } else {
-                                response = new MockResponse().setResponseCode(200)
-                            }
-                        }
-                        response
+            @Override
+            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+                MockResponse response = null
+                if (null != mockResponse) {
+                    response = mockResponse
+                } else {
+                    String body = request.getBody().readUtf8()
+                    if (body.contains("grant_type=authorization_code")) {
+                        response = new MockResponse().setResponseCode(200).setBody(getUserTokenJson())
+                    } else if (body.contains("grant_type=client_credentials")) {
+                        response = new MockResponse().setResponseCode(200).setBody(getClientTokenJson())
+                    } else if (body.contains("grant_type=refresh_token")) {
+                        response = new MockResponse().setResponseCode(200).setBody(getUserTokenJson())
+                    } else {
+                        response = new MockResponse().setResponseCode(200)
                     }
-                };
+                }
+                response
+            }
+        };
         server.setDispatcher(dispatcher);
         UnauthenticatedRestConnectionBuilder builder = new UnauthenticatedRestConnectionBuilder()
         builder.logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE)
@@ -102,7 +103,7 @@ class HubOAuthTokenServiceTest {
     }
 
     @Test
-    public void testRequestUserToken(){
+    public void testRequestUserToken() {
         String clientId = "ClientId"
         String clientSecret = "ClientSecret"
         String authCode = "AuthCode"
@@ -127,16 +128,16 @@ class HubOAuthTokenServiceTest {
         assert null != token.jti
 
         tokenService = new HubOAuthTokenService(getRestConnection(new MockResponse().setResponseCode(404)))
-        try{
+        try {
             tokenService.requestUserToken(clientId, clientSecret, authCode, redirectUri)
             fail('Should have thrown exception')
-        } catch (IntegrationRestException e){
+        } catch (IntegrationRestException e) {
             assert 404 == e.httpStatusCode
         }
     }
 
     @Test
-    public void testRefreshClientToken(){
+    public void testRefreshClientToken() {
         String clientId = "ClientId"
         String clientSecret = "ClientSecret"
         HubOAuthTokenService tokenService = new HubOAuthTokenService(getRestConnection())
@@ -159,16 +160,16 @@ class HubOAuthTokenServiceTest {
         assert null != token.jti
 
         tokenService = new HubOAuthTokenService(getRestConnection(new MockResponse().setResponseCode(404)))
-        try{
+        try {
             tokenService.refreshClientToken(clientId, clientSecret)
             fail('Should have thrown exception')
-        } catch (IntegrationRestException e){
+        } catch (IntegrationRestException e) {
             assert 404 == e.httpStatusCode
         }
     }
 
     @Test
-    public void testRefreshUserToken(){
+    public void testRefreshUserToken() {
         String clientId = "ClientId"
         String clientSecret = "ClientSecret"
         String refreshToken = "RefreshToken"
@@ -192,10 +193,10 @@ class HubOAuthTokenServiceTest {
         assert null != token.jti
 
         tokenService = new HubOAuthTokenService(getRestConnection(new MockResponse().setResponseCode(404)))
-        try{
+        try {
             tokenService.refreshUserToken(clientId, clientSecret, refreshToken)
             fail('Should have thrown exception')
-        } catch (IntegrationRestException e){
+        } catch (IntegrationRestException e) {
             assert 404 == e.httpStatusCode
         }
     }

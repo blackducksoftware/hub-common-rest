@@ -30,11 +30,11 @@ import org.apache.commons.lang3.StringUtils;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.oauth.OAuthConfiguration;
 import com.blackducksoftware.integration.hub.api.oauth.Token;
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
-import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.hub.rest.UnauthenticatedRestConnectionBuilder;
 import com.blackducksoftware.integration.hub.service.HubOAuthTokenService;
 import com.blackducksoftware.integration.log.IntLogger;
+import com.blackducksoftware.integration.rest.connection.RestConnection;
+import com.blackducksoftware.integration.rest.connection.UnauthenticatedRestConnectionBuilder;
+import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 
 public class TokenManager {
     public static final String WWW_AUTH_RESP = "Authorization";

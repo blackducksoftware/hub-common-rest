@@ -19,29 +19,27 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
- * under the License.
- */
+ * under the License.*/
 package com.blackducksoftware.integration.hub
+
+import com.blackducksoftware.integration.rest.HttpMethod
+import com.blackducksoftware.integration.rest.request.Request
+import org.apache.commons.codec.Charsets
+import org.apache.http.entity.ContentType
+import org.junit.Test
 
 import java.nio.charset.Charset
 
-import org.apache.commons.codec.Charsets;
-import org.apache.http.entity.ContentType;
-import org.junit.Test
-
-import com.blackducksoftware.integration.hub.request.Request
-import com.blackducksoftware.integration.hub.rest.HttpMethod
-
 class RequestTest {
     @Test
-    public void testRequest(){
+    public void testRequest() {
         String uri = 'URI'
-        Map<String, String> queryParametes = [test:"one",query:"two"]
+        Map<String, String> queryParametes = [test: "one", query: "two"]
         String q = 'q'
         HttpMethod method = HttpMethod.DELETE
         String mimeType = 'mime'
-        Charset  bodyEncoding = Charsets.UTF_8
-        Map<String, String> additionalHeaders = [header:"one",thing:"two"]
+        Charset bodyEncoding = Charsets.UTF_8
+        Map<String, String> additionalHeaders = [header: "one", thing: "two"]
 
         Request request = new Request(new Request.Builder())
         assert HttpMethod.GET == request.method

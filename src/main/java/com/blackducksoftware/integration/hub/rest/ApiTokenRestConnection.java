@@ -23,10 +23,9 @@
  */
 package com.blackducksoftware.integration.hub.rest;
 
-import static com.blackducksoftware.integration.hub.RestConstants.X_CSRF_TOKEN;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,10 +41,12 @@ import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.RestConstants;
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
-import com.blackducksoftware.integration.hub.rest.exception.IntegrationRestException;
 import com.blackducksoftware.integration.log.IntLogger;
+import com.blackducksoftware.integration.rest.HttpMethod;
+import com.blackducksoftware.integration.rest.RestConstants;
+import com.blackducksoftware.integration.rest.connection.RestConnection;
+import com.blackducksoftware.integration.rest.exception.IntegrationRestException;
+import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -57,8 +58,8 @@ public class ApiTokenRestConnection extends RestConnection {
 
     private final String hubApiToken;
 
-    public ApiTokenRestConnection(final IntLogger logger, final URL hubBaseUrl, final String hubApiToken, final int timeout, final ProxyInfo proxyInfo, final UriCombiner uriCombiner) {
-        super(logger, hubBaseUrl, timeout, proxyInfo, uriCombiner);
+    public ApiTokenRestConnection(final IntLogger logger, final URL hubBaseUrl, final String hubApiToken, final int timeout, final ProxyInfo proxyInfo) {
+        super(logger, hubBaseUrl, timeout, proxyInfo);
         this.hubApiToken = hubApiToken;
     }
 
@@ -76,12 +77,17 @@ public class ApiTokenRestConnection extends RestConnection {
      */
     @Override
     public void clientAuthenticate() throws IntegrationException {
-        final String uri = getUriCombiner().pieceTogetherUri(baseUrl, "api/tokens/authenticate");
+        final URL authenticationUrl;
+        try {
+            authenticationUrl = new URL(baseUrl, "api/tokens/authenticate");
+        } catch (MalformedURLException e) {
+            throw new IntegrationException("Error constructing the authentication URL: " + e.getMessage(), e);
+        }
 
         if (StringUtils.isNotBlank(hubApiToken)) {
             final RequestBuilder requestBuilder = createRequestBuilder(HttpMethod.POST, getRequestHeaders());
             requestBuilder.setCharset(Charsets.UTF_8);
-            requestBuilder.setUri(uri);
+            requestBuilder.setUri(authenticationUrl.toString());
             final HttpUriRequest request = requestBuilder.build();
             logRequestHeaders(request);
             try (final CloseableHttpResponse response = getClient().execute(request)) {
@@ -94,9 +100,9 @@ public class ApiTokenRestConnection extends RestConnection {
                     commonRequestHeaders.put(AUTHORIZATION_HEADER, "Bearer " + readBearerToken(response));
 
                     // get the CSRF token
-                    final Header csrfToken = response.getFirstHeader(X_CSRF_TOKEN);
+                    final Header csrfToken = response.getFirstHeader(RestConstants.X_CSRF_TOKEN);
                     if (csrfToken != null) {
-                        commonRequestHeaders.put(X_CSRF_TOKEN, csrfToken.getValue());
+                        commonRequestHeaders.put(RestConstants.X_CSRF_TOKEN, csrfToken.getValue());
                     } else {
                         logger.error("No CSRF token found when authenticating");
                     }

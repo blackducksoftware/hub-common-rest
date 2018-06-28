@@ -24,9 +24,10 @@
 package com.blackducksoftware.integration.hub.rest;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
-import com.blackducksoftware.integration.hub.Credentials;
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.validator.CredentialsRestConnectionValidator;
+import com.blackducksoftware.integration.rest.connection.AbstractRestConnectionBuilder;
+import com.blackducksoftware.integration.rest.credentials.Credentials;
+import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 
 public class CredentialsRestConnectionBuilder extends AbstractRestConnectionBuilder<CredentialsRestConnection> {
@@ -79,7 +80,7 @@ public class CredentialsRestConnectionBuilder extends AbstractRestConnectionBuil
 
     @Override
     public CredentialsRestConnection createConnection(final ProxyInfo proxyInfo) {
-        final CredentialsRestConnection connection = new CredentialsRestConnection(getLogger(), getBaseConnectionUrl(), getUsername(), getPassword(), getTimeout(), proxyInfo, getUriCombiner());
+        final CredentialsRestConnection connection = new CredentialsRestConnection(getLogger(), getBaseConnectionUrl(), getUsername(), getPassword(), getTimeout(), proxyInfo);
         return connection;
     }
 }

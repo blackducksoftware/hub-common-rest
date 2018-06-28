@@ -23,9 +23,9 @@
  */
 package com.blackducksoftware.integration.hub.rest.oauth;
 
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
-import com.blackducksoftware.integration.hub.rest.AbstractRestConnectionBuilder;
 import com.blackducksoftware.integration.hub.validator.OauthRestConnectionValidator;
+import com.blackducksoftware.integration.rest.connection.AbstractRestConnectionBuilder;
+import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 import com.blackducksoftware.integration.validator.AbstractValidator;
 
 public class OAuthRestConnectionBuilder extends AbstractRestConnectionBuilder<OAuthRestConnection> {
@@ -36,12 +36,12 @@ public class OAuthRestConnectionBuilder extends AbstractRestConnectionBuilder<OA
         return tokenManager;
     }
 
-    public OAuthAccess getAccessType() {
-        return accessType;
-    }
-
     public void setTokenManager(final TokenManager tokenManager) {
         this.tokenManager = tokenManager;
+    }
+
+    public OAuthAccess getAccessType() {
+        return accessType;
     }
 
     public void setAccessType(final OAuthAccess accessType) {
@@ -76,7 +76,7 @@ public class OAuthRestConnectionBuilder extends AbstractRestConnectionBuilder<OA
 
     @Override
     public OAuthRestConnection createConnection(final ProxyInfo proxyInfo) {
-        return new OAuthRestConnection(getLogger(), getBaseConnectionUrl(), getTimeout(), tokenManager, accessType, proxyInfo, getUriCombiner());
+        return new OAuthRestConnection(getLogger(), getBaseConnectionUrl(), getTimeout(), tokenManager, accessType, proxyInfo);
     }
 
 }

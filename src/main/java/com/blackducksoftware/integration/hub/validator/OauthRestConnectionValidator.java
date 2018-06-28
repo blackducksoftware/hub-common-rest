@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.hub.validator;
 import com.blackducksoftware.integration.hub.rest.oauth.OAuthAccess;
 import com.blackducksoftware.integration.hub.rest.oauth.OauthRestConnectionField;
 import com.blackducksoftware.integration.hub.rest.oauth.TokenManager;
+import com.blackducksoftware.integration.rest.connection.AbstractRestConnectionValidator;
 import com.blackducksoftware.integration.validator.ValidationResult;
 import com.blackducksoftware.integration.validator.ValidationResultEnum;
 import com.blackducksoftware.integration.validator.ValidationResults;
@@ -41,12 +42,12 @@ public class OauthRestConnectionValidator extends AbstractRestConnectionValidato
         return tokenManager;
     }
 
-    public OAuthAccess getAccessType() {
-        return accessType;
-    }
-
     public void setTokenManager(final TokenManager tokenManager) {
         this.tokenManager = tokenManager;
+    }
+
+    public OAuthAccess getAccessType() {
+        return accessType;
     }
 
     public void setAccessType(final OAuthAccess accessType) {
