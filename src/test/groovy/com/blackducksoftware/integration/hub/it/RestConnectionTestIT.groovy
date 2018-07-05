@@ -22,6 +22,16 @@
  * under the License.*/
 package com.blackducksoftware.integration.hub.it
 
+import static org.junit.Assert.*
+
+import org.apache.commons.lang3.math.NumberUtils
+import org.junit.Rule
+import org.junit.Test
+import org.junit.experimental.categories.Category
+import org.junit.rules.ExpectedException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnectionBuilder
 import com.blackducksoftware.integration.log.LogLevel
@@ -32,15 +42,6 @@ import com.blackducksoftware.integration.rest.proxy.ProxyInfoBuilder
 import com.blackducksoftware.integration.rest.request.Request
 import com.blackducksoftware.integration.rest.request.Response
 import com.blackducksoftware.integration.test.annotation.IntegrationTest
-import org.apache.commons.lang3.math.NumberUtils
-import org.junit.Rule
-import org.junit.Test
-import org.junit.experimental.categories.Category
-import org.junit.rules.ExpectedException
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-import static org.junit.Assert.*
 
 @Category(IntegrationTest.class)
 class RestConnectionTestIT {
@@ -50,7 +51,6 @@ class RestConnectionTestIT {
 
     @Rule
     public ExpectedException exception = ExpectedException.none()
-
 
     @Test
     public void testTimeoutSet() {
