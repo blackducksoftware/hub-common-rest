@@ -22,14 +22,15 @@
  * under the License.*/
 package com.blackducksoftware.integration.hub
 
+import org.apache.commons.lang3.StringUtils
+import org.junit.Test
+
 import com.blackducksoftware.integration.hub.validator.CredentialsRestConnectionValidator
 import com.blackducksoftware.integration.log.IntLogger
 import com.blackducksoftware.integration.log.LogLevel
 import com.blackducksoftware.integration.log.PrintStreamIntLogger
 import com.blackducksoftware.integration.rest.connection.RestConnectionField
 import com.blackducksoftware.integration.validator.ValidationResults
-import org.apache.commons.lang3.StringUtils
-import org.junit.Test
 
 class CredentialsRestConnectionValidatorTest {
 
@@ -128,7 +129,7 @@ class CredentialsRestConnectionValidatorTest {
         validator.setBaseUrl(baseUrl)
         ValidationResults result = new ValidationResults()
         validator.validateBaseUrl(result)
-        final String resultString = result.getResultString(RestConnectionField.URL)
+        String resultString = result.getResultString(RestConnectionField.URL)
         assert null == validator.getBaseUrl()
         assert result.hasErrors()
         assert StringUtils.isNotBlank(resultString)

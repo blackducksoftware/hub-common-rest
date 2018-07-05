@@ -34,22 +34,23 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.rest.HttpMethod;
 import com.blackducksoftware.integration.rest.RestConstants;
-import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.blackducksoftware.integration.rest.exception.IntegrationRestException;
 import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 
-public class CredentialsRestConnection extends RestConnection {
+public class CredentialsRestConnection extends BlackduckRestConnection {
     private final String hubUsername;
     private final String hubPassword;
 
@@ -60,10 +61,10 @@ public class CredentialsRestConnection extends RestConnection {
     }
 
     @Override
-    public void addBuilderAuthentication() throws IntegrationRestException {
+    public void populateHttpClientBuilder(final HttpClientBuilder httpClientBuilder, final RequestConfig.Builder defaultRequestConfigBuilder) throws IntegrationException {
         if (StringUtils.isNotBlank(hubUsername) && StringUtils.isNotBlank(hubPassword)) {
-            getClientBuilder().setDefaultCookieStore(new BasicCookieStore());
-            getDefaultRequestConfigBuilder().setCookieSpec(CookieSpecs.DEFAULT);
+            httpClientBuilder.setDefaultCookieStore(new BasicCookieStore());
+            defaultRequestConfigBuilder.setCookieSpec(CookieSpecs.DEFAULT);
         }
     }
 
@@ -71,11 +72,11 @@ public class CredentialsRestConnection extends RestConnection {
      * Gets the cookie for the Authorized connection to the Hub server. Returns the response code from the connection.
      */
     @Override
-    public void clientAuthenticate() throws IntegrationException {
+    public void authenticateWithBlackduck() throws IntegrationException {
         final URL securityUrl;
         try {
-            securityUrl = new URL(baseUrl, "j_spring_security_check");
-        } catch (MalformedURLException e) {
+            securityUrl = new URL(getBaseUrl(), "j_spring_security_check");
+        } catch (final MalformedURLException e) {
             throw new IntegrationException("Error constructing the login URL: " + e.getMessage(), e);
         }
 
@@ -101,7 +102,7 @@ public class CredentialsRestConnection extends RestConnection {
                     // get the CSRF token
                     final Header csrfToken = response.getFirstHeader(RestConstants.X_CSRF_TOKEN);
                     if (csrfToken != null) {
-                        commonRequestHeaders.put(RestConstants.X_CSRF_TOKEN, csrfToken.getValue());
+                        addCommonRequestHeader(RestConstants.X_CSRF_TOKEN, csrfToken.getValue());
                     } else {
                         logger.error("No CSRF token found when authenticating");
                     }

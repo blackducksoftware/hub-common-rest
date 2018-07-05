@@ -35,16 +35,17 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.rest.HttpMethod;
 import com.blackducksoftware.integration.rest.RestConstants;
-import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.blackducksoftware.integration.rest.exception.IntegrationRestException;
 import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 import com.google.gson.JsonObject;
@@ -53,7 +54,7 @@ import com.google.gson.JsonParser;
 /**
  * Connection to the Hub application which authenticates using the API token feature (added in Hub 4.4.0)
  */
-public class ApiTokenRestConnection extends RestConnection {
+public class ApiTokenRestConnection extends BlackduckRestConnection {
     private static final String AUTHORIZATION_HEADER = "Authorization";
 
     private final String hubApiToken;
@@ -64,11 +65,11 @@ public class ApiTokenRestConnection extends RestConnection {
     }
 
     @Override
-    public void addBuilderAuthentication() throws IntegrationRestException {
+    public void populateHttpClientBuilder(final HttpClientBuilder httpClientBuilder, final RequestConfig.Builder defaultRequestConfigBuilder) throws IntegrationException {
         // TODO romeara: This is a workaround because of HUB-13740, CSRF requires a session to work properly
         if (StringUtils.isNotBlank(hubApiToken)) {
-            getClientBuilder().setDefaultCookieStore(new BasicCookieStore());
-            getDefaultRequestConfigBuilder().setCookieSpec(CookieSpecs.DEFAULT);
+            httpClientBuilder.setDefaultCookieStore(new BasicCookieStore());
+            defaultRequestConfigBuilder.setCookieSpec(CookieSpecs.DEFAULT);
         }
     }
 
@@ -76,11 +77,11 @@ public class ApiTokenRestConnection extends RestConnection {
      * Gets the cookie for the Authorized connection to the Hub server. Returns the response code from the connection.
      */
     @Override
-    public void clientAuthenticate() throws IntegrationException {
+    public void authenticateWithBlackduck() throws IntegrationException {
         final URL authenticationUrl;
         try {
-            authenticationUrl = new URL(baseUrl, "api/tokens/authenticate");
-        } catch (MalformedURLException e) {
+            authenticationUrl = new URL(getBaseUrl(), "api/tokens/authenticate");
+        } catch (final MalformedURLException e) {
             throw new IntegrationException("Error constructing the authentication URL: " + e.getMessage(), e);
         }
 
@@ -97,12 +98,12 @@ public class ApiTokenRestConnection extends RestConnection {
                 if (statusCode < RestConstants.OK_200 || statusCode >= RestConstants.MULT_CHOICE_300) {
                     throw new IntegrationRestException(statusCode, statusMessage, String.format("Connection Error: %s %s", statusCode, statusMessage));
                 } else {
-                    commonRequestHeaders.put(AUTHORIZATION_HEADER, "Bearer " + readBearerToken(response));
+                    addCommonRequestHeader(AUTHORIZATION_HEADER, "Bearer " + readBearerToken(response));
 
                     // get the CSRF token
                     final Header csrfToken = response.getFirstHeader(RestConstants.X_CSRF_TOKEN);
                     if (csrfToken != null) {
-                        commonRequestHeaders.put(RestConstants.X_CSRF_TOKEN, csrfToken.getValue());
+                        addCommonRequestHeader(RestConstants.X_CSRF_TOKEN, csrfToken.getValue());
                     } else {
                         logger.error("No CSRF token found when authenticating");
                     }
