@@ -1,12 +1,12 @@
-package com.blackducksoftware.integration.hub
+package com.synopsys.integration.hub
 
-import com.blackducksoftware.integration.hub.rest.ApiTokenRestConnectionBuilder
-import com.blackducksoftware.integration.log.LogLevel
-import com.blackducksoftware.integration.log.PrintStreamIntLogger
-import com.blackducksoftware.integration.rest.HttpMethod
-import com.blackducksoftware.integration.rest.connection.RestConnection
-import com.blackducksoftware.integration.rest.exception.IntegrationRestException
-import com.blackducksoftware.integration.rest.proxy.ProxyInfo
+import com.synopsys.integration.hub.rest.ApiTokenRestConnectionBuilder
+import com.synopsys.integration.log.LogLevel
+import com.synopsys.integration.log.PrintStreamIntLogger
+import com.synopsys.integration.rest.HttpMethod
+import com.synopsys.integration.rest.connection.RestConnection
+import com.synopsys.integration.rest.exception.IntegrationRestException
+import com.synopsys.integration.rest.proxy.ProxyInfo
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer

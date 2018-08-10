@@ -20,10 +20,18 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.*/
-package com.blackducksoftware.integration.hub.it
+package com.synopsys.integration.hub.it
 
-import static org.junit.Assert.*
-
+import com.synopsys.integration.hub.rest.CredentialsRestConnection
+import com.synopsys.integration.hub.rest.CredentialsRestConnectionBuilder
+import com.synopsys.integration.log.LogLevel
+import com.synopsys.integration.log.PrintStreamIntLogger
+import com.synopsys.integration.rest.connection.RestConnection
+import com.synopsys.integration.rest.proxy.ProxyInfo
+import com.synopsys.integration.rest.proxy.ProxyInfoBuilder
+import com.synopsys.integration.rest.request.Request
+import com.synopsys.integration.rest.request.Response
+import com.synopsys.integration.test.annotation.IntegrationTest
 import org.apache.commons.lang3.math.NumberUtils
 import org.junit.Rule
 import org.junit.Test
@@ -32,16 +40,7 @@ import org.junit.rules.ExpectedException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection
-import com.blackducksoftware.integration.hub.rest.CredentialsRestConnectionBuilder
-import com.blackducksoftware.integration.log.LogLevel
-import com.blackducksoftware.integration.log.PrintStreamIntLogger
-import com.blackducksoftware.integration.rest.connection.RestConnection
-import com.blackducksoftware.integration.rest.proxy.ProxyInfo
-import com.blackducksoftware.integration.rest.proxy.ProxyInfoBuilder
-import com.blackducksoftware.integration.rest.request.Request
-import com.blackducksoftware.integration.rest.request.Response
-import com.blackducksoftware.integration.test.annotation.IntegrationTest
+import static org.junit.Assert.*
 
 @Category(IntegrationTest.class)
 class RestConnectionTestIT {

@@ -1,12 +1,11 @@
-package com.blackducksoftware.integration.hub
+package com.synopsys.integration.hub
 
+import com.synopsys.integration.hub.validator.ApiTokenRestConnectionValidator
+import com.synopsys.integration.log.IntLogger
+import com.synopsys.integration.log.LogLevel
+import com.synopsys.integration.log.PrintStreamIntLogger
+import com.synopsys.integration.validator.ValidationResults
 import org.junit.Test
-
-import com.blackducksoftware.integration.hub.validator.ApiTokenRestConnectionValidator
-import com.blackducksoftware.integration.log.IntLogger
-import com.blackducksoftware.integration.log.LogLevel
-import com.blackducksoftware.integration.log.PrintStreamIntLogger
-import com.blackducksoftware.integration.validator.ValidationResults
 
 class ApiTokenRestConnectionValidatorTest {
     @Test

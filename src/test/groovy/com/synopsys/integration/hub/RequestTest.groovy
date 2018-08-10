@@ -20,10 +20,10 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.*/
-package com.blackducksoftware.integration.hub
+package com.synopsys.integration.hub
 
-import com.blackducksoftware.integration.rest.HttpMethod
-import com.blackducksoftware.integration.rest.request.Request
+import com.synopsys.integration.rest.HttpMethod
+import com.synopsys.integration.rest.request.Request
 import org.apache.commons.codec.Charsets
 import org.apache.http.entity.ContentType
 import org.junit.Test

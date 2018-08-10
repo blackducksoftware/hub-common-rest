@@ -20,17 +20,16 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.*/
-package com.blackducksoftware.integration.hub
+package com.synopsys.integration.hub
 
+import com.synopsys.integration.hub.validator.CredentialsRestConnectionValidator
+import com.synopsys.integration.log.IntLogger
+import com.synopsys.integration.log.LogLevel
+import com.synopsys.integration.log.PrintStreamIntLogger
+import com.synopsys.integration.rest.connection.RestConnectionField
+import com.synopsys.integration.validator.ValidationResults
 import org.apache.commons.lang3.StringUtils
 import org.junit.Test
-
-import com.blackducksoftware.integration.hub.validator.CredentialsRestConnectionValidator
-import com.blackducksoftware.integration.log.IntLogger
-import com.blackducksoftware.integration.log.LogLevel
-import com.blackducksoftware.integration.log.PrintStreamIntLogger
-import com.blackducksoftware.integration.rest.connection.RestConnectionField
-import com.blackducksoftware.integration.validator.ValidationResults
 
 class CredentialsRestConnectionValidatorTest {
 

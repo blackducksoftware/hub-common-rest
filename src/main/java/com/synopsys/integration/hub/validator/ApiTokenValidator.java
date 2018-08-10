@@ -21,15 +21,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.validator;
+package com.synopsys.integration.hub.validator;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.blackducksoftware.integration.hub.ApiTokenField;
-import com.blackducksoftware.integration.validator.AbstractValidator;
-import com.blackducksoftware.integration.validator.ValidationResult;
-import com.blackducksoftware.integration.validator.ValidationResultEnum;
-import com.blackducksoftware.integration.validator.ValidationResults;
+import com.synopsys.integration.hub.ApiTokenField;
+import com.synopsys.integration.validator.AbstractValidator;
+import com.synopsys.integration.validator.ValidationResult;
+import com.synopsys.integration.validator.ValidationResultEnum;
+import com.synopsys.integration.validator.ValidationResults;
 
 public class ApiTokenValidator extends AbstractValidator {
     private String apiToken;

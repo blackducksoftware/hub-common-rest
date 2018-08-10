@@ -21,14 +21,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.rest;
+package com.synopsys.integration.hub.rest;
 
-import com.blackducksoftware.integration.exception.EncryptionException;
-import com.blackducksoftware.integration.hub.validator.CredentialsRestConnectionValidator;
-import com.blackducksoftware.integration.rest.connection.AbstractRestConnectionBuilder;
-import com.blackducksoftware.integration.rest.credentials.Credentials;
-import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
-import com.blackducksoftware.integration.validator.AbstractValidator;
+import com.synopsys.integration.exception.EncryptionException;
+import com.synopsys.integration.hub.validator.CredentialsRestConnectionValidator;
+import com.synopsys.integration.rest.connection.AbstractRestConnectionBuilder;
+import com.synopsys.integration.rest.credentials.Credentials;
+import com.synopsys.integration.rest.proxy.ProxyInfo;
+import com.synopsys.integration.validator.AbstractValidator;
 
 public class CredentialsRestConnectionBuilder extends AbstractRestConnectionBuilder<CredentialsRestConnection> {
     private String username;

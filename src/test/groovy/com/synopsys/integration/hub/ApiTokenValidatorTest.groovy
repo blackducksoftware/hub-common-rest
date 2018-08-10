@@ -1,9 +1,8 @@
-package com.blackducksoftware.integration.hub
+package com.synopsys.integration.hub
 
+import com.synopsys.integration.hub.validator.ApiTokenValidator
+import com.synopsys.integration.validator.ValidationResults
 import org.junit.Test
-
-import com.blackducksoftware.integration.hub.validator.ApiTokenValidator
-import com.blackducksoftware.integration.validator.ValidationResults
 
 class ApiTokenValidatorTest {
     @Test

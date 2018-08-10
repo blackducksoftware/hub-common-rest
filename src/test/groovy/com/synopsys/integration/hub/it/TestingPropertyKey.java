@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.it;
+package com.synopsys.integration.hub.it;
 
 public enum TestingPropertyKey {
     TEST_HUB_SERVER_URL,

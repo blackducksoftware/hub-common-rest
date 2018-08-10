@@ -1,12 +1,11 @@
-package com.blackducksoftware.integration.hub
+package com.synopsys.integration.hub
 
+import com.synopsys.integration.hub.rest.ApiTokenRestConnection
+import com.synopsys.integration.hub.rest.ApiTokenRestConnectionBuilder
+import com.synopsys.integration.log.IntLogger
+import com.synopsys.integration.log.LogLevel
+import com.synopsys.integration.log.PrintStreamIntLogger
 import org.junit.Test
-
-import com.blackducksoftware.integration.hub.rest.ApiTokenRestConnection
-import com.blackducksoftware.integration.hub.rest.ApiTokenRestConnectionBuilder
-import com.blackducksoftware.integration.log.IntLogger
-import com.blackducksoftware.integration.log.LogLevel
-import com.blackducksoftware.integration.log.PrintStreamIntLogger
 
 class ApiTokenRestConnectionBuilderTest {
     @Test

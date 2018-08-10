@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.rest;
+package com.synopsys.integration.hub.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,14 +42,14 @@ import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
 
-import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.log.IntLogger;
-import com.blackducksoftware.integration.rest.HttpMethod;
-import com.blackducksoftware.integration.rest.RestConstants;
-import com.blackducksoftware.integration.rest.exception.IntegrationRestException;
-import com.blackducksoftware.integration.rest.proxy.ProxyInfo;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.IntLogger;
+import com.synopsys.integration.rest.HttpMethod;
+import com.synopsys.integration.rest.RestConstants;
+import com.synopsys.integration.rest.exception.IntegrationRestException;
+import com.synopsys.integration.rest.proxy.ProxyInfo;
 
 /**
  * Connection to the Hub application which authenticates using the API token feature (added in Hub 4.4.0)

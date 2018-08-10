@@ -21,10 +21,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub.validator;
+package com.synopsys.integration.hub.validator;
 
-import com.blackducksoftware.integration.rest.connection.AbstractRestConnectionValidator;
-import com.blackducksoftware.integration.validator.ValidationResults;
+import com.synopsys.integration.rest.connection.AbstractRestConnectionValidator;
+import com.synopsys.integration.validator.ValidationResults;
 
 public class ApiTokenRestConnectionValidator extends AbstractRestConnectionValidator {
     private String apiToken;

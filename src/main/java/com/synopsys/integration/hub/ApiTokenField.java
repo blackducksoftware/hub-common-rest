@@ -21,14 +21,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.hub;
+package com.synopsys.integration.hub;
 
-import com.blackducksoftware.integration.validator.FieldEnum;
+import com.synopsys.integration.validator.FieldEnum;
 
 public enum ApiTokenField implements FieldEnum {
     API_TOKEN("apiToken");
 
-    private String key;
+    private final String key;
 
     private ApiTokenField(final String key) {
         this.key = key;
