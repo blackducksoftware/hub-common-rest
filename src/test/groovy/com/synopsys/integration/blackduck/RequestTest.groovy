@@ -20,7 +20,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.*/
-package com.synopsys.integration.hub
+package com.synopsys.integration.blackduck
 
 import com.synopsys.integration.rest.HttpMethod
 import com.synopsys.integration.rest.request.Request

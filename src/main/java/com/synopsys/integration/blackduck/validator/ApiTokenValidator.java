@@ -21,13 +21,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.hub.validator;
+package com.synopsys.integration.blackduck.validator;
 
-import com.synopsys.integration.rest.connection.AbstractRestConnectionValidator;
+import org.apache.commons.lang3.StringUtils;
+
+import com.synopsys.integration.blackduck.ApiTokenField;
+import com.synopsys.integration.validator.AbstractValidator;
+import com.synopsys.integration.validator.ValidationResult;
+import com.synopsys.integration.validator.ValidationResultEnum;
 import com.synopsys.integration.validator.ValidationResults;
 
-public class ApiTokenRestConnectionValidator extends AbstractRestConnectionValidator {
+public class ApiTokenValidator extends AbstractValidator {
     private String apiToken;
+
+    @Override
+    public ValidationResults assertValid() {
+        final ValidationResults result = new ValidationResults();
+
+        validateCredentials(result);
+
+        return result;
+    }
+
+    public void validateCredentials(final ValidationResults result) {
+        validateApiToken(result);
+    }
+
+    public void validateApiToken(final ValidationResults result) {
+        if (StringUtils.isBlank(apiToken)) {
+            result.addResult(ApiTokenField.API_TOKEN, new ValidationResult(ValidationResultEnum.ERROR, "No Hub API token was found."));
+        }
+    }
 
     public String getApiToken() {
         return apiToken;
@@ -35,13 +59,6 @@ public class ApiTokenRestConnectionValidator extends AbstractRestConnectionValid
 
     public void setApiToken(final String apiToken) {
         this.apiToken = apiToken;
-    }
-
-    @Override
-    public void validateAdditionalFields(final ValidationResults currentResults) {
-        final ApiTokenValidator apiTokenValidator = new ApiTokenValidator();
-        apiTokenValidator.setApiToken(apiToken);
-        currentResults.addAllResults(apiTokenValidator.assertValid().getResultMap());
     }
 
 }

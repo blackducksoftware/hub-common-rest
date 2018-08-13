@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.hub.validator;
+package com.synopsys.integration.blackduck.validator;
 
 import com.synopsys.integration.rest.connection.AbstractRestConnectionValidator;
 import com.synopsys.integration.rest.credentials.CredentialsValidator;

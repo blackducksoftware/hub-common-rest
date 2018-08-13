@@ -1,5 +1,5 @@
 /**
- * hub-common-rest
+ * Hub Common Rest
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -21,25 +21,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.hub.rest;
+package com.synopsys.integration.blackduck.it;
 
-import java.net.URL;
-
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.log.IntLogger;
-import com.synopsys.integration.rest.connection.RestConnection;
-import com.synopsys.integration.rest.proxy.ProxyInfo;
-
-public abstract class BlackduckRestConnection extends RestConnection {
-    public BlackduckRestConnection(final IntLogger logger, final URL baseUrl, final int timeout, final ProxyInfo proxyInfo) {
-        super(logger, baseUrl, timeout, proxyInfo);
-    }
-
-    public abstract void authenticateWithBlackduck() throws IntegrationException;
-
-    @Override
-    public void completeConnection() throws IntegrationException {
-        authenticateWithBlackduck();
-    }
+public enum TestingPropertyKey {
+    TEST_HUB_SERVER_URL,
+    TEST_HTTPS_HUB_SERVER_URL,
+    TEST_USERNAME,
+    TEST_PASSWORD,
+    TEST_AUTO_IMPORT_HTTPS_CERT,
+    TEST_HUB_TIMEOUT,
+    TEST_PROXY_HOST_PASSTHROUGH,
+    TEST_PROXY_PORT_PASSTHROUGH,
+    TEST_PROXY_HOST_BASIC,
+    TEST_PROXY_PORT_BASIC,
+    TEST_PROXY_USER_BASIC,
+    TEST_PROXY_PASSWORD_BASIC,
+    TEST_PROXY_HOST_DIGEST,
+    TEST_PROXY_PORT_DIGEST,
+    TEST_PROXY_USER_DIGEST,
+    TEST_PROXY_PASSWORD_DIGEST,
+    TEST_PROXY_HOST_NTLM,
+    TEST_PROXY_PORT_NTLM,
+    TEST_PROXY_USER_NTLM,
+    TEST_PROXY_PASSWORD_NTLM
 
 }

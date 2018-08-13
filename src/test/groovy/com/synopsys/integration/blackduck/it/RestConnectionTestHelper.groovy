@@ -20,10 +20,10 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.*/
-package com.synopsys.integration.hub.it
+package com.synopsys.integration.blackduck.it
 
-import com.synopsys.integration.hub.rest.CredentialsRestConnection
-import com.synopsys.integration.hub.rest.CredentialsRestConnectionBuilder
+import com.synopsys.integration.blackduck.rest.CredentialsRestConnection
+import com.synopsys.integration.blackduck.rest.CredentialsRestConnectionBuilder
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
 import com.synopsys.integration.rest.proxy.ProxyInfo

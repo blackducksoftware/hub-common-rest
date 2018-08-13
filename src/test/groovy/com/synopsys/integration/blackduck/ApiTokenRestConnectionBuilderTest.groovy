@@ -1,7 +1,7 @@
-package com.synopsys.integration.hub
+package com.synopsys.integration.blackduck
 
-import com.synopsys.integration.hub.rest.ApiTokenRestConnection
-import com.synopsys.integration.hub.rest.ApiTokenRestConnectionBuilder
+import com.synopsys.integration.blackduck.rest.ApiTokenRestConnection
+import com.synopsys.integration.blackduck.rest.ApiTokenRestConnectionBuilder
 import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger

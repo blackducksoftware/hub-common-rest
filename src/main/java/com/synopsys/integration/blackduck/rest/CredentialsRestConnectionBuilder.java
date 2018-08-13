@@ -21,30 +21,51 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.hub.rest;
+package com.synopsys.integration.blackduck.rest;
 
-import com.synopsys.integration.hub.validator.ApiTokenRestConnectionValidator;
+import com.synopsys.integration.blackduck.validator.CredentialsRestConnectionValidator;
+import com.synopsys.integration.exception.EncryptionException;
 import com.synopsys.integration.rest.connection.AbstractRestConnectionBuilder;
+import com.synopsys.integration.rest.credentials.Credentials;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.validator.AbstractValidator;
 
-public class ApiTokenRestConnectionBuilder extends AbstractRestConnectionBuilder<ApiTokenRestConnection> {
-    private String apiToken;
+public class CredentialsRestConnectionBuilder extends AbstractRestConnectionBuilder<CredentialsRestConnection> {
+    private String username;
+    private String password;
 
-    public String getApiToken() {
-        return apiToken;
+    public String getUsername() {
+        return username;
     }
 
-    public void setApiToken(final String apiToken) {
-        this.apiToken = apiToken;
+    public void setUsername(final String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(final String password) {
+        this.password = password;
+    }
+
+    public void applyCredentials(final Credentials credentials) {
+        try {
+            setUsername(credentials.getUsername());
+            setPassword(credentials.getDecryptedPassword());
+        } catch (IllegalArgumentException | EncryptionException ex) {
+            throw new IllegalArgumentException(ex);
+        }
     }
 
     @Override
     public AbstractValidator createValidator() {
-        final ApiTokenRestConnectionValidator validator = new ApiTokenRestConnectionValidator();
+        final CredentialsRestConnectionValidator validator = new CredentialsRestConnectionValidator();
         validator.setBaseUrl(getBaseUrl());
         validator.setTimeout(getTimeout());
-        validator.setApiToken(getApiToken());
+        validator.setUsername(getUsername());
+        validator.setPassword(getPassword());
         validator.setProxyHost(getProxyHost());
         validator.setProxyPort(getProxyPort());
         validator.setProxyUsername(getProxyUsername());
@@ -58,9 +79,8 @@ public class ApiTokenRestConnectionBuilder extends AbstractRestConnectionBuilder
     }
 
     @Override
-    public ApiTokenRestConnection createConnection(final ProxyInfo proxyInfo) {
-        final ApiTokenRestConnection connection = new ApiTokenRestConnection(getLogger(), getBaseConnectionUrl(), getApiToken(), getTimeout(), proxyInfo);
+    public CredentialsRestConnection createConnection(final ProxyInfo proxyInfo) {
+        final CredentialsRestConnection connection = new CredentialsRestConnection(getLogger(), getBaseConnectionUrl(), getUsername(), getPassword(), getTimeout(), proxyInfo);
         return connection;
     }
-
 }

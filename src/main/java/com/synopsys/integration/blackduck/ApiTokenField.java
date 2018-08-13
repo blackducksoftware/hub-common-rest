@@ -1,5 +1,5 @@
 /**
- * Hub Common Rest
+ * hub-common-rest
  *
  * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -21,28 +21,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.hub.it;
+package com.synopsys.integration.blackduck;
 
-public enum TestingPropertyKey {
-    TEST_HUB_SERVER_URL,
-    TEST_HTTPS_HUB_SERVER_URL,
-    TEST_USERNAME,
-    TEST_PASSWORD,
-    TEST_AUTO_IMPORT_HTTPS_CERT,
-    TEST_HUB_TIMEOUT,
-    TEST_PROXY_HOST_PASSTHROUGH,
-    TEST_PROXY_PORT_PASSTHROUGH,
-    TEST_PROXY_HOST_BASIC,
-    TEST_PROXY_PORT_BASIC,
-    TEST_PROXY_USER_BASIC,
-    TEST_PROXY_PASSWORD_BASIC,
-    TEST_PROXY_HOST_DIGEST,
-    TEST_PROXY_PORT_DIGEST,
-    TEST_PROXY_USER_DIGEST,
-    TEST_PROXY_PASSWORD_DIGEST,
-    TEST_PROXY_HOST_NTLM,
-    TEST_PROXY_PORT_NTLM,
-    TEST_PROXY_USER_NTLM,
-    TEST_PROXY_PASSWORD_NTLM
+import com.synopsys.integration.validator.FieldEnum;
+
+public enum ApiTokenField implements FieldEnum {
+    API_TOKEN("apiToken");
+
+    private final String key;
+
+    private ApiTokenField(final String key) {
+        this.key = key;
+    }
+
+    @Override
+    public String getKey() {
+        return key;
+    }
 
 }

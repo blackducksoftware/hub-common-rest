@@ -1,6 +1,6 @@
-package com.synopsys.integration.hub
+package com.synopsys.integration.blackduck
 
-import com.synopsys.integration.hub.validator.ApiTokenValidator
+import com.synopsys.integration.blackduck.validator.ApiTokenValidator
 import com.synopsys.integration.validator.ValidationResults
 import org.junit.Test
 

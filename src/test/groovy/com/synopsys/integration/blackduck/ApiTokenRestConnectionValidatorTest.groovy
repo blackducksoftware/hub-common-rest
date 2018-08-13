@@ -1,6 +1,6 @@
-package com.synopsys.integration.hub
+package com.synopsys.integration.blackduck
 
-import com.synopsys.integration.hub.validator.ApiTokenRestConnectionValidator
+import com.synopsys.integration.blackduck.validator.ApiTokenRestConnectionValidator
 import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger

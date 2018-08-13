@@ -1,6 +1,28 @@
-package com.synopsys.integration.hub
+/**
+ * Hub Common Rest
+ *
+ * Copyright (C) 2018 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.*/
+package com.synopsys.integration.blackduck
 
-import com.synopsys.integration.hub.rest.ApiTokenRestConnectionBuilder
+import com.synopsys.integration.blackduck.rest.CredentialsRestConnectionBuilder
 import com.synopsys.integration.log.LogLevel
 import com.synopsys.integration.log.PrintStreamIntLogger
 import com.synopsys.integration.rest.HttpMethod
@@ -16,7 +38,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-class ApiTokenRestConnectionTest {
+class CredentialsRestConnectionTest {
     public static final int CONNECTION_TIMEOUT = 213
 
     private final MockWebServer server = new MockWebServer();
@@ -31,10 +53,6 @@ class ApiTokenRestConnectionTest {
         server.shutdown();
     }
 
-    private RestConnection getRestConnection() {
-        getRestConnection(new MockResponse().setResponseCode(200))
-    }
-
     private RestConnection getRestConnection(MockResponse response) {
         final Dispatcher dispatcher = new Dispatcher() {
             @Override
@@ -43,11 +61,12 @@ class ApiTokenRestConnectionTest {
             }
         };
         server.setDispatcher(dispatcher);
-        ApiTokenRestConnectionBuilder builder = new ApiTokenRestConnectionBuilder();
+        CredentialsRestConnectionBuilder builder = new CredentialsRestConnectionBuilder();
         builder.logger = new PrintStreamIntLogger(System.out, LogLevel.TRACE);
         builder.baseUrl = server.url("/")
         builder.timeout = CONNECTION_TIMEOUT
-        builder.apiToken = "ApiToken"
+        builder.username = 'TestUser'
+        builder.password = 'Password'
         builder.applyProxyInfo(ProxyInfo.NO_PROXY_INFO);
         builder.build()
     }
@@ -55,19 +74,19 @@ class ApiTokenRestConnectionTest {
     private MockResponse getSuccessResponse() {
         new MockResponse()
                 .addHeader("Content-Type", "text/plain")
-                .setBody("{bearerToken: \"token\"}").setResponseCode(200);
+                .setBody("Hello").setResponseCode(200);
     }
 
     private MockResponse getUnauthorizedResponse() {
         new MockResponse()
                 .addHeader("Content-Type", "text/plain")
-                .setBody("{}").setResponseCode(401);
+                .setBody("Hello").setResponseCode(401);
     }
 
     private MockResponse getFailureResponse() {
         new MockResponse()
                 .addHeader("Content-Type", "text/plain")
-                .setBody("{}").setResponseCode(404);
+                .setBody("Hello").setResponseCode(404);
     }
 
     @Test

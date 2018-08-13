@@ -21,22 +21,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.hub;
+package com.synopsys.integration.blackduck.rest;
 
-import com.synopsys.integration.validator.FieldEnum;
+import java.net.URL;
 
-public enum ApiTokenField implements FieldEnum {
-    API_TOKEN("apiToken");
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.log.IntLogger;
+import com.synopsys.integration.rest.connection.RestConnection;
+import com.synopsys.integration.rest.proxy.ProxyInfo;
 
-    private final String key;
-
-    private ApiTokenField(final String key) {
-        this.key = key;
+public abstract class BlackduckRestConnection extends RestConnection {
+    public BlackduckRestConnection(final IntLogger logger, final URL baseUrl, final int timeout, final ProxyInfo proxyInfo) {
+        super(logger, baseUrl, timeout, proxyInfo);
     }
 
+    public abstract void authenticateWithBlackduck() throws IntegrationException;
+
     @Override
-    public String getKey() {
-        return key;
+    public void completeConnection() throws IntegrationException {
+        authenticateWithBlackduck();
     }
 
 }
