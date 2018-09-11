@@ -49,6 +49,7 @@ import com.synopsys.integration.rest.HttpMethod;
 import com.synopsys.integration.rest.RestConstants;
 import com.synopsys.integration.rest.exception.IntegrationRestException;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
+import com.synopsys.integration.rest.request.Response;
 
 public class CredentialsRestConnection extends BlackduckRestConnection {
     private final String hubUsername;
@@ -92,15 +93,17 @@ public class CredentialsRestConnection extends BlackduckRestConnection {
             requestBuilder.setEntity(entity);
             final HttpUriRequest request = requestBuilder.build();
             logRequestHeaders(request);
-            try (final CloseableHttpResponse response = getClient().execute(request)) {
-                logResponseHeaders(response);
-                final int statusCode = response.getStatusLine().getStatusCode();
-                final String statusMessage = response.getStatusLine().getReasonPhrase();
+            try (final CloseableHttpResponse closeableHttpResponse = getClient().execute(request)) {
+                logResponseHeaders(closeableHttpResponse);
+                final Response response = new Response(closeableHttpResponse);
+                final int statusCode = closeableHttpResponse.getStatusLine().getStatusCode();
+                final String statusMessage = closeableHttpResponse.getStatusLine().getReasonPhrase();
                 if (statusCode < RestConstants.OK_200 || statusCode >= RestConstants.MULT_CHOICE_300) {
-                    throw new IntegrationRestException(statusCode, statusMessage, String.format("Connection Error: %s %s", statusCode, statusMessage));
+                    final String httpResponseContent = response.getContentString();
+                    throw new IntegrationRestException(statusCode, statusMessage, httpResponseContent, String.format("Connection Error: %s %s", statusCode, statusMessage));
                 } else {
                     // get the CSRF token
-                    final Header csrfToken = response.getFirstHeader(RestConstants.X_CSRF_TOKEN);
+                    final Header csrfToken = closeableHttpResponse.getFirstHeader(RestConstants.X_CSRF_TOKEN);
                     if (csrfToken != null) {
                         addCommonRequestHeader(RestConstants.X_CSRF_TOKEN, csrfToken.getValue());
                     } else {
